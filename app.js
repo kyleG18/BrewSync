@@ -361,8 +361,159 @@
         }
     }
 
+    // ── Session & User Info Sync Across Static Pages ─────────────────────────
+    function initUserSessionDisplay() {
+        const isGuest = sessionStorage.getItem('brewsync_guest') === 'true';
+        const userNames = document.querySelectorAll('.user-name');
+        const userRoles = document.querySelectorAll('.user-role');
+        const userAvatars = document.querySelectorAll('.user-avatar, .user-avatar-sm');
+
+        if (isGuest) {
+            userNames.forEach(el => el.textContent = 'Demo User');
+            userRoles.forEach(el => el.textContent = 'Guest Operator');
+            userAvatars.forEach(el => el.textContent = 'DU');
+        }
+
+        // Attach global sign-out cleanup
+        document.querySelectorAll('a[href*="login.html"], .logout-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                sessionStorage.removeItem('brewsync_guest');
+            });
+        });
+    }
+
+    // ── Live Orders Sync (Connects POS orders with orders.html) ───────────────
+    function initOrdersSync() {
+        const tableBody = document.querySelector('#ordersTable tbody');
+        if (!tableBody) return;
+
+        try {
+            const raw = localStorage.getItem('brewsync_orders');
+            if (!raw) return;
+            const orders = JSON.parse(raw);
+            if (!Array.isArray(orders) || orders.length === 0) return;
+
+            // Generate rows for stored POS orders
+            const rowsHtml = orders.map(ord => `
+                <tr class="table-row-live" style="background: rgba(232, 141, 57, 0.04);">
+                    <td><strong>${ord.orderNumber}</strong> <span class="badge bg-warning text-dark ms-1" style="font-size: 0.65rem;">NEW</span></td>
+                    <td class="d-none d-md-table-cell">${ord.customer || 'Walk-in Customer'}</td>
+                    <td class="d-none d-sm-table-cell" title="${ord.itemsList || ''}">${ord.itemsCount || 1} items</td>
+                    <td><strong>₱${parseFloat(ord.total).toFixed(2)}</strong></td>
+                    <td class="d-none d-sm-table-cell"><span class="badge bg-secondary">${ord.paymentMethod || 'CASH'}</span></td>
+                    <td><span class="badge bg-success">${ord.status || 'Completed'}</span></td>
+                    <td class="d-none d-lg-table-cell">${ord.timestamp || 'Just now'}</td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-secondary btn-order-details" data-items="${ord.itemsList || ''}" data-num="${ord.orderNumber}" title="View Details">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <button class="btn btn-outline-secondary" onclick="window.print()" title="Print Receipt">
+                                <i class="bi bi-printer"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+
+            tableBody.insertAdjacentHTML('afterbegin', rowsHtml);
+
+            // Wire up details button click
+            document.querySelectorAll('.btn-order-details').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const num = btn.dataset.num;
+                    const items = btn.dataset.items;
+                    alert(`Order: ${num}\nItems: ${items || 'Details not available'}`);
+                });
+            });
+        } catch (e) {
+            console.warn('Orders sync error:', e);
+        }
+    }
+
+    // ── Live Table Search & Filter Across Static Pages ─────────────────────────
+    function initTableSearchAndFilter() {
+        const searchInputs = document.querySelectorAll('.search-box input, input[type="search"]');
+        searchInputs.forEach(input => {
+            input.addEventListener('input', (e) => {
+                const term = e.target.value.toLowerCase().trim();
+                const table = document.querySelector('.table tbody');
+                if (!table) return;
+
+                const rows = table.querySelectorAll('tr');
+                rows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    row.style.display = text.includes(term) ? '' : 'none';
+                });
+            });
+        });
+
+        // Category dropdown filter in products.html
+        const catSelect = document.querySelector('select[aria-label="Filter by category"]');
+        if (catSelect) {
+            catSelect.addEventListener('change', (e) => {
+                const cat = e.target.value.toLowerCase();
+                const table = document.querySelector('.table tbody');
+                if (!table) return;
+
+                const rows = table.querySelectorAll('tr');
+                rows.forEach(row => {
+                    if (!cat) {
+                        row.style.display = '';
+                        return;
+                    }
+                    const text = row.textContent.toLowerCase();
+                    row.style.display = text.includes(cat) ? '' : 'none';
+                });
+            });
+        }
+    }
+
+    // ── Universal Table CSV Export ────────────────────────────────────────────
+    function initCsvExport() {
+        const exportBtns = document.querySelectorAll('.btn:has(.bi-download), button:has(.bi-download)');
+        exportBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const table = document.querySelector('.table');
+                if (!table) {
+                    alert('No table data to export.');
+                    return;
+                }
+
+                let csv = [];
+                const rows = table.querySelectorAll('tr');
+                rows.forEach(row => {
+                    if (row.style.display === 'none') return; // Only exported visible filtered rows
+                    const cols = row.querySelectorAll('th, td');
+                    const rowData = [];
+                    cols.forEach(col => {
+                        // Exclude actions column
+                        if (col.querySelector('.btn-group') || col.classList.contains('actions-cell')) return;
+                        let text = col.innerText.replace(/"/g, '""').trim();
+                        rowData.push(`"${text}"`);
+                    });
+                    if (rowData.length > 0) csv.push(rowData.join(','));
+                });
+
+                const csvBlob = new Blob([csv.join('\n')], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(csvBlob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `BrewSync_Export_${new Date().toISOString().slice(0, 10)}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         initSidebar();
+        initUserSessionDisplay();
+        initOrdersSync();
+        initTableSearchAndFilter();
+        initCsvExport();
         initSalesChart();
         initChartPeriodButtons();
         initDateRangeModal();

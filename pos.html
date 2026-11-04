@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <!-- Firebase Auth Guard: redirect to login if not authenticated -->
@@ -920,15 +920,156 @@
             .pos-grid {
                 grid-template-columns: 1fr;
             }
-            .order-panel { order: -1; }
+            .order-panel {
+                order: 2;
+                margin-top: 1rem;
+            }
+            .mobile-cart-bar {
+                display: flex !important;
+            }
+            body {
+                padding-bottom: 70px;
+            }
         }
 
         @media (max-width: 575.98px) {
-            .pos-main { padding: 0.75rem; }
+            .pos-main { padding: 0.5rem; }
             .action-buttons .btn-system span { display: none; }
-            .category-chip { font-size: 0.75rem; padding: 0.4rem 0.75rem; }
+            .action-buttons .btn-system { padding: 0.5rem 0.65rem; }
+            .system-status { display: none; }
+            .category-chip { font-size: 0.78rem; padding: 0.4rem 0.75rem; }
+            .menu-items {
+                grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
+                gap: 0.65rem;
+                padding: 0.5rem 0;
+            }
+            .menu-item-card { padding: 0.75rem; }
+            .menu-item-image { height: 80px; }
+            .menu-item-name { font-size: 0.85rem; }
             .payment-methods { grid-template-columns: repeat(2, 1fr); }
             .order-item-info { min-width: 0; }
+        }
+
+        /* Floating Mobile Cart Bar */
+        .mobile-cart-bar {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #241F1C, #2D2622);
+            border-top: 1px solid var(--warm-orange);
+            padding: 0.85rem 1.25rem;
+            z-index: 1040;
+            align-items: center;
+            justify-content: space-between;
+            color: var(--text-primary);
+            box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.6);
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .mobile-cart-bar-left {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .mobile-cart-bar-right {
+            background: var(--warm-orange);
+            color: #1A1614;
+            font-weight: 700;
+            padding: 0.45rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        /* Receipt Modal Styles */
+        .receipt-slip {
+            background: #FAFAFA;
+            color: #222;
+            padding: 1.25rem 1rem;
+            border-radius: 6px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.82rem;
+            line-height: 1.4;
+            border: 1px dashed #CCC;
+        }
+
+        .receipt-header {
+            text-align: center;
+            border-bottom: 1px dashed #999;
+            padding-bottom: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .receipt-header h5 {
+            font-weight: bold;
+            margin: 0;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+        }
+
+        .receipt-items-table {
+            width: 100%;
+            margin-bottom: 0.75rem;
+        }
+
+        .receipt-items-table th {
+            border-bottom: 1px dashed #999;
+            padding: 4px 0;
+            font-weight: bold;
+        }
+
+        .receipt-items-table td {
+            padding: 4px 0;
+            vertical-align: top;
+        }
+
+        .receipt-totals {
+            border-top: 1px dashed #999;
+            padding-top: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .receipt-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2px;
+        }
+
+        .receipt-row.bold {
+            font-weight: bold;
+            font-size: 0.95rem;
+            margin-top: 4px;
+            border-top: 1px solid #222;
+            padding-top: 4px;
+        }
+
+        .receipt-footer {
+            text-align: center;
+            border-top: 1px dashed #999;
+            margin-top: 0.75rem;
+            padding-top: 0.5rem;
+            font-size: 0.75rem;
+            color: #555;
+        }
+
+        @media print {
+            body * { visibility: hidden !important; }
+            #receiptModal, #receiptModal * { visibility: visible !important; }
+            #receiptModal {
+                position: absolute !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100% !important;
+                background: white !important;
+            }
+            .modal-footer, .btn-close { display: none !important; }
         }
     </style>
 </head>
@@ -1174,6 +1315,42 @@
                     <button type="button" class="btn btn-primary" id="btnConfirmPayment">Confirm Payment</button>
                 </div>
             </div>
+        </div>
+    </div>
+
+        <!-- Official Printable Receipt Modal -->
+    <div class="modal fade" id="receiptModal" tabindex="-1" aria-labelledby="receiptModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content" style="background: #FFFFFF; color: #1A1614; font-family: monospace;">
+                <div class="modal-header border-0 pb-0">
+                    <h6 class="modal-title w-100 text-center fw-bold text-dark" id="receiptModalLabel">BrewSync POS Receipt</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="filter: invert(1);"></button>
+                </div>
+                <div class="modal-body pt-2" id="receiptBody">
+                    <!-- Populated dynamically by JS -->
+                </div>
+                <div class="modal-footer border-0 pt-0 d-flex gap-2">
+                    <button type="button" class="btn btn-outline-dark btn-sm flex-fill" onclick="window.print()">
+                        <i class="bi bi-printer me-1"></i> Print
+                    </button>
+                    <button type="button" class="btn btn-warning btn-sm flex-fill fw-bold" data-bs-dismiss="modal" id="btnReceiptNewOrder">
+                        New Order
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Mobile Cart Bar -->
+    <div class="mobile-cart-bar" id="mobileCartBar" onclick="document.querySelector('.order-panel').scrollIntoView({behavior: 'smooth'})">
+        <div class="mobile-cart-bar-left">
+            <i class="bi bi-cart-fill text-warning"></i>
+            <span id="mobileCartCount">0 items</span>
+            <span>â€¢</span>
+            <strong id="mobileCartTotal">â‚±0.00</strong>
+        </div>
+        <div class="mobile-cart-bar-right">
+            <span>Checkout</span> <i class="bi bi-arrow-right"></i>
         </div>
     </div>
 

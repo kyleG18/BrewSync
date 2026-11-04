@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <!-- Firebase Auth Guard: redirect to login if not authenticated -->
@@ -190,28 +190,6 @@
 
         <div class="main-content">
             <header class="topbar">
-    <!-- Firebase Auth Guard: redirect to login if not authenticated -->
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js';
-        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js';
-        const _app = initializeApp({
-            apiKey: "AIzaSyDYCKcYJ6u6jkb54qUNlk2A9PGjstjyc3Y",
-            authDomain: "pwa-sample-9c068.firebaseapp.com",
-            projectId: "pwa-sample-9c068",
-            storageBucket: "pwa-sample-9c068.firebasestorage.app",
-            messagingSenderId: "549586540109",
-            appId: "1:549586540109:web:bfde05e43d0cd070f0ee04"
-        });
-        const _auth = getAuth(_app);
-        document.documentElement.style.visibility = 'hidden';
-        onAuthStateChanged(_auth, (user) => {
-            if (!user && !sessionStorage.getItem('brewsync_guest')) {
-                window.location.replace('/');
-            } else {
-                document.documentElement.style.visibility = 'visible';
-            }
-        });
-    </script>
                 <button class="sidebar-toggle d-lg-none me-3" id="mobileSidebarToggle" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar">
                     <i class="bi bi-list"></i>
                 </button>

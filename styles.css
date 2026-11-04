@@ -805,8 +805,18 @@ a:hover { color: var(--warm-orange-light); text-decoration: underline; }
     .search-box { max-width: none; }
     .topbar { gap: 0.5rem; }
     .user-avatar-sm { display: none; }
-    .brand-text { display: none; }
+    .sidebar .brand-text { display: inline-block !important; }
     .sidebar { width: 100%; max-width: 280px; }
+    .table-responsive {
+        border-radius: var(--radius-md);
+        -webkit-overflow-scrolling: touch;
+    }
+    .btn {
+        min-height: 36px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
 }
 
 @media (min-width: 992px) {
