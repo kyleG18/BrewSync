@@ -32,6 +32,7 @@ function App() {
   // Handle Sign-Out
   const handleLogout = async () => {
     try {
+      sessionStorage.removeItem('brewsync_guest');
       await signOut(auth);
     } catch (error) {
       console.error("Sign-Out Error:", error);
@@ -72,6 +73,7 @@ function App() {
 
   // Handle Guest / Demo Login (for quick review or unapproved domains)
   const handleGuestLogin = () => {
+    sessionStorage.setItem('brewsync_guest', 'true');
     setUser({
       displayName: "Demo User",
       email: "demo@brewsync.pos",
