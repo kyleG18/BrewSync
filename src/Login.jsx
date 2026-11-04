@@ -1,7 +1,26 @@
-import React from "react";
+import React, { useState } from "react";
 import "./App/Main/LoginPage/LoginPage.css";
 
-const Login = ({ onLogin, onGuestLogin }) => {
+const Login = ({ onLogin, onGuestLogin, onEmailLogin }) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [emailError, setEmailError] = useState("");
+
+  const handleEmailSubmit = async (e) => {
+    e.preventDefault();
+    setEmailError("");
+    if (!email || !password) {
+      setEmailError("Please enter your email and password.");
+      return;
+    }
+    try {
+      await onEmailLogin(email, password);
+    } catch (err) {
+      setEmailError(err.message || "Login failed. Check your credentials.");
+    }
+  };
+
   return (
     <div
       style={{
@@ -142,6 +161,122 @@ const Login = ({ onLogin, onGuestLogin }) => {
 
         {/* Divider */}
         <div style={{ display: "flex", alignItems: "center", margin: "1.25rem 0" }}>
+          <div style={{ flex: 1, height: "1px", backgroundColor: "#3D322B" }}></div>
+          <span style={{ padding: "0 0.75rem", color: "#9A8A7A", fontSize: "0.8rem" }}>or</span>
+          <div style={{ flex: 1, height: "1px", backgroundColor: "#3D322B" }}></div>
+        </div>
+
+        {/* Email / Password Form */}
+        <form onSubmit={handleEmailSubmit} style={{ textAlign: "left", marginBottom: "1rem" }}>
+          <div style={{ marginBottom: "0.85rem" }}>
+            <label style={{ display: "block", fontSize: "0.8rem", color: "#D4C4B5", marginBottom: "0.4rem", fontWeight: 500 }}>
+              Email Address
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
+              style={{
+                width: "100%",
+                padding: "0.72rem 1rem",
+                backgroundColor: "#1A1614",
+                border: "1px solid #3D322B",
+                borderRadius: "0.6rem",
+                color: "#F5EBE0",
+                fontSize: "0.9rem",
+                outline: "none",
+                boxSizing: "border-box",
+                transition: "border-color 0.2s"
+              }}
+              onFocus={(e) => (e.target.style.borderColor = "#E88D39")}
+              onBlur={(e) => (e.target.style.borderColor = "#3D322B")}
+            />
+          </div>
+
+          <div style={{ marginBottom: "1rem" }}>
+            <label style={{ display: "block", fontSize: "0.8rem", color: "#D4C4B5", marginBottom: "0.4rem", fontWeight: 500 }}>
+              Password
+            </label>
+            <div style={{ position: "relative" }}>
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                style={{
+                  width: "100%",
+                  padding: "0.72rem 2.8rem 0.72rem 1rem",
+                  backgroundColor: "#1A1614",
+                  border: "1px solid #3D322B",
+                  borderRadius: "0.6rem",
+                  color: "#F5EBE0",
+                  fontSize: "0.9rem",
+                  outline: "none",
+                  boxSizing: "border-box",
+                  transition: "border-color 0.2s"
+                }}
+                onFocus={(e) => (e.target.style.borderColor = "#E88D39")}
+                onBlur={(e) => (e.target.style.borderColor = "#3D322B")}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: "absolute",
+                  right: "0.75rem",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  background: "none",
+                  border: "none",
+                  color: "#9A8A7A",
+                  cursor: "pointer",
+                  padding: 0,
+                  fontSize: "1rem"
+                }}
+              >
+                <i className={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"}`}></i>
+              </button>
+            </div>
+          </div>
+
+          {emailError && (
+            <div style={{
+              backgroundColor: "rgba(220, 53, 69, 0.15)",
+              border: "1px solid rgba(220, 53, 69, 0.4)",
+              borderRadius: "0.5rem",
+              padding: "0.6rem 0.85rem",
+              fontSize: "0.8rem",
+              color: "#FF6B6B",
+              marginBottom: "0.85rem"
+            }}>
+              <i className="bi bi-exclamation-circle me-1"></i> {emailError}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            style={{
+              width: "100%",
+              padding: "0.85rem 1.25rem",
+              background: "linear-gradient(135deg, #4A2E19, #E88D39)",
+              color: "#F5EBE0",
+              border: "none",
+              borderRadius: "0.75rem",
+              fontSize: "0.95rem",
+              fontWeight: 600,
+              cursor: "pointer",
+              transition: "opacity 0.2s"
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.9")}
+            onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+          >
+            <i className="bi bi-box-arrow-in-right me-2"></i>Sign In
+          </button>
+        </form>
+
+        {/* Divider before Guest */}
+        <div style={{ display: "flex", alignItems: "center", margin: "1rem 0" }}>
           <div style={{ flex: 1, height: "1px", backgroundColor: "#3D322B" }}></div>
           <span style={{ padding: "0 0.75rem", color: "#9A8A7A", fontSize: "0.8rem" }}>or</span>
           <div style={{ flex: 1, height: "1px", backgroundColor: "#3D322B" }}></div>

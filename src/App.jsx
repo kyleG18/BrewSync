@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { onAuthStateChanged, signInWithPopup, signOut } from "firebase/auth";
+import { onAuthStateChanged, signInWithPopup, signOut, signInWithEmailAndPassword } from "firebase/auth";
 import { auth, googleProvider } from "./firebase";
 import Login from "./Login";
 import Header from "./Components/Header";
@@ -65,6 +65,11 @@ function App() {
     );
   }
 
+  // Handle Email/Password Sign-In
+  const handleEmailLogin = async (email, password) => {
+    await signInWithEmailAndPassword(auth, email, password);
+  };
+
   // Handle Guest / Demo Login (for quick review or unapproved domains)
   const handleGuestLogin = () => {
     setUser({
@@ -76,7 +81,7 @@ function App() {
 
   // Not Authenticated -> Show Login Page
   if (!user) {
-    return <Login onLogin={handleLogin} onGuestLogin={handleGuestLogin} />;
+    return <Login onLogin={handleLogin} onGuestLogin={handleGuestLogin} onEmailLogin={handleEmailLogin} />;
   }
 
   // Authenticated -> Show App with Header and Main View
