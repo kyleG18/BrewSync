@@ -1,0 +1,1549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="theme-color" content="#4A2E19">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="BrewSync">
+    <link rel="icon" type="image/png" href="/images/logo192.png">
+    <link rel="apple-touch-icon" href="/images/logo192.png">
+    <link rel="manifest" href="/manifest.json">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BrewSync POS - Cashier Station 01</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --boba-brown: #4A2E19;
+            --boba-brown-light: #5D3A21;
+            --creamy-beige: #F5EBE0;
+            --warm-orange: #E88D39;
+            --warm-orange-light: #F0A55A;
+            --warm-orange-dark: #D47A2E;
+            --vibrant-teal: #2A9D8F;
+            --dark-bg: #1A1614;
+            --card-bg: #241F1C;
+            --sidebar-bg: #1E1A18;
+            --input-bg: #2D2622;
+            --border-color: #3D322B;
+            --text-primary: #F5EBE0;
+            --text-secondary: #D4C4B5;
+            --text-muted: #9A8A7A;
+            --radius-lg: 1rem;
+            --radius-md: 0.75rem;
+            --radius-sm: 0.5rem;
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+            --transition-fast: 150ms ease;
+            --transition-normal: 250ms ease;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            margin: 0;
+            min-height: 100vh;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a { color: var(--warm-orange); text-decoration: none; }
+        a:hover { color: var(--warm-orange-light); }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* System Bar / Header */
+        .system-bar {
+            background: var(--boba-brown);
+            border-bottom: 2px solid var(--warm-orange);
+            height: 72px;
+            display: flex;
+            align-items: center;
+            padding: 0 1.5rem;
+            z-index: 1000;
+            position: sticky;
+            top: 0;
+            box-shadow: var(--shadow-md);
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.375rem;
+            letter-spacing: -0.02em;
+            white-space: nowrap;
+        }
+
+        .brand-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-md);
+            background: linear-gradient(135deg, var(--warm-orange) 0%, var(--warm-orange-dark) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px -4px rgba(232, 141, 57, 0.5);
+        }
+
+        .brand-icon i {
+            font-size: 1.25rem;
+            color: #1A1614;
+        }
+
+        .system-status {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .operator-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+        }
+
+        .station-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--vibrant-teal);
+            box-shadow: 0 0 8px var(--vibrant-teal);
+            animation: pulse 2s infinite;
+        }
+
+        .system-time {
+            font-variant-numeric: tabular-nums;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-system {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-md);
+            font-size: 0.8125rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all var(--transition-fast);
+        }
+
+        .btn-system:hover {
+            background: var(--border-color);
+            border-color: var(--warm-orange);
+            color: var(--warm-orange);
+            text-decoration: none;
+        }
+
+        .btn-system i { font-size: 0.9375rem; }
+
+        .btn-system.btn-primary-action {
+            background: linear-gradient(135deg, var(--warm-orange) 0%, var(--warm-orange-dark) 100%);
+            border: none;
+            color: #1A1614;
+        }
+
+        .btn-system.btn-primary-action:hover {
+            background: linear-gradient(135deg, var(--warm-orange-light) 0%, var(--warm-orange) 100%);
+            color: #1A1614;
+            box-shadow: 0 6px 16px -4px rgba(232, 141, 57, 0.6);
+        }
+
+        /* Main Layout */
+        .pos-main {
+            display: flex;
+            flex-direction: column;
+            min-height: calc(100vh - 72px);
+            padding: 1.5rem;
+            gap: 1.5rem;
+        }
+
+        .pos-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+            height: calc(100vh - 72px - 3rem);
+            min-height: 0;
+        }
+
+        /* Menu Catalog - Left Column */
+        .menu-catalog {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+        }
+
+        .catalog-header {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(36, 31, 28, 0.5);
+        }
+
+        .catalog-search {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .catalog-search i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .catalog-search input {
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            color: var(--text-primary);
+            padding: 0.625rem 1rem 0.625rem 2.75rem;
+            height: 44px;
+            font-size: 0.875rem;
+            width: 100%;
+            transition: all var(--transition-fast);
+        }
+
+        .catalog-search input:focus {
+            border-color: var(--warm-orange);
+            box-shadow: 0 0 0 3px rgba(232, 141, 57, 0.15);
+            background: var(--input-bg);
+            outline: none;
+        }
+
+        .category-filters {
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            padding-bottom: 1rem;
+            scrollbar-width: none;
+        }
+
+        .category-filters::-webkit-scrollbar { display: none; }
+
+        .category-chip {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            border: 1px solid var(--border-color);
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 0.8125rem;
+            font-weight: 500;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .category-chip:hover {
+            border-color: var(--warm-orange);
+            color: var(--warm-orange);
+        }
+
+        .category-chip.active {
+            background: var(--warm-orange);
+            border-color: var(--warm-orange);
+            color: #1A1614;
+            box-shadow: 0 4px 12px -4px rgba(232, 141, 57, 0.5);
+        }
+
+        .menu-items {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0.75rem 1rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 1rem;
+        }
+
+        .menu-item-card {
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .menu-item-card:hover {
+            border-color: var(--warm-orange);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .menu-item-image {
+            width: 100%;
+            height: 110px;
+            border-radius: var(--radius-md);
+            background: linear-gradient(135deg, var(--boba-brown) 0%, var(--boba-brown-light) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.75rem;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .menu-item-image i {
+            font-size: 2.5rem;
+            color: var(--warm-orange);
+            opacity: 0.8;
+        }
+
+        .menu-item-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .availability-badge {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem 0.625rem;
+            border-radius: 2rem;
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .availability-badge.in-stock {
+            background: rgba(42, 157, 143, 0.2);
+            color: var(--vibrant-teal);
+            border: 1px solid rgba(42, 157, 143, 0.4);
+        }
+
+        .availability-badge.low-stock {
+            background: rgba(232, 141, 57, 0.2);
+            color: var(--warm-orange);
+            border: 1px solid rgba(232, 141, 57, 0.4);
+        }
+
+        .menu-item-info { flex: 1; }
+
+        .menu-item-name {
+            font-weight: 600;
+            font-size: 0.9375rem;
+            margin: 0 0 0.25rem;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .menu-item-price {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin: 0 0 0.5rem;
+        }
+
+        .menu-item-price .current {
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .menu-item-tags {
+            display: flex;
+            gap: 0.25rem;
+            flex-wrap: wrap;
+        }
+
+        .menu-item-tag {
+            font-size: 0.625rem;
+            padding: 0.1875rem 0.5rem;
+            border-radius: 2rem;
+            background: var(--border-color);
+            color: var(--text-muted);
+        }
+
+        /* Order Panel - Right Column */
+        .order-panel {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+        }
+
+        .order-header {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(36, 31, 28, 0.5);
+        }
+
+        .order-ticket {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .order-number {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .order-number strong {
+            color: var(--text-primary);
+            font-weight: 700;
+        }
+
+        .order-customer {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .order-customer-input {
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            padding: 0.375rem 0.75rem;
+            font-size: 0.8125rem;
+            width: auto;
+            max-width: 150px;
+        }
+
+        .order-items {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .empty-order {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--text-muted);
+            gap: 1rem;
+        }
+
+        .empty-order i {
+            font-size: 3rem;
+            opacity: 0.3;
+        }
+
+        .order-item {
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all var(--transition-fast);
+        }
+
+        .order-item:hover {
+            border-color: var(--warm-orange);
+        }
+
+        .order-item-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .order-item-name {
+            font-weight: 600;
+            font-size: 0.9375rem;
+            color: var(--text-primary);
+            margin: 0 0 0.25rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .order-item-customizations {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin: 0 0 0.5rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 180px;
+        }
+
+        .order-item-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .order-item-qty {
+            display: flex;
+            align-items: center;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            background: var(--dark-bg);
+        }
+
+        .qty-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: var(--border-color);
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all var(--transition-fast);
+        }
+
+        .qty-btn:hover {
+            background: var(--warm-orange);
+            color: #1A1614;
+        }
+
+        .qty-value {
+            width: 32px;
+            height: 32px;
+            border-left: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: var(--text-primary);
+        }
+
+        .order-item-price {
+            font-weight: 700;
+            font-size: 0.9375rem;
+            color: var(--text-primary);
+            white-space: nowrap;
+        }
+
+        .btn-delete-item {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-sm);
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #EF4444;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all var(--transition-fast);
+            margin-left: 0.5rem;
+        }
+
+        .btn-delete-item:hover {
+            background: #EF4444;
+            color: #FFFFFF;
+        }
+
+        /* Billing Summary */
+        .billing-summary {
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .billing-section {
+            margin-bottom: 1rem;
+        }
+
+        .billing-section:last-child { margin-bottom: 0; }
+
+        .billing-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .billing-row:last-child { border-bottom: none; }
+
+        .billing-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .billing-value {
+            font-size: 0.875rem;
+            color: var(--text-primary);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .billing-total {
+            background: linear-gradient(135deg, var(--warm-orange) 0%, var(--warm-orange-dark) 100%);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            margin-top: 0.5rem;
+            color: #1A1614;
+        }
+
+        .billing-total-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.25rem;
+            font-weight: 700;
+            border-bottom: none;
+            padding: 0.5rem 0;
+        }
+
+        /* Payment Area */
+        .payment-area {
+            margin-top: 1rem;
+        }
+
+        .payment-methods {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .payment-btn {
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 0.75rem;
+            background: var(--input-bg);
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 0.8125rem;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.375rem;
+        }
+
+        .payment-btn:hover {
+            border-color: var(--warm-orange);
+            color: var(--warm-orange);
+            background: rgba(232, 141, 57, 0.05);
+        }
+
+        .payment-btn.active {
+            border-color: var(--warm-orange);
+            background: var(--warm-orange);
+            color: #1A1614;
+            box-shadow: 0 4px 12px -4px rgba(232, 141, 57, 0.5);
+        }
+
+        .payment-btn i { font-size: 1.25rem; }
+
+        .payment-btn-label { font-size: 0.7rem; }
+
+        .btn-complete-order {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1rem;
+            font-weight: 700;
+            border-radius: var(--radius-lg);
+            background: linear-gradient(135deg, var(--vibrant-teal) 0%, #1F8A7E 100%);
+            border: none;
+            color: #FFFFFF;
+            transition: all var(--transition-fast);
+            box-shadow: 0 4px 12px -4px rgba(42, 157, 143, 0.5);
+        }
+
+        .btn-complete-order:hover {
+            background: linear-gradient(135deg, #40B5A6 0%, var(--vibrant-teal) 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px -6px rgba(42, 157, 143, 0.6);
+            color: #FFFFFF;
+        }
+
+        .btn-complete-order:active {
+            transform: translateY(0);
+        }
+
+        .btn-complete-order:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Customization Modal */
+        .customization-modal .modal-content {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .customization-modal .modal-header {
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(36, 31, 28, 0.5);
+            border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+        }
+
+        .customization-modal .modal-body {
+            padding: 1.5rem;
+        }
+
+        .customization-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .customization-section:last-child { margin-bottom: 0; }
+
+        .customization-label {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .size-options, .sugar-options, .ice-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .option-btn {
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 0.75rem 1rem;
+            background: var(--input-bg);
+            color: var(--text-secondary);
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .option-btn:hover {
+            border-color: var(--warm-orange);
+            color: var(--warm-orange);
+        }
+
+        .option-btn.active {
+            border-color: var(--warm-orange);
+            background: var(--warm-orange);
+            color: #1A1614;
+            box-shadow: 0 4px 12px -4px rgba(232, 141, 57, 0.5);
+        }
+
+        .topping-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .topping-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 0.625rem 0.75rem;
+            background: var(--input-bg);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .topping-item:hover {
+            border-color: var(--warm-orange);
+        }
+
+        .topping-item input { width: 18px; height: 18px; accent-color: var(--warm-orange); }
+
+        .topping-label {
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .topping-item input:checked + .topping-label {
+            color: var(--warm-orange);
+            font-weight: 600;
+        }
+
+        .topping-item input:checked {
+            border-color: var(--warm-orange);
+            background: var(--warm-orange);
+        }
+
+        .customization-modal .modal-footer {
+            border-top: 1px solid var(--border-color);
+            padding: 1rem 1.5rem;
+            background: rgba(36, 31, 28, 0.3);
+        }
+
+        .btn-add-to-order {
+            width: 100%;
+            padding: 0.875rem;
+            font-size: 1rem;
+            font-weight: 700;
+            border-radius: var(--radius-md);
+            background: linear-gradient(135deg, var(--warm-orange) 0%, var(--warm-orange-dark) 100%);
+            border: none;
+            color: #1A1614;
+            transition: all var(--transition-fast);
+            box-shadow: 0 4px 12px -4px rgba(232, 141, 57, 0.5);
+        }
+
+        .btn-add-to-order:hover {
+            background: linear-gradient(135deg, var(--warm-orange-light) 0%, var(--warm-orange) 100%);
+            color: #1A1614;
+        }
+
+        /* Offline indicator */
+        .offline-indicator {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            z-index: 1050;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.625rem 1rem;
+            border-radius: var(--radius-lg);
+            background: rgba(74, 46, 25, 0.9);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-lg);
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            animation: slideIn 0.3s ease;
+        }
+
+        .offline-indicator.online {
+            background: rgba(42, 157, 143, 0.2);
+            border-color: rgba(42, 157, 143, 0.4);
+            color: var(--vibrant-teal);
+        }
+
+        .offline-indicator i {
+            font-size: 0.875rem;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* Responsive */
+        @media (max-width: 991.98px) {
+            .pos-grid {
+                grid-template-columns: 1fr;
+            }
+            .order-panel { order: -1; }
+        }
+
+        @media (max-width: 575.98px) {
+            .pos-main { padding: 0.75rem; }
+            .action-buttons .btn-system span { display: none; }
+            .category-chip { font-size: 0.75rem; padding: 0.4rem 0.75rem; }
+            .payment-methods { grid-template-columns: repeat(2, 1fr); }
+            .order-item-info { min-width: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="system-bar">
+        <a href="#" class="brand-logo">
+            <div class="brand-icon"><i class="bi bi-cup-hot"></i></div>
+            BrewSync POS
+        </a>
+        <div class="system-status">
+            <div class="operator-name">Cashier - Station 01</div>
+            <div class="station-info" id="networkStatus">
+                <span class="status-indicator" id="statusDot"></span>
+                <span id="statusText">Online • Local Sync Ready</span>
+            </div>
+            <div class="system-time" id="currentTime">Loading...</div>
+        </div>
+        <div class="action-buttons">
+            <button class="btn-system" id="btnPosScreen" aria-label="POS Screen">
+                <i class="bi bi-cart3"></i> <span>POS Screen</span>
+            </button>
+            <button class="btn-system" id="btnInventory" aria-label="Inventory Stock">
+                <i class="bi bi-box-seam"></i> <span>Inventory Stock</span>
+            </button>
+            <button class="btn-system" id="btnReports" aria-label="End of Shift Report">
+                <i class="bi bi-receipt"></i> <span>End of Shift Report</span>
+            </button>
+            <button class="btn-system btn-primary-action" id="btnLogout" aria-label="Logout">
+                <i class="bi bi-box-arrow-right"></i> <span>Logout</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="pos-main">
+        <div class="pos-grid">
+            <!-- Left Column: Menu Catalog (~65%) -->
+            <div class="menu-catalog">
+                <div class="catalog-header">
+                    <div class="catalog-search">
+                        <i class="bi bi-search"></i>
+                        <input type="search" id="menuSearch" placeholder="Search drinks, toppings..." aria-label="Search menu items">
+                    </div>
+                    <div class="category-filters">
+                        <button class="category-chip active" data-category="all">All</button>
+                        <button class="category-chip" data-category="classic">Classic Milk Teas</button>
+                        <button class="category-chip" data-category="fruit">Fruit Teas</button>
+                        <button class="category-chip" data-category="smoothie">Smoothies</button>
+                        <button class="category-chip" data-category="addon">Add-ons / Toppings</button>
+                    </div>
+                </div>
+                <div class="menu-items" id="menuItems">
+                    <!-- Menu items injected by JS -->
+                </div>
+            </div>
+
+            <!-- Right Column: Order & Billing (~35%) -->
+            <div class="order-panel">
+                <div class="order-header">
+                    <div class="order-ticket">
+                        <div class="order-number">Order #<span id="orderNumber">20241104-001</span></div>
+                        <div class="order-customer">
+                            <i class="bi bi-person"></i>
+                            <input type="text" class="order-customer-input" placeholder="Customer name...">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="order-items" id="orderItems">
+                    <div class="empty-order">
+                        <i class="bi bi-cart-empty"></i>
+                        <p class="mb-0">No items in order</p>
+                        <p class="text-muted small">Tap a menu item to start</p>
+                    </div>
+                </div>
+
+                <div class="billing-summary">
+                    <div class="billing-section">
+                        <div class="billing-row">
+                            <span class="billing-label">Subtotal</span>
+                            <span class="billing-value" id="subtotal">₱0.00</span>
+                        </div>
+                        <div class="billing-row">
+                            <span class="billing-label">Discount / Promo</span>
+                            <div class="d-flex align-items-center gap-2">
+                                <input type="text" class="form-control form-control-sm" style="width: 120px;" placeholder="Enter code" id="promoCode">
+                                <button class="btn btn-sm btn-outline-secondary" id="applyPromo">Apply</button>
+                            </div>
+                        </div>
+                        <div class="billing-row">
+                            <span class="billing-label">Tax (12%)</span>
+                            <span class="billing-value" id="taxAmount">₱0.00</span>
+                        </div>
+                    </div>
+
+                    <div class="billing-total">
+                        <div class="billing-total-row">
+                            <span class="billing-label">Total Due</span>
+                            <span class="billing-value" id="totalAmount">₱0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="payment-area">
+                    <div class="payment-methods">
+                        <button class="payment-btn active" id="payCash">
+                            <i class="bi bi-cash"></i>
+                            <span class="payment-btn-label">Cash</span>
+                        </button>
+                        <button class="payment-btn" id="payGcash">
+                            <i class="bi bi-wallet2"></i>
+                            <span class="payment-btn-label">GCash</span>
+                        </button>
+                        <button class="payment-btn" id="payMaya">
+                            <i class="bi bi-credit-card"></i>
+                            <span class="payment-btn-label">Maya</span>
+                        </button>
+                    </div>
+
+                    <button class="btn-complete-order" id="btnCompleteOrder" disabled>
+                        <i class="bi bi-printer-fill me-2"></i> Complete Order & Print Receipt
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="offline-indicator online" id="offlineIndicator">
+        <i class="bi bi-wifi"></i>
+        <span>Online - Local Sync Ready</span>
+    </div>
+
+    <!-- Drink Customization Modal -->
+    <div class="modal fade customization-modal" id="customizationModal" tabindex="-1" aria-labelledby="customizationModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="customizationModalLabel">Customize Drink</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        <div class="customization-image" style="width: 80px; height: 80px; border-radius: var(--radius-md); background: var(--boba-brown); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <i class="bi bi-cup-hot" style="font-size: 2rem; color: var(--warm-orange);"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-0" id="modalItemName" style="color: var(--text-primary);">Item Name</h6>
+                            <span class="badge bg-primary-subtle text-primary" id="modalItemPrice">₱0.00</span>
+                        </div>
+                    </div>
+
+                    <div class="customization-section">
+                        <div class="customization-label"><i class="bi bi-cup"></i> Cup Size</div>
+                        <div class="size-options">
+                            <button class="option-btn active" data-size="regular" data-price="0">Regular (16oz)</button>
+                            <button class="option-btn" data-size="large" data-price="25">Large (24oz)</button>
+                        </div>
+                    </div>
+
+                    <div class="customization-section">
+                        <div class="customization-label"><i class="bi bi-droplet"></i> Sugar Level</div>
+                        <div class="sugar-options">
+                            <button class="option-btn active" data-sugar="0">0%</button>
+                            <button class="option-btn" data-sugar="25">25%</button>
+                            <button class="option-btn" data-sugar="50">50%</button>
+                            <button class="option-btn" data-sugar="75">75%</button>
+                            <button class="option-btn" data-sugar="100">100%</button>
+                        </div>
+                    </div>
+
+                    <div class="customization-section">
+                        <div class="customization-label"><i class="bi bi-snow"></i> Ice Level</div>
+                        <div class="ice-options">
+                            <button class="option-btn active" data-ice="normal">Normal Ice</button>
+                            <button class="option-btn" data-ice="less">Less Ice</button>
+                            <button class="option-btn" data-ice="extra">Extra Ice</button>
+                            <button class="option-btn" data-ice="none">No Ice</button>
+                        </div>
+                    </div>
+
+                    <div class="customization-section">
+                        <div class="customization-label"><i class="bi bi-plus-circle"></i> Extra Toppings</div>
+                        <div class="topping-options">
+                            <label class="topping-item">
+                                <input type="checkbox" value="pearls" data-price="15">
+                                <span class="topping-label">Black Pearls +₱15</span>
+                            </label>
+                            <label class="topping-item">
+                                <input type="checkbox" value="pudding" data-price="20">
+                                <span class="topping-label">Custard Pudding +₱20</span>
+                            </label>
+                            <label class="topping-item">
+                                <input type="checkbox" value="jelly" data-price="15">
+                                <span class="topping-label">Grass Jelly +₱15</span>
+                            </label>
+                            <label class="topping-item">
+                                <input type="checkbox" value="cheese-foam" data-price="25">
+                                <span class="topping-label">Cheese Foam +₱25</span>
+                            </label>
+                            <label class="topping-item">
+                                <input type="checkbox" value="popping-boba" data-price="20">
+                                <span class="topping-label">Popping Boba +₱20</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-add-to-order" id="btnAddToOrder">Add to Order</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Confirmation Modal -->
+    <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="paymentModalLabel">Confirm Payment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-4">
+                        <div class="display-4 fw-bold text-primary" id="modalTotal">₱0.00</div>
+                        <p class="text-muted">Amount Due</p>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <label class="form-label">Cash Tendered</label>
+                            <input type="number" class="form-control" id="cashTendered" placeholder="0.00" min="0" step="0.01">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Change</label>
+                            <input type="text" class="form-control" id="changeAmount" readonly placeholder="₱0.00">
+                        </div>
+                    </div>
+                    <div class="alert alert-info mt-3" id="paymentAlert" style="display: none;">
+                        <i class="bi bi-info-circle me-2"></i> <span id="alertMessage"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="btnConfirmPayment">Confirm Payment</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        (function() {
+            'use strict';
+
+            // Menu Data
+            const menuData = [
+                { id: 1, name: 'Classic Milk Tea', price: 85, category: 'classic', image: 'bi-cup-hot', tag: 'in-stock', description: 'Premium black tea with creamy milk' },
+                { id: 2, name: 'Brown Sugar Boba', price: 110, category: 'classic', image: 'bi-cup-straw', tag: 'in-stock', description: 'Caramelized brown sugar with chewy pearls' },
+                { id: 3, name: 'Matcha Latte', price: 120, category: 'classic', image: 'bi-cup-hot', tag: 'in-stock', description: 'Ceremonial grade matcha green tea' },
+                { id: 4, name: 'Taro Milk Tea', price: 100, category: 'classic', image: 'bi-cup-hot', tag: 'low-stock', description: 'Sweet taro with milk tea base' },
+                { id: 5, name: 'Thai Tea', price: 90, category: 'classic', image: 'bi-cup-hot', tag: 'in-stock', description: 'Bold Thai tea with condensed milk' },
+                { id: 6, name: 'Strawberry Fruit Tea', price: 115, category: 'fruit', image: 'bi-cup-straw', tag: 'in-stock', description: 'Fresh strawberry with green tea' },
+                { id: 7, name: 'Mango Green Tea', price: 110, category: 'fruit', image: 'bi-cup-straw', tag: 'in-stock', description: 'Ripe mango with jasmine green tea' },
+                { id: 8, name: 'Lychee Rose Tea', price: 125, category: 'fruit', image: 'bi-cup-straw', tag: 'low-stock', description: 'Floral lychee with rose notes' },
+                { id: 9, name: 'Blueberry Smoothie', price: 135, category: 'smoothie', image: 'bi-cup-straw', tag: 'in-stock', description: 'Creamy blueberry blend' },
+                { id: 10, name: 'Strawberry Banana Smoothie', price: 140, category: 'smoothie', image: 'bi-cup-straw', tag: 'in-stock', description: 'Classic fruit combination' },
+                { id: 11, name: 'Mango Pineapple Smoothie', price: 145, category: 'smoothie', image: 'bi-cup-straw', tag: 'low-stock', description: 'Tropical fruit blend' },
+                { id: 12, name: 'Black Pearls', price: 15, category: 'addon', image: 'bi-circle', tag: 'in-stock', description: 'Chewy tapioca pearls' },
+                { id: 13, name: 'Custard Pudding', price: 20, category: 'addon', image: 'bi-circle', tag: 'in-stock', description: 'Silky caramel pudding' },
+                { id: 14, name: 'Grass Jelly', price: 15, category: 'addon', image: 'bi-circle', tag: 'in-stock', description: 'Herbal jelly cubes' },
+                { id: 15, name: 'Cheese Foam', price: 25, category: 'addon', image: 'bi-circle', tag: 'in-stock', description: 'Savory cheese foam top' },
+                { id: 16, name: 'Popping Boba', price: 20, category: 'addon', image: 'bi-circle', tag: 'in-stock', description: 'Fruit-filled bursting boba' }
+            ];
+
+            // State
+            let order = [];
+            let currentItem = null;
+            let selectedSize = { size: 'regular', price: 0 };
+            let selectedSugar = '100%';
+            let selectedIce = 'normal';
+            let selectedToppings = [];
+            let paymentMethod = 'cash';
+            let orderCounter = 1;
+
+            // DOM Elements
+            const menuItemsEl = document.getElementById('menuItems');
+            const orderItemsEl = document.getElementById('orderItems');
+            const emptyOrderEl = orderItemsEl.querySelector('.empty-order');
+            const menuSearch = document.getElementById('menuSearch');
+            const categoryChips = document.querySelectorAll('.category-chip');
+            const subtotalEl = document.getElementById('subtotal');
+            const taxEl = document.getElementById('taxAmount');
+            const totalEl = document.getElementById('totalAmount');
+            const btnComplete = document.getElementById('btnCompleteOrder');
+            const orderNumberEl = document.getElementById('orderNumber');
+            const customizationModal = new bootstrap.Modal(document.getElementById('customizationModal'));
+            const paymentModal = new bootstrap.Modal(document.getElementById('paymentModal'));
+            const modalItemName = document.getElementById('modalItemName');
+            const modalItemPrice = document.getElementById('modalItemPrice');
+            const btnAddToOrder = document.getElementById('btnAddToOrder');
+            const btnConfirmPayment = document.getElementById('btnConfirmPayment');
+            const cashTendered = document.getElementById('cashTendered');
+            const changeAmount = document.getElementById('changeAmount');
+            const paymentAlert = document.getElementById('paymentAlert');
+            const alertMessage = document.getElementById('alertMessage');
+
+            // Network status simulation
+            const statusDot = document.getElementById('statusDot');
+            const statusText = document.getElementById('statusText');
+            const offlineIndicator = document.getElementById('offlineIndicator');
+            let isOnline = true;
+
+            // Initialize
+            function init() {
+                renderMenu(menuData);
+                updateOrderNumber();
+                setupEventListeners();
+                startClock();
+                simulateNetworkStatus();
+            }
+
+            // Clock
+            function startClock() {
+                function updateTime() {
+                    const now = new Date();
+                    const options = { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+                    document.getElementById('currentTime').textContent = now.toLocaleDateString('en-PH', options);
+                }
+                updateTime();
+                setInterval(updateTime, 1000);
+            }
+
+            // Network status simulation
+            function simulateNetworkStatus() {
+                setInterval(() => {
+                    isOnline = Math.random() > 0.1;
+                    if (isOnline) {
+                        statusDot.className = 'status-indicator';
+                        statusText.textContent = 'Online • Local Sync Ready';
+                        offlineIndicator.className = 'offline-indicator online';
+                        offlineIndicator.querySelector('span').textContent = 'Online - Local Sync Ready';
+                    } else {
+                        statusDot.className = 'status-indicator';
+                        statusDot.style.background = '#EF4444';
+                        statusDot.style.boxShadow = '0 0 8px #EF4444';
+                        statusText.textContent = 'Offline • Local Queue Active';
+                        offlineIndicator.className = 'offline-indicator';
+                        offlineIndicator.querySelector('i').className = 'bi bi-wifi-off';
+                        offlineIndicator.querySelector('span').textContent = 'Offline - Orders Queued Locally';
+                    }
+                }, 5000);
+            }
+
+            // Event Listeners
+            function setupEventListeners() {
+                // Category filters
+                categoryChips.forEach(chip => {
+                    chip.addEventListener('click', () => {
+                        categoryChips.forEach(c => c.classList.remove('active'));
+                        chip.classList.add('active');
+                        const category = chip.dataset.category;
+                        const filtered = category === 'all' ? menuData : menuData.filter(item => item.category === category);
+                        renderMenu(filtered);
+                    });
+                });
+
+                // Search
+                menuSearch.addEventListener('input', (e) => {
+                    const term = e.target.value.toLowerCase();
+                    const activeCategory = document.querySelector('.category-chip.active').dataset.category;
+                    let filtered = menuData.filter(item => item.name.toLowerCase().includes(term));
+                    if (activeCategory !== 'all') {
+                        filtered = filtered.filter(item => item.category === activeCategory);
+                    }
+                    renderMenu(filtered);
+                });
+
+                // Payment method selection
+                document.querySelectorAll('.payment-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        document.querySelectorAll('.payment-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        paymentMethod = btn.id.replace('pay', '').toLowerCase();
+                    });
+                });
+
+                // Cash tendered change calculation
+                cashTendered.addEventListener('input', () => {
+                    const tendered = parseFloat(cashTendered.value) || 0;
+                    const total = parseFloat(totalEl.textContent.replace('₱', '').replace(/,/g, ''));
+                    const change = tendered - total;
+                    changeAmount.value = change >= 0 ? '₱' + change.toFixed(2) : '₱0.00';
+                    paymentAlert.style.display = 'none';
+                });
+
+                // Complete order
+                btnComplete.addEventListener('click', () => {
+                    if (order.length === 0) return;
+                    document.getElementById('modalTotal').textContent = totalEl.textContent;
+                    cashTendered.value = '';
+                    changeAmount.value = '₱0.00';
+                    paymentAlert.style.display = 'none';
+                    paymentModal.show();
+                });
+
+                // Confirm payment
+                btnConfirmPayment.addEventListener('click', () => {
+                    const tendered = parseFloat(cashTendered.value) || 0;
+                    const total = parseFloat(totalEl.textContent.replace('₱', '').replace(/,/g, ''));
+                    if (tendered < total) {
+                        paymentAlert.style.display = 'block';
+                        alertMessage.textContent = 'Insufficient cash tendered.';
+                        return;
+                    }
+                    paymentModal.hide();
+                    const change = tendered - total;
+                    alert('Order completed!\nChange: ₱' + change.toFixed(2));
+                    clearOrder();
+                });
+
+                // Add to order from customization modal
+                btnAddToOrder.addEventListener('click', () => {
+                    if (!currentItem) return;
+                    const toppingsPrice = selectedToppings.reduce((sum, t) => sum + t.price, 0);
+                    const itemPrice = currentItem.price + selectedSize.price + toppingsPrice;
+                    const customizations = [];
+                    if (selectedSugar !== '100%') customizations.push(selectedSugar + ' Sugar');
+                    if (selectedIce !== 'normal') customizations.push(selectedIce + ' Ice');
+                    selectedToppings.forEach(t => customizations.push('+' + t.name));
+
+                    const existing = order.find(i => i.id === currentItem.id && i.size === selectedSize.size && i.sugar === selectedSugar && i.ice === selectedIce && JSON.stringify(i.toppings) === JSON.stringify(selectedToppings));
+                    if (existing) {
+                        existing.qty += 1;
+                    } else {
+                        order.push({
+                            id: currentItem.id,
+                            name: currentItem.name,
+                            size: selectedSize.size,
+                            sugar: selectedSugar,
+                            ice: selectedIce,
+                            toppings: [...selectedToppings],
+                            price: itemPrice,
+                            basePrice: currentItem.price,
+                            qty: 1
+                        });
+                    }
+                    customizationModal.hide();
+                    renderOrder();
+                });
+
+                // Reset customization when modal opens
+                document.getElementById('customizationModal').addEventListener('show.bs.modal', () => {
+                    selectedSize = { size: 'regular', price: 0 };
+                    selectedSugar = '100%';
+                    selectedIce = 'normal';
+                    selectedToppings = [];
+                    updateCustomizationUI();
+                });
+            }
+
+            // Render Menu
+            function renderMenu(items) {
+                menuItemsEl.innerHTML = '';
+                if (items.length === 0) {
+                    menuItemsEl.innerHTML = '<div class="col-12 text-center text-muted py-5"><i class="bi bi-search-off" style="font-size: 3rem;"></i><p class="mt-2">No items found</p></div>';
+                    return;
+                }
+                items.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'menu-item-card';
+                    card.innerHTML = `
+                        <div class="menu-item-image">
+                            <i class="bi ${item.image}"></i>
+                            <span class="availability-badge ${item.tag}">${item.tag === 'in-stock' ? 'In Stock' : 'Low Stock'}</span>
+                        </div>
+                        <div class="menu-item-info">
+                            <h6 class="menu-item-name">${item.name}</h6>
+                            <p class="menu-item-price"><span class="current">₱${item.price.toLocaleString()}</span></p>
+                            <div class="menu-item-tags">
+                                <span class="menu-item-tag">${item.category}</span>
+                            </div>
+                        </div>
+                    `;
+                    card.addEventListener('click', () => openCustomization(item));
+                    menuItemsEl.appendChild(card);
+                });
+            }
+
+            // Open Customization
+            function openCustomization(item) {
+                currentItem = item;
+                modalItemName.textContent = item.name;
+                modalItemPrice.textContent = '₱' + item.price.toLocaleString();
+                customizationModal.show();
+            }
+
+            // Customization UI updates
+            function updateCustomizationUI() {
+                // Size
+                document.querySelectorAll('.size-options .option-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.size === selectedSize.size);
+                });
+                // Sugar
+                document.querySelectorAll('.sugar-options .option-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.sugar === selectedSugar);
+                });
+                // Ice
+                document.querySelectorAll('.ice-options .option-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.ice === selectedIce);
+                });
+            }
+
+            document.querySelectorAll('.size-options .option-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    selectedSize = { size: btn.dataset.size, price: parseFloat(btn.dataset.price) };
+                    updateCustomizationUI();
+                });
+            });
+            document.querySelectorAll('.sugar-options .option-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    selectedSugar = btn.dataset.sugar + '%';
+                    updateCustomizationUI();
+                });
+            });
+            document.querySelectorAll('.ice-options .option-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    selectedIce = btn.dataset.ice;
+                    updateCustomizationUI();
+                });
+            });
+            document.querySelectorAll('.topping-item input').forEach(input => {
+                input.addEventListener('change', (e) => {
+                    const price = parseFloat(e.target.dataset.price);
+                    const name = e.target.nextElementSibling.textContent.replace(' +₱', '').replace('+', '');
+                    if (e.target.checked) {
+                        selectedToppings.push({ name, price });
+                    } else {
+                        selectedToppings = selectedToppings.filter(t => t.name !== name);
+                    }
+                });
+            });
+
+            // Render Order
+            function renderOrder() {
+                orderItemsEl.innerHTML = '';
+                if (order.length === 0) {
+                    orderItemsEl.appendChild(emptyOrderEl);
+                    btnComplete.disabled = true;
+                    updateTotals(0, 0, 0);
+                    return;
+                }
+                btnComplete.disabled = false;
+                order.forEach((item, index) => {
+                    const toppingsStr = item.toppings.map(t => '+' + t.name).join(', ');
+                    const customStr = [item.sugar, item.ice, toppingsStr].filter(Boolean).join(', ');
+                    const el = document.createElement('div');
+                    el.className = 'order-item';
+                    el.innerHTML = `
+                        <div class="order-item-info">
+                            <h6 class="order-item-name">${item.name} <small class="text-muted fw-normal">(${item.size})</small></h6>
+                            <p class="order-item-customizations">${customStr}</p>
+                        </div>
+                        <div class="order-item-controls">
+                            <div class="order-item-qty">
+                                <button class="qty-btn" onclick="BrewSyncPOS.changeQty(${index}, -1)">-</button>
+                                <div class="qty-value">${item.qty}</div>
+                                <button class="qty-btn" onclick="BrewSyncPOS.changeQty(${index}, 1)">+</button>
+                            </div>
+                            <span class="order-item-price">₱${(item.price * item.qty).toLocaleString()}</span>
+                            <button class="btn-delete-item" onclick="BrewSyncPOS.removeItem(${index})" title="Remove item">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                    orderItemsEl.appendChild(el);
+                });
+                const subtotal = order.reduce((sum, i) => sum + (i.price * i.qty), 0);
+                const tax = subtotal * 0.12;
+                const total = subtotal + tax;
+                updateTotals(subtotal, tax, total);
+            }
+
+            // Update Totals
+            function updateTotals(sub, tax, total) {
+                subtotalEl.textContent = '₱' + sub.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                taxEl.textContent = '₱' + tax.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                totalEl.textContent = '₱' + total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            }
+
+            // Order actions
+            window.BrewSyncPOS = {
+                changeQty: (index, delta) => {
+                    order[index].qty += delta;
+                    if (order[index].qty <= 0) {
+                        order.splice(index, 1);
+                    }
+                    renderOrder();
+                },
+                removeItem: (index) => {
+                    order.splice(index, 1);
+                    renderOrder();
+                }
+            };
+
+            function clearOrder() {
+                order = [];
+                renderOrder();
+                updateOrderNumber();
+            }
+
+            function updateOrderNumber() {
+                const now = new Date();
+                const str = now.getFullYear() + String(now.getMonth() + 1).padStart(2, '0') + String(now.getDate()).padStart(2, '0') + '-' + String(orderCounter++).padStart(3, '0');
+                orderNumberEl.textContent = str;
+            }
+
+            // Apply promo (stub)
+            document.getElementById('applyPromo').addEventListener('click', () => {
+                const code = document.getElementById('promoCode').value.toUpperCase();
+                if (code === 'BREW10') {
+                    alert('10% discount applied!');
+                } else if (code) {
+                    alert('Invalid promo code.');
+                }
+            });
+
+            // Initialize
+            document.addEventListener('DOMContentLoaded', init);
+        })();
+    </script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('BrewSync Service Worker Registered!', reg))
+                    .catch(err => console.log('Service Worker Registration Failed!', err));
+            });
+        }
+    </script>
+</body>
+</html>

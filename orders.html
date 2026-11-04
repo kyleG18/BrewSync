@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="theme-color" content="#4A2E19">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="BrewSync">
+    <link rel="icon" type="image/png" href="/images/logo192.png">
+    <link rel="apple-touch-icon" href="/images/logo192.png">
+    <link rel="manifest" href="/manifest.json">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BrewSync POS - Orders</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-wrapper">
+        <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
+            <div class="sidebar-brand">
+                <a href="dashboard.html" class="brand-link">
+                    <div class="brand-icon">
+                        <i class="bi bi-cup-hot"></i>
+                        <span class="boba-dots"><span></span><span></span><span></span></span>
+                    </div>
+                    <span class="brand-text">BrewSync POS</span>
+                </a>
+                <button class="sidebar-toggle d-lg-none" id="sidebarToggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="sidebarNav">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="dashboard.html">
+                            <i class="bi bi-speedometer2"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="pos.html">
+                            <i class="bi bi-cart3"></i>
+                            <span>Point of Sale</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">
+                            <i class="bi bi-box-seam"></i>
+                            <span>Inventory</span>
+                            <span class="badge bg-warning text-dark ms-auto">12</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="orders.html" aria-current="page">
+                            <i class="bi bi-receipt"></i>
+                            <span>Orders</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="products.html">
+                            <i class="bi bi-cup-straw"></i>
+                            <span>Products</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="reports.html">
+                            <i class="bi bi-graph-up"></i>
+                            <span>Reports</span>
+                        </a>
+                    </li>
+                    <li class="nav-item mt-3">
+                        <hr class="sidebar-divider">
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="settings.html">
+                            <i class="bi bi-gear"></i>
+                            <span>Settings</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-danger" href="login.html">
+                            <i class="bi bi-box-arrow-right"></i>
+                            <span>Logout</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">JD</div>
+                    <div class="user-details">
+                        <span class="user-name">John Doe</span>
+                        <span class="user-role">Cashier / Front Desk</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <div class="main-content">
+            <header class="topbar">
+                <button class="sidebar-toggle d-lg-none me-3" id="mobileSidebarToggle" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar">
+                    <i class="bi bi-list"></i>
+                </button>
+                <div class="search-box flex-grow-1 mx-3">
+                    <i class="bi bi-search search-icon"></i>
+                    <input type="search" class="form-control" placeholder="Search orders by number or customer..." aria-label="Search orders">
+                </div>
+                <div class="topbar-actions">
+                    <button class="btn btn-icon position-relative" aria-label="Notifications">
+                        <i class="bi bi-bell"></i>
+                        <span class="notification-badge">3</span>
+                    </button>
+                    <div class="dropdown ms-2">
+                        <button class="btn btn-icon dropdown-toggle d-flex align-items-center gap-2" data-bs-toggle="dropdown" aria-expanded="false">
+                            <div class="user-avatar-sm">JD</div>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><h6 class="dropdown-header">Account</h6></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Profile</a></li>
+                            <li><a class="dropdown-item" href="settings.html"><i class="bi bi-gear me-2"></i>Settings</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="login.html"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </header>
+
+            <main class="content" role="main">
+                <div class="page-header">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+                        <div>
+                            <h1 class="page-title">Orders</h1>
+                            <p class="page-subtitle">View and manage all customer orders</p>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#orderFilterModal">
+                                <i class="bi bi-funnel me-1"></i> <span class="d-none d-sm-inline">Filters</span>
+                            </button>
+                            <button class="btn btn-primary">
+                                <i class="bi bi-download me-1"></i> <span class="d-none d-sm-inline">Export</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-6 col-md-3">
+                        <div class="stat-card">
+                            <div class="stat-icon bg-primary-subtle text-primary">
+                                <i class="bi bi-receipt"></i>
+                            </div>
+                            <div class="stat-content">
+                                <p class="stat-label">Total Orders</p>
+                                <h3 class="stat-value">142</h3>
+                                <span class="stat-trend positive"><i class="bi bi-arrow-up"></i> +8 today</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="stat-card">
+                            <div class="stat-icon bg-success-subtle text-success">
+                                <i class="bi bi-check-circle"></i>
+                            </div>
+                            <div class="stat-content">
+                                <p class="stat-label">Completed</p>
+                                <h3 class="stat-value">118</h3>
+                                <span class="stat-trend positive"><i class="bi bi-arrow-up"></i> 83.1%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="stat-card">
+                            <div class="stat-icon bg-warning-subtle text-warning">
+                                <i class="bi bi-clock"></i>
+                            </div>
+                            <div class="stat-content">
+                                <p class="stat-label">Preparing</p>
+                                <h3 class="stat-value">16</h3>
+                                <span class="stat-trend neutral"><i class="bi bi-dash"></i> Active</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="stat-card">
+                            <div class="stat-icon bg-info-subtle text-info">
+                                <i class="bi bi-hourglass"></i>
+                            </div>
+                            <div class="stat-content">
+                                <p class="stat-label">Pending</p>
+                                <h3 class="stat-value">8</h3>
+                                <span class="stat-trend neutral"><i class="bi bi-dash"></i> Waiting</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Order History</h5>
+                        <div class="btn-group btn-group-sm" role="group">
+                            <button class="btn btn-outline-secondary active" data-view="list">List</button>
+                            <button class="btn btn-outline-secondary" data-view="grid">Grid</button>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0" id="ordersTable">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th style="width: 140px;">Order #</th>
+                                        <th class="d-none d-md-table-cell">Customer</th>
+                                        <th class="d-none d-sm-table-cell">Items</th>
+                                        <th>Total</th>
+                                        <th class="d-none d-sm-table-cell">Payment</th>
+                                        <th>Status</th>
+                                        <th class="d-none d-lg-table-cell">Date & Time</th>
+                                        <th style="width: 100px;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>#ORD-20241104-001</strong></td>
+                                        <td class="d-none d-md-table-cell">Maria Santos</td>
+                                        <td class="d-none d-sm-table-cell">3 items</td>
+                                        <td><strong>₱420</strong></td>
+                                        <td class="d-none d-sm-table-cell"><span class="badge bg-secondary">Cash</span></td>
+                                        <td><span class="badge bg-success">Completed</span></td>
+                                        <td class="d-none d-lg-table-cell">11:04 AM</td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <button class="btn btn-outline-secondary" title="View Details"><i class="bi bi-eye"></i></button>
+                                                <button class="btn btn-outline-secondary" title="Print Receipt"><i class="bi bi-printer"></i></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>#ORD-20241104-002</strong></td>
+                                        <td class="d-none d-md-table-cell">Walk-in Customer</td>
+                                        <td class="d-none d-sm-table-cell">2 items</td>
+                                        <td><strong>₱280</strong></td>
+                                        <td class="d-none d-sm-table-cell"><span class="badge bg-secondary">GCash</span></td>
+                                        <td><span class="badge bg-warning text-dark">Preparing</span></td>
+                                        <td class="d-none d-lg-table-cell">11:12 AM</td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <button class="btn btn-outline-secondary" title="View Details"><i class="bi bi-eye"></i></button>
+                                                <button class="btn btn-outline-secondary" title="Print Receipt"><i class="bi bi-printer"></i></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>#ORD-20241104-003</strong></td>
+                                        <td class="d-none d-md-table-cell">Juan Dela Cruz</td>
+                                        <td class="d-none d-sm-table-cell">5 items</td>
+                                        <td><strong>₱890</strong></td>
+                                        <td class="d-none d-sm-table-cell"><span class="badge bg-secondary">Cash</span></td>
+                                        <td><span class="badge bg-success">Completed</span></td>
+                                        <td class="d-none d-lg-table-cell">11:28 AM</td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <button class="btn btn-outline-secondary" title="View Details"><i class="bi bi-eye"></i></button>
+                                                <button class="btn btn-outline-secondary" title="Print Receipt"><i class="bi bi-printer"></i></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>#ORD-20241104-004</strong></td>
+                                        <td class="d-none d-md-table-cell">Anna Reyes</td>
+                                        <td class="d-none d-sm-table-cell">1 item</td>
+                                        <td><strong>₱150</strong></td>
+                                        <td class="d-none d-sm-table-cell"><span class="badge bg-secondary">Maya</span></td>
+                                        <td><span class="badge bg-info">Pending</span></td>
+                                        <td class="d-none d-lg-table-cell">11:35 AM</td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <button class="btn btn-outline-secondary" title="View Details"><i class="bi bi-eye"></i></button>
+                                                <button class="btn btn-outline-secondary" title="Print Receipt"><i class="bi bi-printer"></i></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>#ORD-20241104-005</strong></td>
+                                        <td class="d-none d-md-table-cell">Carlos Mendoza</td>
+                                        <td class="d-none d-sm-table-cell">4 items</td>
+                                        <td><strong>₱650</strong></td>
+                                        <td class="d-none d-sm-table-cell"><span class="badge bg-secondary">Cash</span></td>
+                                        <td><span class="badge bg-success">Completed</span></td>
+                                        <td class="d-none d-lg-table-cell">11:42 AM</td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <button class="btn btn-outline-secondary" title="View Details"><i class="bi bi-eye"></i></button>
+                                                <button class="btn btn-outline-secondary" title="Print Receipt"><i class="bi bi-printer"></i></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>#ORD-20241104-006</strong></td>
+                                        <td class="d-none d-md-table-cell">Elena Rodriguez</td>
+                                        <td class="d-none d-sm-table-cell">2 items</td>
+                                        <td><strong>₱310</strong></td>
+                                        <td class="d-none d-sm-table-cell"><span class="badge bg-secondary">GCash</span></td>
+                                        <td><span class="badge bg-warning text-dark">Preparing</span></td>
+                                        <td class="d-none d-lg-table-cell">11:50 AM</td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <button class="btn btn-outline-secondary" title="View Details"><i class="bi bi-eye"></i></button>
+                                                <button class="btn btn-outline-secondary" title="Print Receipt"><i class="bi bi-printer"></i></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>#ORD-20241104-007</strong></td>
+                                        <td class="d-none d-md-table-cell">Mike Torres</td>
+                                        <td class="d-none d-sm-table-cell">3 items</td>
+                                        <td><strong>₱560</strong></td>
+                                        <td class="d-none d-sm-table-cell"><span class="badge bg-secondary">Cash</span></td>
+                                        <td><span class="badge bg-success">Completed</span></td>
+                                        <td class="d-none d-lg-table-cell">12:05 PM</td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <button class="btn btn-outline-secondary" title="View Details"><i class="bi bi-eye"></i></button>
+                                                <button class="btn btn-outline-secondary" title="Print Receipt"><i class="bi bi-printer"></i></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>#ORD-20241104-008</strong></td>
+                                        <td class="d-none d-md-table-cell">Sofia Lim</td>
+                                        <td class="d-none d-sm-table-cell">1 item</td>
+                                        <td><strong>₱120</strong></td>
+                                        <td class="d-none d-sm-table-cell"><span class="badge bg-secondary">Maya</span></td>
+                                        <td><span class="badge bg-success">Completed</span></td>
+                                        <td class="d-none d-lg-table-cell">12:15 PM</td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <button class="btn btn-outline-secondary" title="View Details"><i class="bi bi-eye"></i></button>
+                                                <button class="btn btn-outline-secondary" title="Print Receipt"><i class="bi bi-printer"></i></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="card-footer border-top p-3">
+                            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+                                <span class="text-muted small">Showing 8 of 142 orders</span>
+                                <nav aria-label="Pagination">
+                                    <ul class="pagination pagination-sm mb-0">
+                                        <li class="page-item disabled"><a class="page-link" href="#" aria-label="Previous"><i class="bi bi-chevron-left"></i></a></li>
+                                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                        <li class="page-item"><a class="page-link" href="#">4</a></li>
+                                        <li class="page-item"><a class="page-link" href="#">5</a></li>
+                                        <li class="page-item"><a class="page-link" href="#" aria-label="Next"><i class="bi bi-chevron-right"></i></a></li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <footer class="footer">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+                    <span class="text-muted small">BrewSync POS v1.0.0 • Offline-Ready System</span>
+                    <span class="text-muted small">Sync Status: <span class="text-success fw-bold">Online</span></span>
+                </div>
+            </footer>
+        </div>
+
+        <div class="sidebar-overlay d-lg-none" id="sidebarOverlay" aria-hidden="true"></div>
+    </div>
+
+    <div class="modal fade" id="orderFilterModal" tabindex="-1" aria-labelledby="orderFilterModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="orderFilterModalLabel">Filter Orders</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="mb-3">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" multiple>
+                                <option value="pending">Pending</option>
+                                <option value="preparing">Preparing</option>
+                                <option value="completed">Completed</option>
+                                <option value="cancelled">Cancelled</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Payment Method</label>
+                            <select class="form-select" multiple>
+                                <option value="cash">Cash</option>
+                                <option value="gcash">GCash</option>
+                                <option value="maya">Maya</option>
+                                <option value="card">Card</option>
+                            </select>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <label class="form-label">From Date</label>
+                                <input type="date" class="form-control">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">To Date</label>
+                                <input type="date" class="form-control">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Minimum Amount</label>
+                            <input type="number" class="form-control" placeholder="₱0" min="0" step="0.01">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Reset</button>
+                    <button type="button" class="btn btn-primary">Apply Filters</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="app.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('BrewSync Service Worker Registered!', reg))
+                    .catch(err => console.log('Service Worker Registration Failed!', err));
+            });
+        }
+    </script>
+</body>
+</html>

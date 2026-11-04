@@ -1,0 +1,99 @@
+:root {
+  --vibrant-teal: #2A9D8F;
+  --warm-orange: #E88D39;
+  --warm-orange-light: #F0A55A;
+  --dark-bg: #1A1614;
+  --card-bg: #241F1C;
+  --border-color: #3D322B;
+  --text-primary: #F5EBE0;
+  --text-muted: #9A8A7A;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.4em 0.75em;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1;
+  text-align: center;
+  border-radius: 2rem;
+  vertical-align: baseline;
+  white-space: nowrap;
+}
+
+.badge-with-dot {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.badge-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+/* Success variant - vibrant teal for online status */
+.badge-success {
+  background-color: rgba(42, 157, 143, 0.15);
+  border: 1px solid rgba(42, 157, 143, 0.35);
+  color: var(--vibrant-teal);
+}
+
+.badge-success .badge-dot {
+  background-color: var(--vibrant-teal);
+  box-shadow: 0 0 8px var(--vibrant-teal);
+}
+
+/* Warning variant - warm amber */
+.badge-warning {
+  background-color: rgba(232, 141, 57, 0.15);
+  border: 1px solid rgba(232, 141, 57, 0.35);
+  color: var(--warm-orange);
+}
+
+.badge-warning .badge-dot {
+  background-color: var(--warm-orange);
+  box-shadow: 0 0 8px var(--warm-orange);
+}
+
+/* Danger variant */
+.badge-danger {
+  background-color: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #EF4444;
+}
+
+.badge-danger .badge-dot {
+  background-color: #EF4444;
+  box-shadow: 0 0 8px #EF4444;
+}
+
+/* Info variant */
+.badge-info {
+  background-color: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  color: #3B82F6;
+}
+
+.badge-info .badge-dot {
+  background-color: #3B82F6;
+  box-shadow: 0 0 8px #3B82F6;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .badge-dot {
+    animation: none;
+    opacity: 1;
+  }
+}

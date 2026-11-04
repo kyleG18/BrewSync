@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="theme-color" content="#4A2E19">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="BrewSync">
+    <link rel="icon" type="image/png" href="/images/logo192.png">
+    <link rel="apple-touch-icon" href="/images/logo192.png">
+    <link rel="manifest" href="/manifest.json">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BrewSync POS - Settings</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-wrapper">
+        <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
+            <div class="sidebar-brand">
+                <a href="dashboard.html" class="brand-link">
+                    <div class="brand-icon">
+                        <i class="bi bi-cup-hot"></i>
+                        <span class="boba-dots"><span></span><span></span><span></span></span>
+                    </div>
+                    <span class="brand-text">BrewSync POS</span>
+                </a>
+                <button class="sidebar-toggle d-lg-none" id="sidebarToggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="sidebarNav">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <nav class="sidebar-nav" id="sidebarNav">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="dashboard.html">
+                            <i class="bi bi-speedometer2"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="pos.html">
+                            <i class="bi bi-cart3"></i>
+                            <span>Point of Sale</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">
+                            <i class="bi bi-box-seam"></i>
+                            <span>Inventory</span>
+                            <span class="badge bg-warning text-dark ms-auto">12</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="orders.html">
+                            <i class="bi bi-receipt"></i>
+                            <span>Orders</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="products.html">
+                            <i class="bi bi-cup-straw"></i>
+                            <span>Products</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="reports.html">
+                            <i class="bi bi-graph-up"></i>
+                            <span>Reports</span>
+                        </a>
+                    </li>
+                    <li class="nav-item mt-3">
+                        <hr class="sidebar-divider">
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="settings.html" aria-current="page">
+                            <i class="bi bi-gear"></i>
+                            <span>Settings</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-danger" href="login.html">
+                            <i class="bi bi-box-arrow-right"></i>
+                            <span>Logout</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">JD</div>
+                    <div class="user-details">
+                        <span class="user-name">John Doe</span>
+                        <span class="user-role">System Administrator</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <div class="main-content">
+            <header class="topbar">
+                <button class="sidebar-toggle d-lg-none me-3" id="mobileSidebarToggle" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar">
+                    <i class="bi bi-list"></i>
+                </button>
+                <div class="topbar-actions">
+                    <div class="dropdown ms-2">
+                        <button class="btn btn-icon dropdown-toggle d-flex align-items-center gap-2" data-bs-toggle="dropdown" aria-expanded="false">
+                            <div class="user-avatar-sm">JD</div>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><h6 class="dropdown-header">Account</h6></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Profile</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="login.html"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </header>
+
+            <main class="content" role="main">
+                <div class="page-header">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+                        <div>
+                            <h1 class="page-title">Settings</h1>
+                            <p class="page-subtitle">Configure system preferences, users, and store information</p>
+                        </div>
+                        <button class="btn btn-primary" id="btnSaveSettings">
+                            <i class="bi bi-check-lg me-1"></i> Save Changes
+                        </button>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <!-- Store Information -->
+                    <div class="col-12 col-lg-4">
+                        <div class="card h-100">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Store Information</h5>
+                            </div>
+                            <div class="card-body">
+                                <form novalidate>
+                                    <div class="mb-3">
+                                        <label class="form-label">Store Name <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" value="BrewSync Milktea Shop" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Store Type</label>
+                                        <select class="form-select">
+                                            <option value="milktea" selected>Milktea Shop</option>
+                                            <option value="coffee">Coffee Shop</option>
+                                            <option value="juice">Juice Bar</option>
+                                            <option value="other">Other</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Address</label>
+                                        <textarea class="form-control" rows="3" placeholder="123 Main Street, City, Country"></textarea>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Phone Number</label>
+                                        <input type="tel" class="form-control" placeholder="+63 9XX XXX XXXX">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Tax Rate (%)</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" value="12" min="0" max="100" step="0.1">
+                                            <span class="input-group-text">%</span>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Currency</label>
+                                        <select class="form-select">
+                                            <option value="php" selected>Philippine Peso (₱)</option>
+                                            <option value="usd">US Dollar ($)</option>
+                                            <option value="sgd">Singapore Dollar (S$)</option>
+                                        </select>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Operator / User Settings -->
+                    <div class="col-12 col-lg-4">
+                        <div class="card h-100">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Operator Settings</h5>
+                            </div>
+                            <div class="card-body">
+                                <form novalidate>
+                                    <div class="mb-3">
+                                        <label class="form-label">Operator Name <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" value="John Doe" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Role <span class="text-danger">*</span></label>
+                                        <select class="form-select" required>
+                                            <option value="cashier">Cashier / Front Desk</option>
+                                            <option value="inventory">Inventory Manager</option>
+                                            <option value="admin">System Administrator</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Station / Terminal</label>
+                                        <select class="form-select">
+                                            <option value="station-01" selected>Station 01</option>
+                                            <option value="station-02">Station 02</option>
+                                            <option value="station-03">Station 03</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Default Language</label>
+                                        <select class="form-select">
+                                            <option value="en" selected>English</option>
+                                            <option value="fil">Filipino</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Receipt Printer</label>
+                                        <select class="form-select">
+                                            <option value="printer-01" selected>Thermal Printer - Station 01</option>
+                                            <option value="printer-02">Thermal Printer - Station 02</option>
+                                            <option value="none">No Printer</option>
+                                        </select>
+                                    </div>
+                                    <hr>
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" id="receiptPrint" checked>
+                                        <label class="form-check-label" for="receiptPrint">Auto-print receipt after order</label>
+                                    </div>
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" id="soundAlerts">
+                                        <label class="form-check-label" for="soundAlerts">Enable sound alerts for new orders</label>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- System / Sync Settings -->
+                    <div class="col-12 col-lg-4">
+                        <div class="card h-100">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">System & Sync</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Sync Status</label>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="status-dot bg-success"></span>
+                                        <span class="text-success fw-medium">Online - Local Sync Ready</span>
+                                    </div>
+                                    <small class="text-muted d-block">Data syncs automatically when connection is available</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Offline Mode</label>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="offlineMode" checked>
+                                        <label class="form-check-label" for="offlineMode">Allow orders when offline</label>
+                                    </div>
+                                    <small class="text-muted d-block">Orders are queued locally and synced when connection returns</small>
+                                </div>
+                                <hr>
+                                <div class="mb-3">
+                                    <label class="form-label">Data Management</label>
+                                    <div class="d-grid gap-2">
+                                        <button class="btn btn-outline-secondary btn-sm" id="btnExport">
+                                            <i class="bi bi-download me-1"></i> Export Data
+                                        </button>
+                                        <button class="btn btn-outline-secondary btn-sm" id="btnBackup">
+                                            <i class="bi bi-cloud-download me-1"></i> Backup Database
+                                        </button>
+                                        <button class="btn btn-outline-danger btn-sm" id="btnClearCache">
+                                            <i class="bi bi-trash me-1"></i> Clear Local Cache
+                                        </button>
+                                    </div>
+                                </div>
+                                <hr>
+                                <div class="mb-3">
+                                    <label class="form-label">Version</label>
+                                    <div class="d-flex justify-content-between">
+                                        <span class="text-muted">BrewSync POS</span>
+                                        <span class="text-primary fw-medium">v1.0.0</span>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Build Date</label>
+                                    <div class="d-flex justify-content-between">
+                                        <span class="text-muted">Last Updated</span>
+                                        <span class="text-secondary fw-medium">Nov 4, 2026</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Management Section (Full width) -->
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">User Management</h5>
+                            <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                                <i class="bi bi-person-plus me-1"></i> Add User
+                            </button>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th style="width: 40px;">#</th>
+                                            <th>Name</th>
+                                            <th class="d-none d-md-table-cell">Email</th>
+                                            <th>Role</th>
+                                            <th class="d-none d-sm-table-cell">Status</th>
+                                            <th class="d-none d-lg-table-cell">Last Login</th>
+                                            <th style="width: 120px;">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>1</strong></td>
+                                            <td>John Doe</td>
+                                            <td class="d-none d-md-table-cell">john@brewsync.com</td>
+                                            <td><span class="badge bg-primary">Administrator</span></td>
+                                            <td class="d-none d-sm-table-cell"><span class="badge bg-success">Active</span></td>
+                                            <td class="d-none d-lg-table-cell">Just now</td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <button class="btn btn-outline-secondary" title="Edit"><i class="bi bi-pencil"></i></button>
+                                                    <button class="btn btn-outline-secondary" title="Deactivate"><i class="bi bi-pause"></i></button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>2</strong></td>
+                                            <td>Maria Santos</td>
+                                            <td class="d-none d-md-table-cell">maria@brewsync.com</td>
+                                            <td><span class="badge bg-success">Cashier</span></td>
+                                            <td class="d-none d-sm-table-cell"><span class="badge bg-success">Active</span></td>
+                                            <td class="d-none d-lg-table-cell">2 hours ago</td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <button class="btn btn-outline-secondary" title="Edit"><i class="bi bi-pencil"></i></button>
+                                                    <button class="btn btn-outline-secondary" title="Deactivate"><i class="bi bi-pause"></i></button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>3</strong></td>
+                                            <td>Juan Dela Cruz</td>
+                                            <td class="d-none d-md-table-cell">juan@brewsync.com</td>
+                                            <td><span class="badge bg-success">Cashier</span></td>
+                                            <td class="d-none d-sm-table-cell"><span class="badge bg-success">Active</span></td>
+                                            <td class="d-none d-lg-table-cell">Yesterday</td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <button class="btn btn-outline-secondary" title="Edit"><i class="bi bi-pencil"></i></button>
+                                                    <button class="btn btn-outline-secondary" title="Deactivate"><i class="bi bi-pause"></i></button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>4</strong></td>
+                                            <td>Anna Reyes</td>
+                                            <td class="d-none d-md-table-cell">anna@brewsync.com</td>
+                                            <td><span class="badge bg-secondary">Inventory Manager</span></td>
+                                            <td class="d-none d-sm-table-cell"><span class="badge bg-secondary">Inactive</span></td>
+                                            <td class="d-none d-lg-table-cell">3 days ago</td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <button class="btn btn-outline-secondary" title="Edit"><i class="bi bi-pencil"></i></button>
+                                                    <button class="btn btn-outline-secondary" title="Activate"><i class="bi bi-play"></i></button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <footer class="footer">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+                    <span class="text-muted small">BrewSync POS v1.0.0 • Offline-Ready System</span>
+                    <span class="text-muted small">Sync Status: <span class="text-success fw-bold">Online</span></span>
+                </div>
+            </footer>
+        </div>
+
+        <div class="sidebar-overlay d-lg-none" id="sidebarOverlay" aria-hidden="true"></div>
+    </div>
+
+    <!-- Add User Modal -->
+    <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addUserModalLabel">Add New User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form novalidate>
+                        <div class="mb-3">
+                            <label class="form-label">Full Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" placeholder="Juan Dela Cruz" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email Address <span class="text-danger">*</span></label>
+                            <input type="email" class="form-control" placeholder="juan@brewsync.com" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Role <span class="text-danger">*</span></label>
+                            <select class="form-select" required>
+                                <option value="">Select Role</option>
+                                <option value="cashier">Cashier / Front Desk</option>
+                                <option value="inventory">Inventory Manager</option>
+                                <option value="admin">System Administrator</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Password <span class="text-danger">*</span></label>
+                            <input type="password" class="form-control" placeholder="••••••••" required>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input class="form-check-input" type="checkbox" id="sendCredentials" checked>
+                            <label class="form-check-label" for="sendCredentials">Send credentials via email</label>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary">Add User</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="app.js"></script>
+    <script>
+        (function() {
+            'use strict';
+
+            document.addEventListener('DOMContentLoaded', () => {
+                const saveBtn = document.getElementById('btnSaveSettings');
+                if (saveBtn) {
+                    saveBtn.addEventListener('click', () => {
+                        const forms = document.querySelectorAll('form[novalidate]');
+                        let allValid = true;
+                        forms.forEach(form => {
+                            if (!form.checkValidity()) {
+                                allValid = false;
+                                form.classList.add('was-validated');
+                                form.reportValidity();
+                            }
+                        });
+                        if (allValid) {
+                            const modalEl = document.createElement('div');
+                            modalEl.className = 'modal fade';
+                            modalEl.innerHTML = `
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-body text-center p-4">
+                                            <i class="bi bi-check-circle-fill text-success" style="font-size: 3rem;"></i>
+                                            <h4 class="mt-3">Settings Saved</h4>
+                                            <p class="text-muted">Your changes have been saved successfully.</p>
+                                        </div>
+                                        <div class="modal-footer justify-content-center">
+                                            <button class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                            document.body.appendChild(modalEl);
+                            const bsModal = new bootstrap.Modal(modalEl);
+                            bsModal.show();
+                            modalEl.addEventListener('hidden.bs.modal', () => modalEl.remove());
+                        }
+                    });
+                }
+
+                // Export data
+                const btnExport = document.getElementById('btnExport');
+                if (btnExport) {
+                    btnExport.addEventListener('click', () => {
+                        const data = {
+                            store: 'BrewSync Milktea Shop',
+                            exportDate: new Date().toISOString(),
+                            version: '1.0.0'
+                        };
+                        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'brewsync-export.json';
+                        a.click();
+                        URL.revokeObjectURL(url);
+                    });
+                }
+
+                // Backup
+                const btnBackup = document.getElementById('btnBackup');
+                if (btnBackup) {
+                    btnBackup.addEventListener('click', () => {
+                        alert('Database backup initiated. File will download shortly.');
+                    });
+                }
+
+                // Clear cache
+                const btnClearCache = document.getElementById('btnClearCache');
+                if (btnClearCache) {
+                    btnClearCache.addEventListener('click', () => {
+                        if (confirm('Are you sure you want to clear the local cache? This will remove all unsynced offline data.')) {
+                            alert('Local cache cleared.');
+                        }
+                    });
+                }
+            });
+        })();
+    </script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('BrewSync Service Worker Registered!', reg))
+                    .catch(err => console.log('Service Worker Registration Failed!', err));
+            });
+        }
+    </script>
+</body>
+</html>
