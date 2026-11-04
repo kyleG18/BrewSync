@@ -1,7 +1,7 @@
 import React from "react";
 import "./App/Main/LoginPage/LoginPage.css";
 
-const Login = ({ onLogin }) => {
+const Login = ({ onLogin, onGuestLogin }) => {
   return (
     <div
       style={{
@@ -139,6 +139,92 @@ const Login = ({ onLogin }) => {
           </svg>
           <span>Sign in with Google</span>
         </button>
+
+        {/* Divider */}
+        <div style={{ display: "flex", alignItems: "center", margin: "1.25rem 0" }}>
+          <div style={{ flex: 1, height: "1px", backgroundColor: "#3D322B" }}></div>
+          <span style={{ padding: "0 0.75rem", color: "#9A8A7A", fontSize: "0.8rem" }}>or</span>
+          <div style={{ flex: 1, height: "1px", backgroundColor: "#3D322B" }}></div>
+        </div>
+
+        {/* Continue as Guest Button */}
+        <button
+          onClick={onGuestLogin}
+          type="button"
+          style={{
+            width: "100%",
+            padding: "0.8rem 1.25rem",
+            backgroundColor: "rgba(74, 46, 25, 0.45)",
+            color: "#F5EBE0",
+            border: "1px solid #4A3D33",
+            borderRadius: "0.75rem",
+            fontSize: "0.92rem",
+            fontWeight: 600,
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "0.6rem",
+            transition: "all 0.2s ease"
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = "rgba(74, 46, 25, 0.8)";
+            e.currentTarget.style.borderColor = "#E88D39";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = "rgba(74, 46, 25, 0.45)";
+            e.currentTarget.style.borderColor = "#4A3D33";
+          }}
+        >
+          <i className="bi bi-person-badge" style={{ color: "#E88D39", fontSize: "1.1rem" }}></i>
+          <span>Continue as Guest / Demo Mode</span>
+        </button>
+
+        {/* Quick Links to other stations */}
+        <div style={{ marginTop: "1.5rem", display: "flex", justifyContent: "center", gap: "0.5rem", flexWrap: "wrap" }}>
+          <a
+            href="/dashboard.html"
+            style={{
+              fontSize: "0.78rem",
+              padding: "0.3rem 0.65rem",
+              borderRadius: "0.5rem",
+              backgroundColor: "#1A1614",
+              border: "1px solid #3D322B",
+              color: "#D4C4B5",
+              textDecoration: "none"
+            }}
+          >
+            <i className="bi bi-speedometer2 me-1"></i> Dashboard
+          </a>
+          <a
+            href="/pos.html"
+            style={{
+              fontSize: "0.78rem",
+              padding: "0.3rem 0.65rem",
+              borderRadius: "0.5rem",
+              backgroundColor: "#1A1614",
+              border: "1px solid #3D322B",
+              color: "#D4C4B5",
+              textDecoration: "none"
+            }}
+          >
+            <i className="bi bi-cart3 me-1"></i> POS
+          </a>
+          <a
+            href="/orders.html"
+            style={{
+              fontSize: "0.78rem",
+              padding: "0.3rem 0.65rem",
+              borderRadius: "0.5rem",
+              backgroundColor: "#1A1614",
+              border: "1px solid #3D322B",
+              color: "#D4C4B5",
+              textDecoration: "none"
+            }}
+          >
+            <i className="bi bi-receipt me-1"></i> Orders
+          </a>
+        </div>
 
         <div style={{ marginTop: "2rem", borderTop: "1px solid #3D322B", paddingTop: "1.25rem" }}>
           <span

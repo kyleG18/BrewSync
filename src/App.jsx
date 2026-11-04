@@ -65,9 +65,18 @@ function App() {
     );
   }
 
+  // Handle Guest / Demo Login (for quick review or unapproved domains)
+  const handleGuestLogin = () => {
+    setUser({
+      displayName: "Demo User",
+      email: "demo@brewsync.pos",
+      photoURL: null
+    });
+  };
+
   // Not Authenticated -> Show Login Page
   if (!user) {
-    return <Login onLogin={handleLogin} />;
+    return <Login onLogin={handleLogin} onGuestLogin={handleGuestLogin} />;
   }
 
   // Authenticated -> Show App with Header and Main View
