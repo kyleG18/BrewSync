@@ -9,7 +9,6 @@ function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Set up Firebase Auth state listener
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -19,27 +18,24 @@ function App() {
     return () => unsubscribe();
   }, []);
 
-  // Handle Google Popup Sign-In
   const handleLogin = async () => {
     try {
       await signInWithPopup(auth, googleProvider);
     } catch (error) {
-      console.error("Google Sign-In Error:", error);
+      console.error("Login error:", error);
       alert(`Login failed: ${error.message}`);
     }
   };
 
-  // Handle Sign-Out
   const handleLogout = async () => {
     try {
       sessionStorage.removeItem('brewsync_guest');
       await signOut(auth);
     } catch (error) {
-      console.error("Sign-Out Error:", error);
+      console.error("Logout error:", error);
     }
   };
 
-  // Loading State while verifying session
   if (loading) {
     return (
       <div
@@ -61,17 +57,15 @@ function App() {
         >
           <span className="visually-hidden">Loading...</span>
         </div>
-        <p style={{ color: "#D4C4B5", fontSize: "0.95rem" }}>Verifying BrewSync POS session...</p>
+        <p style={{ color: "#D4C4B5", fontSize: "0.95rem" }}>Loading BrewSync POS...</p>
       </div>
     );
   }
 
-  // Handle Email/Password Sign-In
   const handleEmailLogin = async (email, password) => {
     await signInWithEmailAndPassword(auth, email, password);
   };
 
-  // Handle Guest / Demo Login (for quick review or unapproved domains)
   const handleGuestLogin = () => {
     sessionStorage.setItem('brewsync_guest', 'true');
     setUser({
@@ -81,12 +75,10 @@ function App() {
     });
   };
 
-  // Not Authenticated -> Show Login Page
   if (!user) {
     return <Login onLogin={handleLogin} onGuestLogin={handleGuestLogin} onEmailLogin={handleEmailLogin} />;
   }
 
-  // Authenticated -> Show App with Header and Main View
   return (
     <div className="brewsync-app">
       <Header user={user} onLogout={handleLogout} />

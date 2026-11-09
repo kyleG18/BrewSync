@@ -28,7 +28,6 @@ const Header = ({ user, onLogout }) => {
         fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
       }}
     >
-      {/* Brand logo & title */}
       <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
         <div
           style={{
@@ -60,12 +59,11 @@ const Header = ({ user, onLogout }) => {
               fontWeight: 600
             }}
           >
-            Firebase Auth
+            Station 01
           </span>
         </div>
       </div>
 
-      {/* User profile & Sign Out */}
       <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "0.65rem" }}>
           {photoURL ? (
@@ -113,7 +111,6 @@ const Header = ({ user, onLogout }) => {
           </div>
         </div>
 
-        {/* Sign Out Button */}
         <button
           onClick={onLogout}
           type="button"

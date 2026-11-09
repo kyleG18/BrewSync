@@ -16,15 +16,10 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   </React.StrictMode>
 );
 
-// Service Worker Registration (CC 106 - Lesson 1)
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/sw.js")
-      .then((registration) => {
-        console.log("SW Registered with scope:", registration.scope);
-      })
-      .catch((error) => {
-        console.error("SW Registration failed:", error);
-      });
+    navigator.serviceWorker.register("/sw.js").catch((err) => {
+      console.error("SW error:", err);
+    });
   });
 }

@@ -361,7 +361,7 @@
         }
     }
 
-    // ── Session & User Info Sync Across Static Pages ─────────────────────────
+    // session and user info
     function initUserSessionDisplay() {
         const isGuest = sessionStorage.getItem('brewsync_guest') === 'true';
         const userNames = document.querySelectorAll('.user-name');
@@ -382,7 +382,7 @@
         });
     }
 
-    // ── Live Orders Sync (Connects POS orders with orders.html) ───────────────
+    // sync pos orders with orders table
     function initOrdersSync() {
         const tableBody = document.querySelector('#ordersTable tbody');
         if (!tableBody) return;
@@ -431,7 +431,7 @@
         }
     }
 
-    // ── Live Table Search & Filter Across Static Pages ─────────────────────────
+    // table search and category filter
     function initTableSearchAndFilter() {
         const searchInputs = document.querySelectorAll('.search-box input, input[type="search"]');
         searchInputs.forEach(input => {
@@ -469,7 +469,7 @@
         }
     }
 
-    // ── Universal Table CSV Export ────────────────────────────────────────────
+    // export table to csv
     function initCsvExport() {
         const exportBtns = document.querySelectorAll('.btn:has(.bi-download), button:has(.bi-download)');
         exportBtns.forEach(btn => {

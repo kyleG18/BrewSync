@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+﻿import React, { useState, useEffect, useMemo } from "react";
 import "./InventoryPage.css";
 
 const DEFAULT_INVENTORY = [
@@ -37,10 +37,10 @@ const InventoryPage = ({ user, onLogout }) => {
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  // Load Inventory (LocalStorage first, then attempt server sync if available)
+  
   useEffect(() => {
     const loadData = async () => {
-      // 1. Check local storage
+      
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         try {
@@ -55,7 +55,7 @@ const InventoryPage = ({ user, onLogout }) => {
         }
       }
 
-      // 2. Try fetching from backend with 1.5s timeout
+      
       try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 1500);
@@ -73,11 +73,11 @@ const InventoryPage = ({ user, onLogout }) => {
           }
         }
       } catch (err) {
-        // Expected when deployed on Netlify or server offline
-        console.info("Using offline demo inventory dataset (Netlify/Offline ready)");
+        
+        
       }
 
-      // 3. Fallback to rich default dataset
+      
       setInventory(DEFAULT_INVENTORY);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_INVENTORY));
       setLoading(false);
@@ -86,13 +86,13 @@ const InventoryPage = ({ user, onLogout }) => {
     loadData();
   }, []);
 
-  // Save changes to localStorage helper
+  
   const persistInventory = (updated) => {
     setInventory(updated);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
   };
 
-  // Delete Item
+  
   const handleDelete = async (id) => {
     const target = inventory.find(i => i.id === id);
     if (!window.confirm(`Delete "${target?.itemName || 'this item'}" from inventory?`)) {
@@ -103,13 +103,13 @@ const InventoryPage = ({ user, onLogout }) => {
     persistInventory(updated);
     showToast(`Deleted ${target?.itemName || "item"} successfully.`);
 
-    // Async backend sync if online
+    
     try {
       fetch(`http://localhost:5000/api/inventory/${id}`, { method: "DELETE" }).catch(() => {});
     } catch (_) {}
   };
 
-  // Update Item
+  
   const handleUpdate = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
@@ -132,7 +132,7 @@ const InventoryPage = ({ user, onLogout }) => {
     setEditingItem(null);
     showToast(`Updated "${updatedPayload.itemName}"`);
 
-    // Async backend sync
+    
     try {
       fetch(`http://localhost:5000/api/inventory/${editingItem.id}`, {
         method: "PUT",
@@ -142,7 +142,7 @@ const InventoryPage = ({ user, onLogout }) => {
     } catch (_) {}
   };
 
-  // Add New Item
+  
   const handleCreate = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
@@ -163,7 +163,7 @@ const InventoryPage = ({ user, onLogout }) => {
     setAddingItem(false);
     showToast(`Added "${newItem.itemName}" to inventory!`);
 
-    // Async backend sync
+    
     try {
       fetch("http://localhost:5000/api/inventory", {
         method: "POST",
@@ -173,13 +173,13 @@ const InventoryPage = ({ user, onLogout }) => {
     } catch (_) {}
   };
 
-  // Computed Categories
+  
   const categories = useMemo(() => {
     const set = new Set(inventory.map(i => i.category).filter(Boolean));
     return ["All", ...Array.from(set)];
   }, [inventory]);
 
-  // Filtered List
+  
   const filteredInventory = useMemo(() => {
     return inventory.filter(item => {
       const matchSearch =
@@ -191,7 +191,7 @@ const InventoryPage = ({ user, onLogout }) => {
     });
   }, [inventory, searchQuery, selectedCategory, selectedStatus]);
 
-  // Statistics
+  
   const stats = useMemo(() => {
     const total = inventory.length;
     const lowStock = inventory.filter(i => i.status === "Low Stock" || i.quantity <= i.reorderLevel).length;
@@ -211,23 +211,18 @@ const InventoryPage = ({ user, onLogout }) => {
 
   return (
     <div className="app-wrapper">
-      {/* Toast Alert */}
-      {toastMessage && (
+{toastMessage && (
         <div className="inventory-toast" role="alert">
           <i className="bi bi-check-circle-fill text-warning me-2"></i>
           <span>{toastMessage}</span>
         </div>
       )}
-
-      {/* Sidebar Mobile Overlay */}
-      <div 
+<div 
         className={`sidebar-overlay ${sidebarOpen ? "active" : ""}`} 
         onClick={() => setSidebarOpen(false)}
         aria-hidden="true"
       ></div>
-
-      {/* Sidebar */}
-      <aside className={`sidebar ${sidebarOpen ? "open" : ""}`} id="sidebar" role="navigation" aria-label="Main navigation">
+<aside className={`sidebar ${sidebarOpen ? "open" : ""}`} id="sidebar" role="navigation" aria-label="Main navigation">
         <div className="sidebar-brand">
           <a href="/dashboard.html" className="brand-link">
             <div className="brand-icon">
@@ -333,9 +328,7 @@ const InventoryPage = ({ user, onLogout }) => {
           </div>
         </div>
       </aside>
-
-      {/* Main Content Area */}
-      <div className="main-content">
+<div className="main-content">
         <header className="topbar">
           <div className="d-flex align-items-center gap-2">
             <button 
@@ -348,7 +341,7 @@ const InventoryPage = ({ user, onLogout }) => {
             </button>
             <div className="d-none d-sm-flex align-items-center gap-2">
               <span className="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">
-                <span className="pulse-dot me-1"></span> PWA Ready
+                <span className="pulse-dot me-1"></span> System Active
               </span>
             </div>
           </div>
@@ -376,8 +369,7 @@ const InventoryPage = ({ user, onLogout }) => {
         </header>
 
         <main className="content" role="main">
-          {/* Page Header */}
-          <div className="page-header">
+<div className="page-header">
             <div>
               <h1 className="page-title">Inventory Management</h1>
               <p className="page-subtitle">
@@ -385,9 +377,7 @@ const InventoryPage = ({ user, onLogout }) => {
               </p>
             </div>
           </div>
-
-          {/* Quick Stats Grid */}
-          <div className="stats-row">
+<div className="stats-row">
             <div className="stat-card">
               <div className="stat-icon bg-warning-subtle text-warning">
                 <i className="bi bi-box-seam"></i>
@@ -428,9 +418,7 @@ const InventoryPage = ({ user, onLogout }) => {
               </div>
             </div>
           </div>
-
-          {/* Search & Filters Bar */}
-          <div className="inventory-controls-card">
+<div className="inventory-controls-card">
             <div className="controls-row">
               <div className="search-input-wrap">
                 <i className="bi bi-search"></i>
@@ -489,9 +477,7 @@ const InventoryPage = ({ user, onLogout }) => {
                 </div>
               </div>
             </div>
-
-            {/* Category Quick Chips */}
-            <div className="category-chips-row">
+<div className="category-chips-row">
               {categories.map((cat) => (
                 <button
                   key={cat}
@@ -503,9 +489,7 @@ const InventoryPage = ({ user, onLogout }) => {
               ))}
             </div>
           </div>
-
-          {/* Results Count & Status */}
-          <div className="d-flex justify-content-between align-items-center mb-3">
+<div className="d-flex justify-content-between align-items-center mb-3">
             <span className="text-secondary small">
               Showing <strong>{filteredInventory.length}</strong> of {inventory.length} items
             </span>
@@ -522,9 +506,7 @@ const InventoryPage = ({ user, onLogout }) => {
               </button>
             )}
           </div>
-
-          {/* Table / Card View */}
-          {filteredInventory.length === 0 ? (
+{filteredInventory.length === 0 ? (
             <div className="empty-state-card">
               <i className="bi bi-inbox fs-1 text-muted mb-2"></i>
               <h5 className="text-primary mb-1">No matching inventory items</h5>
@@ -651,9 +633,7 @@ const InventoryPage = ({ user, onLogout }) => {
               </table>
             </div>
           )}
-
-          {/* Edit Item Modal */}
-          {editingItem && (
+{editingItem && (
             <div className="edit-modal-overlay" onClick={() => setEditingItem(null)}>
               <div className="edit-modal" onClick={(e) => e.stopPropagation()}>
                 <div className="edit-modal-header">
@@ -731,9 +711,7 @@ const InventoryPage = ({ user, onLogout }) => {
               </div>
             </div>
           )}
-
-          {/* Add Item Modal */}
-          {addingItem && (
+{addingItem && (
             <div className="edit-modal-overlay" onClick={() => setAddingItem(false)}>
               <div className="edit-modal" onClick={(e) => e.stopPropagation()}>
                 <div className="edit-modal-header">
@@ -817,7 +795,7 @@ const InventoryPage = ({ user, onLogout }) => {
           <div className="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
             <span className="text-muted small">BrewSync POS v1.0 • PWA Offline Ready</span>
             <span className="text-muted small">
-              Database: <span className="text-success fw-bold">Active &amp; Synced</span>
+              Status: <span className="text-success fw-bold">Operational</span>
             </span>
           </div>
         </footer>

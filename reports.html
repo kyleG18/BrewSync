@@ -1,8 +1,7 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Firebase Auth Guard: redirect to login if not authenticated -->
-    <script type="module">
+        <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js';
         import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js';
         const _app = initializeApp({
@@ -480,7 +479,7 @@
 
             <footer class="footer">
                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
-                    <span class="text-muted small">BrewSync POS v1.0.0 • Offline-Ready System</span>
+                    <span class="text-muted small">BrewSync POS v1.0.0 • Point of Sale & Inventory</span>
                     <span class="text-muted small">Sync Status: <span class="text-success fw-bold">Online</span></span>
                 </div>
             </footer>
@@ -494,9 +493,7 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(reg => console.log('BrewSync Service Worker Registered!', reg))
-                    .catch(err => console.log('Service Worker Registration Failed!', err));
+                navigator.serviceWorker.register('/sw.js').catch(err => console.error(err));
             });
         }
     </script>

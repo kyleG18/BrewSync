@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -486,7 +486,7 @@
                     <span class="status-dot" aria-hidden="true"></span>
                     Sync Status: Online
                 </span>
-                <p class="version-text">BrewSync v1.0 • Offline-Ready System</p>
+                <p class="version-text">BrewSync v1.0 • Point of Sale & Inventory</p>
             </div>
         </div>
     </div>
@@ -537,9 +537,7 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(reg => console.log('BrewSync Service Worker Registered!', reg))
-                    .catch(err => console.log('Service Worker Registration Failed!', err));
+                navigator.serviceWorker.register('/sw.js').catch(err => console.error(err));
             });
         }
     </script>
@@ -566,7 +564,7 @@
             googleBtn.addEventListener('click', async () => {
                 try {
                     const result = await signInWithPopup(auth, provider);
-                    console.log('Signed in with Google:', result.user);
+                    
                     window.location.href = '/';
                 } catch (err) {
                     console.error('Google Sign-In Error:', err);

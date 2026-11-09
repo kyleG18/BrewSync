@@ -1,8 +1,7 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Firebase Auth Guard: redirect to login if not authenticated -->
-    <script type="module">
+        <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js';
         import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js';
         const _app = initializeApp({
@@ -1318,8 +1317,7 @@
         </div>
     </div>
 
-        <!-- Official Printable Receipt Modal -->
-    <div class="modal fade" id="receiptModal" tabindex="-1" aria-labelledby="receiptModalLabel" aria-hidden="true">
+            <div class="modal fade" id="receiptModal" tabindex="-1" aria-labelledby="receiptModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-sm">
             <div class="modal-content" style="background: #FFFFFF; color: #1A1614; font-family: monospace;">
                 <div class="modal-header border-0 pb-0">
@@ -1341,8 +1339,7 @@
         </div>
     </div>
 
-    <!-- Floating Mobile Cart Bar -->
-    <div class="mobile-cart-bar" id="mobileCartBar" onclick="document.querySelector('.order-panel').scrollIntoView({behavior: 'smooth'})">
+        <div class="mobile-cart-bar" id="mobileCartBar" onclick="document.querySelector('.order-panel').scrollIntoView({behavior: 'smooth'})">
         <div class="mobile-cart-bar-left">
             <i class="bi bi-cart-fill text-warning"></i>
             <span id="mobileCartCount">0 items</span>
@@ -1359,8 +1356,7 @@
         (function() {
             'use strict';
 
-            // Menu Data
-            const menuData = [
+                        const menuData = [
                 { id: 1, name: 'Classic Milk Tea', price: 85, category: 'classic', image: 'bi-cup-hot', tag: 'in-stock', description: 'Premium black tea with creamy milk' },
                 { id: 2, name: 'Brown Sugar Boba', price: 110, category: 'classic', image: 'bi-cup-straw', tag: 'in-stock', description: 'Caramelized brown sugar with chewy pearls' },
                 { id: 3, name: 'Matcha Latte', price: 120, category: 'classic', image: 'bi-cup-hot', tag: 'in-stock', description: 'Ceremonial grade matcha green tea' },
@@ -1379,8 +1375,7 @@
                 { id: 16, name: 'Popping Boba', price: 20, category: 'addon', image: 'bi-circle', tag: 'in-stock', description: 'Fruit-filled bursting boba' }
             ];
 
-            // State
-            let order = [];
+                        let order = [];
             let currentItem = null;
             let selectedSize = { size: 'regular', price: 0 };
             let selectedSugar = '100%';
@@ -1389,8 +1384,7 @@
             let paymentMethod = 'cash';
             let orderCounter = 1;
 
-            // DOM Elements
-            const menuItemsEl = document.getElementById('menuItems');
+                        const menuItemsEl = document.getElementById('menuItems');
             const orderItemsEl = document.getElementById('orderItems');
             const emptyOrderEl = orderItemsEl.querySelector('.empty-order');
             const menuSearch = document.getElementById('menuSearch');
@@ -1411,14 +1405,12 @@
             const paymentAlert = document.getElementById('paymentAlert');
             const alertMessage = document.getElementById('alertMessage');
 
-            // Network status simulation
-            const statusDot = document.getElementById('statusDot');
+                        const statusDot = document.getElementById('statusDot');
             const statusText = document.getElementById('statusText');
             const offlineIndicator = document.getElementById('offlineIndicator');
             let isOnline = true;
 
-            // Initialize
-            function init() {
+                        function init() {
                 renderMenu(menuData);
                 updateOrderNumber();
                 setupEventListeners();
@@ -1426,8 +1418,7 @@
                 simulateNetworkStatus();
             }
 
-            // Clock
-            function startClock() {
+                        function startClock() {
                 function updateTime() {
                     const now = new Date();
                     const options = { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
@@ -1437,8 +1428,7 @@
                 setInterval(updateTime, 1000);
             }
 
-            // Network status simulation
-            function simulateNetworkStatus() {
+                        function simulateNetworkStatus() {
                 setInterval(() => {
                     isOnline = Math.random() > 0.1;
                     if (isOnline) {
@@ -1458,10 +1448,8 @@
                 }, 5000);
             }
 
-            // Event Listeners
-            function setupEventListeners() {
-                // Category filters
-                categoryChips.forEach(chip => {
+                        function setupEventListeners() {
+                                categoryChips.forEach(chip => {
                     chip.addEventListener('click', () => {
                         categoryChips.forEach(c => c.classList.remove('active'));
                         chip.classList.add('active');
@@ -1471,8 +1459,7 @@
                     });
                 });
 
-                // Search
-                menuSearch.addEventListener('input', (e) => {
+                                menuSearch.addEventListener('input', (e) => {
                     const term = e.target.value.toLowerCase();
                     const activeCategory = document.querySelector('.category-chip.active').dataset.category;
                     let filtered = menuData.filter(item => item.name.toLowerCase().includes(term));
@@ -1482,8 +1469,7 @@
                     renderMenu(filtered);
                 });
 
-                // Payment method selection
-                document.querySelectorAll('.payment-btn').forEach(btn => {
+                                document.querySelectorAll('.payment-btn').forEach(btn => {
                     btn.addEventListener('click', () => {
                         document.querySelectorAll('.payment-btn').forEach(b => b.classList.remove('active'));
                         btn.classList.add('active');
@@ -1491,8 +1477,7 @@
                     });
                 });
 
-                // Cash tendered change calculation
-                cashTendered.addEventListener('input', () => {
+                                cashTendered.addEventListener('input', () => {
                     const tendered = parseFloat(cashTendered.value) || 0;
                     const total = parseFloat(totalEl.textContent.replace('₱', '').replace(/,/g, ''));
                     const change = tendered - total;
@@ -1500,8 +1485,7 @@
                     paymentAlert.style.display = 'none';
                 });
 
-                // Complete order
-                btnComplete.addEventListener('click', () => {
+                                btnComplete.addEventListener('click', () => {
                     if (order.length === 0) return;
                     document.getElementById('modalTotal').textContent = totalEl.textContent;
                     cashTendered.value = '';
@@ -1510,8 +1494,7 @@
                     paymentModal.show();
                 });
 
-                // Confirm payment
-                btnConfirmPayment.addEventListener('click', () => {
+                                btnConfirmPayment.addEventListener('click', () => {
                     const tendered = parseFloat(cashTendered.value) || 0;
                     const total = parseFloat(totalEl.textContent.replace('₱', '').replace(/,/g, ''));
                     if (tendered < total) {
@@ -1525,8 +1508,7 @@
                     clearOrder();
                 });
 
-                // Add to order from customization modal
-                btnAddToOrder.addEventListener('click', () => {
+                                btnAddToOrder.addEventListener('click', () => {
                     if (!currentItem) return;
                     const toppingsPrice = selectedToppings.reduce((sum, t) => sum + t.price, 0);
                     const itemPrice = currentItem.price + selectedSize.price + toppingsPrice;
@@ -1555,8 +1537,7 @@
                     renderOrder();
                 });
 
-                // Reset customization when modal opens
-                document.getElementById('customizationModal').addEventListener('show.bs.modal', () => {
+                                document.getElementById('customizationModal').addEventListener('show.bs.modal', () => {
                     selectedSize = { size: 'regular', price: 0 };
                     selectedSugar = '100%';
                     selectedIce = 'normal';
@@ -1565,8 +1546,7 @@
                 });
             }
 
-            // Render Menu
-            function renderMenu(items) {
+                        function renderMenu(items) {
                 menuItemsEl.innerHTML = '';
                 if (items.length === 0) {
                     menuItemsEl.innerHTML = '<div class="col-12 text-center text-muted py-5"><i class="bi bi-search-off" style="font-size: 3rem;"></i><p class="mt-2">No items found</p></div>';
@@ -1593,26 +1573,21 @@
                 });
             }
 
-            // Open Customization
-            function openCustomization(item) {
+                        function openCustomization(item) {
                 currentItem = item;
                 modalItemName.textContent = item.name;
                 modalItemPrice.textContent = '₱' + item.price.toLocaleString();
                 customizationModal.show();
             }
 
-            // Customization UI updates
-            function updateCustomizationUI() {
-                // Size
-                document.querySelectorAll('.size-options .option-btn').forEach(btn => {
+                        function updateCustomizationUI() {
+                                document.querySelectorAll('.size-options .option-btn').forEach(btn => {
                     btn.classList.toggle('active', btn.dataset.size === selectedSize.size);
                 });
-                // Sugar
-                document.querySelectorAll('.sugar-options .option-btn').forEach(btn => {
+                                document.querySelectorAll('.sugar-options .option-btn').forEach(btn => {
                     btn.classList.toggle('active', btn.dataset.sugar === selectedSugar);
                 });
-                // Ice
-                document.querySelectorAll('.ice-options .option-btn').forEach(btn => {
+                                document.querySelectorAll('.ice-options .option-btn').forEach(btn => {
                     btn.classList.toggle('active', btn.dataset.ice === selectedIce);
                 });
             }
@@ -1647,8 +1622,7 @@
                 });
             });
 
-            // Render Order
-            function renderOrder() {
+                        function renderOrder() {
                 orderItemsEl.innerHTML = '';
                 if (order.length === 0) {
                     orderItemsEl.appendChild(emptyOrderEl);
@@ -1687,15 +1661,13 @@
                 updateTotals(subtotal, tax, total);
             }
 
-            // Update Totals
-            function updateTotals(sub, tax, total) {
+                        function updateTotals(sub, tax, total) {
                 subtotalEl.textContent = '₱' + sub.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                 taxEl.textContent = '₱' + tax.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                 totalEl.textContent = '₱' + total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             }
 
-            // Order actions
-            window.BrewSyncPOS = {
+                        window.BrewSyncPOS = {
                 changeQty: (index, delta) => {
                     order[index].qty += delta;
                     if (order[index].qty <= 0) {
@@ -1721,8 +1693,7 @@
                 orderNumberEl.textContent = str;
             }
 
-            // Apply promo (stub)
-            document.getElementById('applyPromo').addEventListener('click', () => {
+                        document.getElementById('applyPromo').addEventListener('click', () => {
                 const code = document.getElementById('promoCode').value.toUpperCase();
                 if (code === 'BREW10') {
                     alert('10% discount applied!');
@@ -1731,16 +1702,13 @@
                 }
             });
 
-            // Initialize
-            document.addEventListener('DOMContentLoaded', init);
+                        document.addEventListener('DOMContentLoaded', init);
         })();
     </script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(reg => console.log('BrewSync Service Worker Registered!', reg))
-                    .catch(err => console.log('Service Worker Registration Failed!', err));
+                navigator.serviceWorker.register('/sw.js').catch(err => console.error(err));
             });
         }
     </script>

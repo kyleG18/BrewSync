@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import "./App/Main/LoginPage/LoginPage.css";
 
 const Login = ({ onLogin, onGuestLogin, onEmailLogin }) => {
@@ -35,7 +35,6 @@ const Login = ({ onLogin, onGuestLogin, onEmailLogin }) => {
         fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
       }}
     >
-      {/* Background Glow */}
       <div
         style={{
           position: "fixed",
@@ -62,8 +61,7 @@ const Login = ({ onLogin, onGuestLogin, onEmailLogin }) => {
           zIndex: 1
         }}
       >
-        {/* Brand Icon */}
-        <div
+<div
           style={{
             width: "72px",
             height: "72px",
@@ -106,9 +104,7 @@ const Login = ({ onLogin, onGuestLogin, onEmailLogin }) => {
             Sign in with your authorized Google Workspace or personal account to access the system.
           </p>
         </div>
-
-        {/* Google Sign In Button */}
-        <button
+<button
           onClick={onLogin}
           type="button"
           style={{
@@ -137,8 +133,7 @@ const Login = ({ onLogin, onGuestLogin, onEmailLogin }) => {
             e.currentTarget.style.transform = "translateY(0)";
           }}
         >
-          {/* Official Google G SVG */}
-          <svg width="22" height="22" viewBox="0 0 24 24">
+<svg width="22" height="22" viewBox="0 0 24 24">
             <path
               fill="#4285F4"
               d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"
@@ -158,16 +153,12 @@ const Login = ({ onLogin, onGuestLogin, onEmailLogin }) => {
           </svg>
           <span>Sign in with Google</span>
         </button>
-
-        {/* Divider */}
-        <div style={{ display: "flex", alignItems: "center", margin: "1.25rem 0" }}>
+<div style={{ display: "flex", alignItems: "center", margin: "1.25rem 0" }}>
           <div style={{ flex: 1, height: "1px", backgroundColor: "#3D322B" }}></div>
           <span style={{ padding: "0 0.75rem", color: "#9A8A7A", fontSize: "0.8rem" }}>or</span>
           <div style={{ flex: 1, height: "1px", backgroundColor: "#3D322B" }}></div>
         </div>
-
-        {/* Email / Password Form */}
-        <form onSubmit={handleEmailSubmit} style={{ textAlign: "left", marginBottom: "1rem" }}>
+<form onSubmit={handleEmailSubmit} style={{ textAlign: "left", marginBottom: "1rem" }}>
           <div style={{ marginBottom: "0.85rem" }}>
             <label style={{ display: "block", fontSize: "0.8rem", color: "#D4C4B5", marginBottom: "0.4rem", fontWeight: 500 }}>
               Email Address
@@ -274,16 +265,12 @@ const Login = ({ onLogin, onGuestLogin, onEmailLogin }) => {
             <i className="bi bi-box-arrow-in-right me-2"></i>Sign In
           </button>
         </form>
-
-        {/* Divider before Guest */}
-        <div style={{ display: "flex", alignItems: "center", margin: "1rem 0" }}>
+<div style={{ display: "flex", alignItems: "center", margin: "1rem 0" }}>
           <div style={{ flex: 1, height: "1px", backgroundColor: "#3D322B" }}></div>
           <span style={{ padding: "0 0.75rem", color: "#9A8A7A", fontSize: "0.8rem" }}>or</span>
           <div style={{ flex: 1, height: "1px", backgroundColor: "#3D322B" }}></div>
         </div>
-
-        {/* Continue as Guest Button */}
-        <button
+<button
           onClick={onGuestLogin}
           type="button"
           style={{
@@ -314,9 +301,7 @@ const Login = ({ onLogin, onGuestLogin, onEmailLogin }) => {
           <i className="bi bi-person-badge" style={{ color: "#E88D39", fontSize: "1.1rem" }}></i>
           <span>Continue as Guest / Demo Mode</span>
         </button>
-
-        {/* Quick Links to other stations */}
-        <div style={{ marginTop: "1.5rem", display: "flex", justifyContent: "center", gap: "0.5rem", flexWrap: "wrap" }}>
+<div style={{ marginTop: "1.5rem", display: "flex", justifyContent: "center", gap: "0.5rem", flexWrap: "wrap" }}>
           <a
             href="/dashboard.html"
             style={{
@@ -380,7 +365,7 @@ const Login = ({ onLogin, onGuestLogin, onEmailLogin }) => {
                 display: "inline-block"
               }}
             ></span>
-            Firebase Auth • CC 106 Integrated
+            <span>BrewSync POS • v1.0</span>
           </span>
         </div>
       </div>

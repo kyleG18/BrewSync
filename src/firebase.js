@@ -16,14 +16,11 @@ const firebaseConfig = {
   measurementId: "G-B3QDBBR9S4"
 };
 
-// Initialize Firebase App
 const app = initializeApp(firebaseConfig);
 
-// Initialize Firebase Auth & Google Provider
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
 
-// Initialize Firestore with Offline Persistence Support (PWA multi-tab)
 export const db = initializeFirestore(app, {
   localCache: persistentLocalCache({
     tabManager: persistentMultipleTabManager()

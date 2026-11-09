@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import {
   Card,
   Input,
@@ -53,12 +53,7 @@ const LoginPage = () => {
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0) {
-      console.log("Login Payload:", {
-        username: username.trim(),
-        password,
-        stationRole
-      });
-      alert("Login attempted. Check browser console for payload.");
+      // submit credentials
     }
   };
 
@@ -175,7 +170,7 @@ const LoginPage = () => {
         <div className="text-center mt-4">
           <Badge text="Sync Status: Online" variant="success" dot />
           <p className="version-text">
-            BrewSync v1.0 • Offline-Ready System
+            BrewSync v1.0 • Point of Sale & Inventory
           </p>
         </div>
       </div>

@@ -869,9 +869,7 @@ a {
   font-weight: 600;
 }
 
-/* ─────────────────────────────────────────────────────────────────────────
-   BrewSync Responsive & Interactive Additions
-   ───────────────────────────────────────────────────────────────────────── */
+/* responsive additions */
 
 /* Toast Notification */
 .inventory-toast {
