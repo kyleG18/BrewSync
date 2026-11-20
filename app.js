@@ -138,17 +138,38 @@
             }
         };
 
-        new Chart(ctx, config);
+        window._salesChartInstance = new Chart(ctx, config);
     }
 
     function initChartPeriodButtons() {
         const buttons = document.querySelectorAll('[data-period]');
         if (!buttons.length) return;
 
+        const periodData = {
+            '7d': {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                values: [8200, 9100, 7800, 10500, 12400, 14200, 11800]
+            },
+            '30d': {
+                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                values: [64200, 71800, 69400, 82500]
+            },
+            '90d': {
+                labels: ['Month 1', 'Month 2', 'Month 3'],
+                values: [248000, 279500, 312400]
+            }
+        };
+
         buttons.forEach(btn => {
             btn.addEventListener('click', () => {
                 buttons.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
+                const period = btn.dataset.period;
+                if (window._salesChartInstance && periodData[period]) {
+                    window._salesChartInstance.data.labels = periodData[period].labels;
+                    window._salesChartInstance.data.datasets[0].data = periodData[period].values;
+                    window._salesChartInstance.update();
+                }
             });
         });
     }
@@ -417,17 +438,66 @@
             `).join('');
 
             tableBody.insertAdjacentHTML('afterbegin', rowsHtml);
-
-            // Wire up details button click
-            document.querySelectorAll('.btn-order-details').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const num = btn.dataset.num;
-                    const items = btn.dataset.items;
-                    alert(`Order: ${num}\nItems: ${items || 'Details not available'}`);
-                });
-            });
         } catch (e) {
             console.warn('Orders sync error:', e);
+        }
+
+        // Wire up View Details and Print Receipt for all rows (static + live)
+        tableBody.addEventListener('click', (e) => {
+            const viewBtn = e.target.closest('[title="View Details"]');
+            if (viewBtn) {
+                const row = viewBtn.closest('tr');
+                const orderNum = viewBtn.dataset.num || row?.cells[0]?.textContent.trim() || 'Order';
+                const customer = row?.cells[1]?.textContent.trim() || 'Walk-in';
+                const items = viewBtn.dataset.items || row?.cells[2]?.textContent.trim() || '';
+                const total = row?.cells[3]?.textContent.trim() || '';
+                const status = row?.cells[5]?.textContent.trim() || '';
+                window.BrewSync?.notify(`<strong>${orderNum}</strong> — ${customer} (${items}) • ${total} [${status}]`, 'info');
+                return;
+            }
+            const printBtn = e.target.closest('[title="Print Receipt"]');
+            if (printBtn) {
+                window.print();
+            }
+        });
+
+        // Wire up orderFilterModal Apply & Reset
+        const filterModalEl = document.getElementById('orderFilterModal');
+        if (filterModalEl) {
+            const applyBtn = filterModalEl.querySelector('.btn-primary');
+            const resetBtn = filterModalEl.querySelector('.btn-secondary');
+            const selects = filterModalEl.querySelectorAll('select');
+            const minAmtInput = filterModalEl.querySelector('input[type="number"]');
+
+            if (applyBtn) {
+                applyBtn.addEventListener('click', () => {
+                    const statusVal = (selects[0]?.value || '').toLowerCase();
+                    const payVal = (selects[1]?.value || '').toLowerCase();
+                    const minAmt = parseFloat(minAmtInput?.value) || 0;
+
+                    tableBody.querySelectorAll('tr').forEach(row => {
+                        const rowText = row.textContent.toLowerCase();
+                        const totalText = row.cells[3]?.textContent.replace(/[^0-9.]/g, '') || '0';
+                        const rowTotal = parseFloat(totalText) || 0;
+
+                        const matchStatus = !statusVal || rowText.includes(statusVal);
+                        const matchPay = !payVal || rowText.includes(payVal);
+                        const matchMin = rowTotal >= minAmt;
+
+                        row.style.display = (matchStatus && matchPay && matchMin) ? '' : 'none';
+                    });
+
+                    const modal = bootstrap.Modal.getInstance(filterModalEl);
+                    if (modal) modal.hide();
+                });
+            }
+
+            if (resetBtn) {
+                resetBtn.addEventListener('click', () => {
+                    filterModalEl.querySelector('form')?.reset();
+                    tableBody.querySelectorAll('tr').forEach(row => { row.style.display = ''; });
+                });
+            }
         }
     }
 

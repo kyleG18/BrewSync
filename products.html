@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
         <script type="module">
@@ -676,9 +676,32 @@
                         const form = saveProductBtn.closest('.modal').querySelector('form');
                         if (form && form.checkValidity()) {
                             form.classList.add('was-validated');
+                            const inputs = form.querySelectorAll('input, select');
+                            const name = inputs[0]?.value?.trim() || 'New Drink';
+                            const sku = inputs[1]?.value?.trim() || ('BS-' + Math.floor(100 + Math.random() * 900));
+                            const catSelect = form.querySelector('select');
+                            const category = catSelect?.options[catSelect.selectedIndex]?.text || 'Classic Milk Tea';
+                            const priceInput = form.querySelector('input[type="number"]');
+                            const price = parseFloat(priceInput?.value) || 100;
+                            const tbody = document.querySelector('.table tbody');
+                            if (tbody) {
+                                const tr = document.createElement('tr');
+                                tr.innerHTML = `
+                                    <td><strong>${sku}</strong></td>
+                                    <td><div class="d-flex align-items-center gap-3"><div class="product-thumb bg-warning-subtle text-warning"><i class="bi bi-cup-hot"></i></div><div><h6 class="mb-0">${name}</h6><small class="text-muted">${category}</small></div></div></td>
+                                    <td class="d-none d-md-table-cell">${category}</td>
+                                    <td><strong>â‚±${price.toFixed(0)}</strong></td>
+                                    <td class="d-none d-sm-table-cell">100</td>
+                                    <td><span class="badge bg-success">In Stock</span></td>
+                                    <td><div class="btn-group btn-group-sm"><button class="btn btn-outline-secondary" title="Edit"><i class="bi bi-pencil"></i></button><button class="btn btn-outline-danger" onclick="this.closest('tr').remove()" title="Delete"><i class="bi bi-trash"></i></button></div></td>
+                                `;
+                                tbody.prepend(tr);
+                            }
                             const modal = bootstrap.Modal.getInstance(saveProductBtn.closest('.modal'));
                             modal.hide();
-                            BrewSync.notify('Product added successfully!', 'success');
+                            form.reset();
+                            form.classList.remove('was-validated');
+                            BrewSync.notify('Product added to catalog!', 'success');
                         } else if (form) {
                             form.classList.add('was-validated');
                         }

@@ -1158,6 +1158,8 @@
             let selectedToppings = [];
             let paymentMethod = 'cash';
             let orderCounter = 1;
+            let discountRate = 0;
+            let appliedPromo = '';
 
                         const menuItemsEl = document.getElementById('menuItems');
             const orderItemsEl = document.getElementById('orderItems');
@@ -1431,9 +1433,10 @@
                     orderItemsEl.appendChild(el);
                 });
                 const subtotal = order.reduce((sum, i) => sum + (i.price * i.qty), 0);
-                const tax = subtotal * 0.12;
-                const total = subtotal + tax;
-                updateTotals(subtotal, tax, total);
+                const discountedSub = subtotal * (1 - discountRate);
+                const tax = discountedSub * 0.12;
+                const total = discountedSub + tax;
+                updateTotals(discountedSub, tax, total);
             }
 
                         function updateTotals(sub, tax, total) {
@@ -1458,6 +1461,12 @@
 
             function clearOrder() {
                 order = [];
+                discountRate = 0;
+                appliedPromo = '';
+                const pIn = document.getElementById('promoCode');
+                const cIn = document.querySelector('.order-customer-input');
+                if (pIn) pIn.value = '';
+                if (cIn) cIn.value = '';
                 renderOrder();
                 updateOrderNumber();
             }
@@ -1470,10 +1479,16 @@
 
                         document.getElementById('applyPromo').addEventListener('click', () => {
                 const code = document.getElementById('promoCode').value.toUpperCase();
-                if (code === 'BREW10') {
-                    alert('10% discount applied!');
-                } else if (code) {
-                    alert('Invalid promo code.');
+                if (!code) {
+                    discountRate = 0; appliedPromo = ''; renderOrder();
+                } else if (code === 'BREW10') {
+                    discountRate = 0.10; appliedPromo = code; renderOrder();
+                    alert('10% discount (BREW10) applied.');
+                } else if (code === 'SENIOR20' || code === 'PWD20') {
+                    discountRate = 0.20; appliedPromo = code; renderOrder();
+                    alert('20% discount (' + code + ') applied.');
+                } else {
+                    alert('Invalid promo code. Try BREW10, SENIOR20, or PWD20.');
                 }
             });
 

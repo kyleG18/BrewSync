@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
         <script type="module">
@@ -528,7 +528,7 @@
                 const btnBackup = document.getElementById('btnBackup');
                 if (btnBackup) {
                     btnBackup.addEventListener('click', () => {
-                        alert('Database backup initiated. File will download shortly.');
+                        const backup = { exportedAt: new Date().toISOString(), inventory: JSON.parse(localStorage.getItem('brewsync_inventory_v1') || '[]'), orders: JSON.parse(localStorage.getItem('brewsync_orders') || '[]') }; const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'BrewSync_Backup_' + new Date().toISOString().slice(0,10) + '.json'; a.click(); URL.revokeObjectURL(url);
                     });
                 }
 
@@ -537,7 +537,7 @@
                 if (btnClearCache) {
                     btnClearCache.addEventListener('click', () => {
                         if (confirm('Are you sure you want to clear the local cache? This will remove all unsynced offline data.')) {
-                            alert('Local cache cleared.');
+                            localStorage.removeItem('brewsync_inventory_v1'); localStorage.removeItem('brewsync_orders'); if ('caches' in window) { caches.keys().then(ks => ks.forEach(k => caches.delete(k))); } BrewSync.notify('Local cache and offline storage cleared.', 'info');
                         }
                     });
                 }
