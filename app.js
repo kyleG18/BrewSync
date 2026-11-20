@@ -77,17 +77,17 @@
             datasets: [{
                 label: 'Sales (₱)',
                 data: [8200, 9100, 7800, 10500, 12400, 14200, 11800],
-                borderColor: '#E88D39',
-                backgroundColor: 'rgba(232, 141, 57, 0.1)',
+                borderColor: '#B85D19',
+                backgroundColor: 'rgba(184, 93, 25, 0.08)',
                 fill: true,
-                tension: 0.4,
+                tension: 0.35,
                 pointRadius: 4,
                 pointHoverRadius: 6,
-                pointBackgroundColor: '#E88D39',
-                pointBorderColor: '#1A1614',
+                pointBackgroundColor: '#B85D19',
+                pointBorderColor: '#FFFFFF',
                 pointBorderWidth: 2,
-                pointHoverBackgroundColor: '#F0A55A',
-                pointHoverBorderColor: '#1A1614',
+                pointHoverBackgroundColor: '#9E4E13',
+                pointHoverBorderColor: '#FFFFFF',
                 pointHoverBorderWidth: 2
             }]
         };
@@ -105,12 +105,12 @@
                 plugins: {
                     legend: { display: false },
                     tooltip: {
-                        backgroundColor: '#241F1C',
-                        titleColor: '#F5EBE0',
-                        bodyColor: '#F5EBE0',
-                        borderColor: '#3D322B',
+                        backgroundColor: '#181512',
+                        titleColor: '#F7F5F2',
+                        bodyColor: '#F7F5F2',
+                        borderColor: '#2E2723',
                         borderWidth: 1,
-                        padding: 12,
+                        padding: 10,
                         displayColors: false,
                         callbacks: {
                             label: (context) => `₱${context.parsed.y.toLocaleString()}`
@@ -120,12 +120,12 @@
                 scales: {
                     x: {
                         grid: { display: false, drawBorder: false },
-                        ticks: { color: '#9A8A7A', font: { size: 12 } }
+                        ticks: { color: '#8C8278', font: { size: 12 } }
                     },
                     y: {
-                        grid: { color: '#3D322B', drawBorder: false },
+                        grid: { color: '#E6E2DC', drawBorder: false },
                         ticks: {
-                            color: '#9A8A7A',
+                            color: '#8C8278',
                             font: { size: 11 },
                             callback: (value) => '₱' + (value / 1000) + 'k'
                         },

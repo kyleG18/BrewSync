@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { onAuthStateChanged, signInWithPopup, signOut, signInWithEmailAndPassword } from "firebase/auth";
 import { auth, googleProvider } from "./firebase";
 import Login from "./Login";
-import Header from "./Components/Header";
 import InventoryPage from "./App/Main/InventoryPage/InventoryPage";
 
 function App() {
@@ -31,6 +30,7 @@ function App() {
     try {
       sessionStorage.removeItem('brewsync_guest');
       await signOut(auth);
+      setUser(null);
     } catch (error) {
       console.error("Logout error:", error);
     }
@@ -41,23 +41,23 @@ function App() {
       <div
         style={{
           minHeight: "100vh",
-          backgroundColor: "#1A1614",
+          backgroundColor: "#F6F4F0",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          color: "#F5EBE0",
-          fontFamily: "'Inter', sans-serif"
+          color: "#181512",
+          fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif"
         }}
       >
         <div
           className="spinner-border"
           role="status"
-          style={{ width: "3rem", height: "3rem", color: "#E88D39", marginBottom: "1rem" }}
+          style={{ width: "2.25rem", height: "2.25rem", color: "#B85D19", marginBottom: "0.85rem" }}
         >
           <span className="visually-hidden">Loading...</span>
         </div>
-        <p style={{ color: "#D4C4B5", fontSize: "0.95rem" }}>Loading BrewSync POS...</p>
+        <p style={{ color: "#5C544D", fontSize: "0.9rem", fontWeight: 500 }}>Loading BrewSync POS...</p>
       </div>
     );
   }
@@ -81,7 +81,6 @@ function App() {
 
   return (
     <div className="brewsync-app">
-      <Header user={user} onLogout={handleLogout} />
       <InventoryPage user={user} onLogout={handleLogout} />
     </div>
   );

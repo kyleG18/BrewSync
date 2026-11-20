@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import "./InventoryPage.css";
 
 const DEFAULT_INVENTORY = [
@@ -347,7 +347,7 @@ const InventoryPage = ({ user, onLogout }) => {
           </div>
 
           <div className="topbar-actions">
-            <a href="/pos.html" className="btn btn-outline-warning btn-sm d-flex align-items-center gap-1">
+            <a href="/pos.html" className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1">
               <i className="bi bi-cart3"></i>
               <span className="d-none d-sm-inline">Open POS</span>
             </a>
