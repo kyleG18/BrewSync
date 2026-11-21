@@ -503,6 +503,7 @@
 
     // table search and category filter
     function initTableSearchAndFilter() {
+        if (window.location.pathname.includes('products.html')) return;
         const searchInputs = document.querySelectorAll('.search-box input, input[type="search"]');
         searchInputs.forEach(input => {
             input.addEventListener('input', (e) => {

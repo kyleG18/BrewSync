@@ -1131,8 +1131,25 @@
                             </label>
                             <label class="topping-item">
                                 <input type="checkbox" value="popping-boba" data-price="20">
+                                                            <label class="topping-item">
+                                <input type="checkbox" value="popping-boba" data-price="20">
                                 <span class="topping-label">Popping Boba +₱20</span>
                             </label>
+                        </div>
+                    </div>
+
+                    <!-- Quantity Section -->
+                    <div class="customization-section mt-4 pt-3 border-top">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="customization-label mb-1" style="font-weight: 600;"><i class="bi bi-hash"></i> Quantity</div>
+                                <small class="text-muted">Specify how many drinks to add to ticket</small>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <button type="button" class="btn btn-outline-secondary d-flex align-items-center justify-content-center" id="modalQtyMinus" style="width: 40px; height: 40px; font-weight: bold; font-size: 1.25rem; border-radius: 8px;">-</button>
+                                <input type="number" id="modalQtyInput" class="form-control text-center" value="1" min="1" max="99" style="width: 75px; height: 40px; font-weight: 700; font-size: 1.15rem; border-radius: 8px;">
+                                <button type="button" class="btn btn-outline-secondary d-flex align-items-center justify-content-center" id="modalQtyPlus" style="width: 40px; height: 40px; font-weight: bold; font-size: 1.25rem; border-radius: 8px;">+</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1826,9 +1843,10 @@
                     clearOrder();
                 });
 
-                // Add to order from customization modal
+                // Add to order from customization modal with selected quantity
                 btnAddToOrder.addEventListener('click', () => {
                     if (!currentItem) return;
+                    const addQty = Math.max(1, parseInt(document.getElementById('modalQtyInput')?.value) || 1);
                     const toppingsPrice = selectedToppings.reduce((sum, t) => sum + t.price, 0);
                     const itemPrice = currentItem.price + selectedSize.price + toppingsPrice;
                     const customizations = [];
@@ -1838,7 +1856,7 @@
 
                     const existing = order.find(i => i.id === currentItem.id && i.size === selectedSize.size && i.sugar === selectedSugar && i.ice === selectedIce && JSON.stringify(i.toppings) === JSON.stringify(selectedToppings));
                     if (existing) {
-                        existing.qty += 1;
+                        existing.qty += addQty;
                     } else {
                         order.push({
                             id: currentItem.id,
@@ -1850,7 +1868,7 @@
                             toppings: [...selectedToppings],
                             price: itemPrice,
                             basePrice: currentItem.price,
-                            qty: 1
+                            qty: addQty
                         });
                     }
                     customizationModal.hide();
@@ -1862,6 +1880,29 @@
                     selectedSugar = '100%';
                     selectedIce = 'normal';
                     selectedToppings = [];
+                    const qInput = document.getElementById('modalQtyInput');
+                    if (qInput) qInput.value = '1';
+                    document.querySelectorAll('.topping-item input').forEach(cb => cb.checked = false);
+                    updateCustomizationUI();
+                });
+
+                // Quantity controls inside customization modal
+                const modalQtyIn = document.getElementById('modalQtyInput');
+                document.getElementById('modalQtyMinus')?.addEventListener('click', () => {
+                    let q = parseInt(modalQtyIn.value) || 1;
+                    if (q > 1) {
+                        modalQtyIn.value = q - 1;
+                        updateCustomizationUI();
+                    }
+                });
+                document.getElementById('modalQtyPlus')?.addEventListener('click', () => {
+                    let q = parseInt(modalQtyIn.value) || 1;
+                    modalQtyIn.value = q + 1;
+                    updateCustomizationUI();
+                });
+                modalQtyIn?.addEventListener('input', () => {
+                    let q = parseInt(modalQtyIn.value) || 1;
+                    if (q < 1) modalQtyIn.value = '1';
                     updateCustomizationUI();
                 });
 
@@ -1920,6 +1961,15 @@
                 document.querySelectorAll('.ice-options .option-btn').forEach(btn => {
                     btn.classList.toggle('active', btn.dataset.ice === selectedIce);
                 });
+
+                // Calculate live item price and update Add to Order button text
+                const toppingsPrice = selectedToppings.reduce((sum, t) => sum + t.price, 0);
+                const unitPrice = (currentItem ? currentItem.price : 0) + (selectedSize ? selectedSize.price : 0) + toppingsPrice;
+                const qty = Math.max(1, parseInt(document.getElementById('modalQtyInput')?.value) || 1);
+                const totalItemPrice = unitPrice * qty;
+                if (btnAddToOrder) {
+                    btnAddToOrder.innerHTML = `<i class="bi bi-cart-plus me-1"></i> Add ${qty > 1 ? qty + ' ' : ''}to Order • ₱${totalItemPrice.toFixed(2)}`;
+                }
             }
 
             document.querySelectorAll('.size-options .option-btn').forEach(btn => {
@@ -1949,6 +1999,7 @@
                     } else {
                         selectedToppings = selectedToppings.filter(t => t.name !== name);
                     }
+                    updateCustomizationUI();
                 });
             });
 

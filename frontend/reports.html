@@ -195,7 +195,7 @@
                 <div class="topbar-actions">
                     <div class="d-flex align-items-center gap-2">
                         <label class="form-label mb-0 text-muted small">Period:</label>
-                        <select class="form-select form-select-sm" style="width: auto;">
+                        <select class="form-select form-select-sm" id="reportPeriodSelect" style="width: auto;">
                             <option value="today">Today</option>
                             <option value="7d" selected>Last 7 Days</option>
                             <option value="30d">Last 30 Days</option>
@@ -233,7 +233,7 @@
                             <button class="btn btn-outline-secondary">
                                 <i class="bi bi-filter me-1"></i> <span class="d-none d-sm-inline">Filters</span>
                             </button>
-                            <button class="btn btn-primary">
+                            <button class="btn btn-primary" id="btnExportReport">
                                 <i class="bi bi-download me-1"></i> <span class="d-none d-sm-inline">Export Report</span>
                             </button>
                         </div>
@@ -249,7 +249,7 @@
                             </div>
                             <div class="stat-content">
                                 <p class="stat-label">Total Revenue</p>
-                                <h3 class="stat-value">₱84,250</h3>
+                                <h3 class="stat-value" id="reportTotalRevenue">₱84,250</h3>
                                 <span class="stat-trend positive"><i class="bi bi-arrow-up"></i> +12.5% vs last period</span>
                             </div>
                         </div>
@@ -261,7 +261,7 @@
                             </div>
                             <div class="stat-content">
                                 <p class="stat-label">Total Orders</p>
-                                <h3 class="stat-value">1,240</h3>
+                                <h3 class="stat-value" id="reportTotalOrders">1,240</h3>
                                 <span class="stat-trend positive"><i class="bi bi-arrow-up"></i> +8.2%</span>
                             </div>
                         </div>
@@ -273,7 +273,7 @@
                             </div>
                             <div class="stat-content">
                                 <p class="stat-label">Unique Customers</p>
-                                <h3 class="stat-value">412</h3>
+                                <h3 class="stat-value" id="reportUniqueCustomers">412</h3>
                                 <span class="stat-trend positive"><i class="bi bi-arrow-up"></i> +5.1%</span>
                             </div>
                         </div>
@@ -285,7 +285,7 @@
                             </div>
                             <div class="stat-content">
                                 <p class="stat-label">Avg. Order Value</p>
-                                <h3 class="stat-value">₱67.94</h3>
+                                <h3 class="stat-value" id="reportAvgOrderValue">₱67.94</h3>
                                 <span class="stat-trend neutral"><i class="bi bi-dash"></i> Stable</span>
                             </div>
                         </div>
@@ -300,14 +300,14 @@
                             <h6>Daily Sales Trend</h6>
                         </div>
                         <div class="report-card-body">
-                            <div class="chart-placeholder">
-                                <i class="bi bi-graph-up"></i> Sales chart for the selected period
+                            <div style="position: relative; height: 210px; width: 100%;">
+                                <canvas id="reportsDailyChart"></canvas>
                             </div>
                         </div>
                         <div class="card-footer border-top bg-transparent p-3">
                             <div class="d-flex justify-content-between text-muted small">
-                                <span>Period: Last 7 Days</span>
-                                <span>₱84,250</span>
+                                <span>Period: <span id="reportPeriodText">Last 7 Days</span></span>
+                                <span id="reportDailySalesTotal" class="fw-bold text-primary">₱84,250</span>
                             </div>
                         </div>
                     </div>
@@ -318,7 +318,7 @@
                             <h6>Top Selling Products</h6>
                         </div>
                         <div class="report-card-body">
-                            <div class="list-group list-group-flush">
+                            <div class="list-group list-group-flush" id="reportTopProductsList">
                                 <div class="list-group-item d-flex justify-content-between align-items-center bg-transparent border-0 py-2">
                                     <span class="text-secondary small">Classic Milk Tea</span>
                                     <span class="text-primary fw-medium">142 sold</span>
@@ -349,7 +349,7 @@
                             <h6>Revenue by Category</h6>
                         </div>
                         <div class="report-card-body">
-                            <div class="list-group list-group-flush">
+                            <div class="list-group list-group-flush" id="reportCategoryRevenueList">
                                 <div class="list-group-item d-flex justify-content-between align-items-center bg-transparent border-0 py-2">
                                     <span class="text-secondary small">Classic Milk Teas</span>
                                     <span class="text-primary fw-medium">₱42,100 (50%)</span>
@@ -376,7 +376,7 @@
                             <h6>Payment Methods</h6>
                         </div>
                         <div class="report-card-body">
-                            <div class="list-group list-group-flush">
+                            <div class="list-group list-group-flush" id="reportPaymentMethodsList">
                                 <div class="list-group-item d-flex justify-content-between align-items-center bg-transparent border-0 py-2">
                                     <span class="text-secondary small">Cash</span>
                                     <span class="text-primary fw-medium">₱52,300 (62%)</span>
@@ -398,11 +398,11 @@
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">Daily Sales Detail</h5>
-                        <button class="btn btn-sm btn-outline-secondary">Export CSV</button>
+                        <button class="btn btn-sm btn-outline-secondary" id="btnExportCsv">Export CSV</button>
                     </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
-                            <table class="table table-hover mb-0">
+                            <table class="table table-hover mb-0" id="reportsSalesTable">
                                 <thead class="table-light">
                                     <tr>
                                         <th>Date</th>
@@ -413,7 +413,7 @@
                                         <th>Top Product</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody id="reportsSalesTableBody">
                                     <tr>
                                         <td><strong>Nov 4, 2024</strong></td>
                                         <td class="d-none d-md-table-cell">Monday</td>
@@ -489,7 +489,9 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
     <script src="app.js"></script>
+    <script src="reports_page.js"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
