@@ -5,6 +5,8 @@ dotenv.config();
 
 const DEFAULT_CLOUD_DB = "mysql://2xqmJCv16n9tBLT.root:Ef3XarWG7knrqArG@gateway01.ap-northeast-1.prod.aws.tidbcloud.com:4000/test";
 
+let pool = null;
+
 export function getPool() {
   if (pool) return pool;
 
