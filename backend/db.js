@@ -3,15 +3,17 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-let pool = null;
+const DEFAULT_CLOUD_DB = "mysql://2xqmJCv16n9tBLT.root:Ef3XarWG7knrqArG@gateway01.ap-northeast-1.prod.aws.tidbcloud.com:4000/test";
 
 export function getPool() {
   if (pool) return pool;
 
-  if (process.env.DATABASE_URL) {
+  const dbUrl = process.env.DATABASE_URL || (process.env.RENDER || process.env.NODE_ENV === "production" ? DEFAULT_CLOUD_DB : null);
+
+  if (dbUrl) {
     const isSslDisabled = process.env.DB_SSL === "false";
     pool = mysql.createPool({
-      uri: process.env.DATABASE_URL,
+      uri: dbUrl,
       waitForConnections: true,
       connectionLimit: 10,
       ssl: isSslDisabled ? undefined : { rejectUnauthorized: false }
@@ -33,7 +35,9 @@ export function getPool() {
 }
 
 export async function initDatabase() {
-  if (!process.env.DATABASE_URL) {
+  const dbUrl = process.env.DATABASE_URL || (process.env.RENDER || process.env.NODE_ENV === "production" ? DEFAULT_CLOUD_DB : null);
+
+  if (!dbUrl) {
     const dbName = process.env.DB_NAME || "brewsync_db";
     try {
       const tempConn = await mysql.createConnection({
