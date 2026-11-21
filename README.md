@@ -44,12 +44,29 @@ Point of Sale and inventory management web application built with React, Vite, B
 - **Git**
 - **XAMPP / Laragon / MySQL** (optional, for local database testing)
 
-### 2. Clone & Install Dependencies
+### 2. Clone Repository
+Clone either repository to the new laptop:
 ```bash
+# Option A: Rich John Montoya Repo (collaborator repo)
+git clone https://github.com/richjohnmontoya-maker/JR-bresync.git
+cd JR-bresync
+
+# Option B: Kyle Gacula Repo
 git clone https://github.com/kyleG18/BrewSync.git
 cd BrewSync
+```
 
-# Install frontend dependencies
+### 3. Setting Up with Antigravity
+If you are using Google Antigravity on the new laptop:
+1. Open Antigravity and select **Open Folder...** -> select the cloned `JR-bresync` or `BrewSync` folder.
+2. In the Antigravity chat, you can simply type:
+   > *"Please install all frontend and backend dependencies, verify environment configuration, and run the development servers."*
+3. Antigravity will automatically inspect the repository, run `npm install` in both root and `backend/`, and launch both servers (`http://localhost:5000` for Express API, `http://localhost:5173` for Vite frontend).
+
+### 4. Manual Setup (Terminal Alternative)
+If setting up manually without Antigravity:
+```bash
+# Install root/frontend dependencies
 npm install
 
 # Install backend dependencies
@@ -58,7 +75,7 @@ npm install
 cd ..
 ```
 
-### 3. Environment Configuration
+### 5. Environment Configuration
 1. **Backend (`backend/.env`):**
    Copy `backend/.env.example` to `backend/.env` and fill in your MySQL and Firebase Admin values:
    ```env
@@ -81,10 +98,15 @@ cd ..
    VITE_API_URL=http://localhost:5000
    ```
 
-### 4. Local Database Setup (Optional)
+### 6. Local Database Setup (Optional)
 If running MySQL locally via XAMPP or Laragon, import `backend/database_setup.sql` in phpMyAdmin (or HeidiSQL) to create `brewsync_db` and the `inventory_items` table.
 
-### 5. Run Locally
+### 7. Run Locally & Test Credentials
+
+#### Default Test Credentials:
+- **Admin:** `admin@brewsync.com` / `admin123`
+- **Staff:** `staff@brewsync.com` / `staff123`
+- Alternatively, click **"Continue as Guest / Demo Mode"** on the login screen.
 - **Start Backend:**
   ```bash
   cd backend
