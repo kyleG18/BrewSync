@@ -849,34 +849,113 @@
     </style>
 </head>
 <body>
-    <div class="system-bar">
-        <a href="#" class="brand-logo">
-            <div class="brand-icon"><i class="bi bi-cup-hot"></i></div>
-            BrewSync POS
-        </a>
-        <div class="system-status">
-            <div class="operator-name">Cashier - Station 01</div>
-            <div class="station-info" id="networkStatus">
-                <span class="status-indicator" id="statusDot"></span>
-                <span id="statusText">Online • Local Sync Ready</span>
+    <div class="app-wrapper">
+        <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
+            <div class="sidebar-brand">
+                <a href="dashboard.html" class="brand-link">
+                    <div class="brand-icon">
+                        <i class="bi bi-cup-hot"></i>
+                    </div>
+                    <span class="brand-text">BrewSync POS</span>
+                </a>
+                <button class="sidebar-toggle d-lg-none" id="sidebarToggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="sidebarNav">
+                    <i class="bi bi-x-lg"></i>
+                </button>
             </div>
-            <div class="system-time" id="currentTime">Loading...</div>
-        </div>
-        <div class="action-buttons">
-            <button class="btn-system" id="btnPosScreen" aria-label="POS Screen">
-                <i class="bi bi-cart3"></i> <span>POS Screen</span>
-            </button>
-            <button class="btn-system" id="btnInventory" aria-label="Inventory Stock">
-                <i class="bi bi-box-seam"></i> <span>Inventory Stock</span>
-            </button>
-            <button class="btn-system" id="btnReports" aria-label="End of Shift Report">
-                <i class="bi bi-receipt"></i> <span>End of Shift Report</span>
-            </button>
-            <button class="btn-system btn-primary-action" id="btnLogout" aria-label="Logout">
-                <i class="bi bi-box-arrow-right"></i> <span>Logout</span>
-            </button>
-        </div>
-    </div>
+            <nav class="sidebar-nav" id="sidebarNav">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="dashboard.html">
+                            <i class="bi bi-speedometer2"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="pos.html" aria-current="page">
+                            <i class="bi bi-cart3"></i>
+                            <span>Point of Sale</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/inventory">
+                            <i class="bi bi-box-seam"></i>
+                            <span>Inventory</span>
+                            <span class="badge bg-warning text-dark ms-auto">14</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="orders.html">
+                            <i class="bi bi-receipt"></i>
+                            <span>Orders</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="products.html">
+                            <i class="bi bi-cup-straw"></i>
+                            <span>Products</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="reports.html">
+                            <i class="bi bi-graph-up"></i>
+                            <span>Reports</span>
+                        </a>
+                    </li>
+                    <li class="nav-item mt-3">
+                        <hr class="sidebar-divider">
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="settings.html">
+                            <i class="bi bi-gear"></i>
+                            <span>Settings</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-danger" href="login.html">
+                            <i class="bi bi-box-arrow-right"></i>
+                            <span>Logout</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">BS</div>
+                    <div class="user-details">
+                        <span class="user-name">Store Admin</span>
+                        <span class="user-role">Cashier / Front Desk</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <div class="main-content">
+            <header class="topbar">
+                <div class="d-flex align-items-center gap-2">
+                    <button class="sidebar-toggle d-lg-none me-2" id="mobileSidebarToggle" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <div class="station-info d-flex align-items-center gap-2" id="networkStatus">
+                        <span class="status-indicator" id="statusDot"></span>
+                        <span class="small fw-semibold" id="statusText" style="color: var(--text-secondary);">Online • Ready</span>
+                    </div>
+                    <span class="text-muted small d-none d-md-inline ms-2" id="currentTime"></span>
+                </div>
+                <div class="topbar-actions">
+                    <a href="dashboard.html" class="btn btn-outline-secondary btn-sm" id="btnPosScreen">
+                        <i class="bi bi-speedometer2 me-1"></i><span class="d-none d-sm-inline">Dashboard</span>
+                    </a>
+                    <a href="/inventory" class="btn btn-outline-secondary btn-sm" id="btnInventory">
+                        <i class="bi bi-box-seam me-1"></i><span class="d-none d-sm-inline">Inventory</span>
+                    </a>
+                    <a href="reports.html" class="btn btn-outline-secondary btn-sm" id="btnReports">
+                        <i class="bi bi-graph-up me-1"></i><span class="d-none d-sm-inline">Reports</span>
+                    </a>
+                    <button class="btn btn-outline-danger btn-sm" id="btnLogout" aria-label="Logout">
+                        <i class="bi bi-box-arrow-right"></i> <span class="d-none d-sm-inline">Logout</span>
+                    </button>
+                </div>
+            </header>
 
     <div class="pos-main">
         <div class="pos-grid">
