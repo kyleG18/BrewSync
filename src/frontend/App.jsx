@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { onAuthStateChanged, signInWithPopup, signOut, signInWithEmailAndPassword } from "firebase/auth";
-import { auth, googleProvider } from "./firebase";
-import Login from "./Login";
-import InventoryPage from "./App/Main/InventoryPage/InventoryPage";
+import { auth, googleProvider } from "./services/firebase";
+import Login from "./login/Login";
+import InventoryPage from "./inventory/InventoryPage";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -28,7 +28,7 @@ function App() {
 
   const handleLogout = async () => {
     try {
-      sessionStorage.removeItem('brewsync_guest');
+      sessionStorage.removeItem("brewsync_guest");
       await signOut(auth);
       setUser(null);
     } catch (error) {
@@ -67,7 +67,7 @@ function App() {
   };
 
   const handleGuestLogin = () => {
-    sessionStorage.setItem('brewsync_guest', 'true');
+    sessionStorage.setItem("brewsync_guest", "true");
     setUser({
       displayName: "Demo User",
       email: "demo@brewsync.pos",
