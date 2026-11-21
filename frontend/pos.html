@@ -1333,6 +1333,56 @@
         (function() {
             'use strict';
 
+            
+            const DRINK_PHOTOS = {
+                'classic milk tea': '/images/products/classic-milk-tea.svg',
+                'brown sugar boba': '/images/products/brown-sugar-boba.svg',
+                'matcha latte': '/images/products/matcha-latte.svg',
+                'green matcha': '/images/products/green-matcha.svg',
+                'taro milk tea': '/images/products/taro-milk-tea.svg',
+                'thai tea': '/images/products/thai-tea.svg',
+                'mango green tea': '/images/products/mango-green-tea.svg',
+                'strawberry fruit tea': '/images/products/strawberry-tea.svg',
+                'passion fruit tea': '/images/products/passion-fruit-tea.svg',
+                'taro smoothie': '/images/products/taro-smoothie.svg',
+                'mango smoothie': '/images/products/mango-smoothie.svg',
+                'oreo smoothie': '/images/products/oreo-smoothie.svg',
+                'tapioca pearls (black)': '/images/products/tapioca-pearls.svg',
+                'tapioca pearls': '/images/products/tapioca-pearls.svg',
+                'egg pudding': '/images/products/egg-pudding.svg',
+                'grass jelly': '/images/products/grass-jelly.svg',
+                'premium black tea leaves': '/images/products/tea-leaves.svg',
+                'fresh milk (full cream)': '/images/products/fresh-milk.svg',
+                'fresh milk': '/images/products/fresh-milk.svg',
+                'brown sugar syrup': '/images/products/brown-sugar-syrup.svg',
+                'cream cheese powder': '/images/products/cream-cheese-powder.svg'
+            };
+
+            function getItemPhoto(item) {
+                if (item.photo && typeof item.photo === 'string' && (item.photo.startsWith('data:') || item.photo.startsWith('http') || item.photo.startsWith('/images/'))) {
+                    return item.photo;
+                }
+                if (item.image && typeof item.image === 'string' && (item.image.startsWith('data:') || item.image.startsWith('http') || item.image.startsWith('/images/'))) {
+                    return item.image;
+                }
+                const savedImgs = JSON.parse(localStorage.getItem('brewsync_item_images') || '{}');
+                if (item.id && savedImgs[item.id]) return savedImgs[item.id];
+                if (item.inventoryId && savedImgs[item.inventoryId]) return savedImgs[item.inventoryId];
+                const name = (item.name || item.itemName || '').trim().toLowerCase();
+                if (savedImgs[name]) return savedImgs[name];
+                if (DRINK_PHOTOS[name]) return DRINK_PHOTOS[name];
+                for (const [key, path] of Object.entries(DRINK_PHOTOS)) {
+                    if (name.includes(key) || key.includes(name)) return path;
+                }
+                const cat = (item.category || item.originalCategory || '').toLowerCase();
+                if (cat.includes('smoothie')) return '/images/products/mango-smoothie.svg';
+                if (cat.includes('fruit')) return '/images/products/mango-green-tea.svg';
+                if (cat.includes('tea leaves') || cat.includes('tea')) return '/images/products/tea-leaves.svg';
+                if (cat.includes('dairy') || cat.includes('milk') || cat.includes('syrup')) return '/images/products/brown-sugar-syrup.svg';
+                if (cat.includes('topping')) return '/images/products/tapioca-pearls.svg';
+                return '/images/products/classic-milk-tea.svg';
+            }
+
             const baseMenuData = [
                 { id: 1, name: 'Classic Milk Tea', price: 85, category: 'classic', image: 'bi-cup-hot', tag: 'in-stock', description: 'Premium black tea with creamy milk' },
                 { id: 2, name: 'Brown Sugar Boba', price: 110, category: 'classic', image: 'bi-cup-straw', tag: 'in-stock', description: 'Caramelized brown sugar with chewy pearls' },
@@ -1495,6 +1545,7 @@
                             category: determineCategory(inv.category, invName),
                             originalCategory: inv.category || 'Inventory',
                             image: determineIcon(inv.category, invName),
+                            photo: inv.image || getItemPhoto(inv),
                             tag: tag,
                             description: `${qty} ${inv.unit || 'units'} available • ${inv.category}`,
                             isInventoryItem: true,
@@ -1926,9 +1977,11 @@
                     const badgeClass = item.tag === 'out-of-stock' ? 'out-of-stock' : (item.tag === 'low-stock' ? 'low-stock' : 'in-stock');
                     const badgeStyle = item.tag === 'out-of-stock' ? 'background: #FEE2E2; color: #DC2626;' : '';
 
+                    const photoUrl = getItemPhoto(item);
                     card.innerHTML = `
-                        <div class="menu-item-image">
-                            <i class="bi ${item.image || 'bi-cup-hot'}"></i>
+                        <div class="menu-item-image" style="overflow: hidden; padding: 0;">
+                            <img src="${photoUrl}" alt="${item.name}" style="width: 100%; height: 100%; object-fit: cover; display: block;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <i class="bi ${item.icon || 'bi-cup-hot'}" style="display: none;"></i>
                             <span class="availability-badge ${badgeClass}" style="${badgeStyle}">${tagText}</span>
                         </div>
                         <div class="menu-item-info">
@@ -1948,6 +2001,11 @@
                 currentItem = item;
                 modalItemName.textContent = item.name;
                 modalItemPrice.textContent = '₱' + (item.price || 0).toLocaleString();
+                const photoUrl = getItemPhoto(item);
+                const modalImgContainer = document.querySelector('.customization-image');
+                if (modalImgContainer) {
+                    modalImgContainer.innerHTML = `<img src="${photoUrl}" alt="${item.name}" style="width: 100%; height: 100%; object-fit: cover; border-radius: var(--radius-md);">`;
+                }
                 customizationModal.show();
             }
 

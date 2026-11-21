@@ -1,6 +1,56 @@
 (function() {
     'use strict';
 
+    
+    const DRINK_PHOTOS = {
+        'classic milk tea': '/images/products/classic-milk-tea.svg',
+        'brown sugar boba': '/images/products/brown-sugar-boba.svg',
+        'matcha latte': '/images/products/matcha-latte.svg',
+        'green matcha': '/images/products/green-matcha.svg',
+        'taro milk tea': '/images/products/taro-milk-tea.svg',
+        'thai tea': '/images/products/thai-tea.svg',
+        'mango green tea': '/images/products/mango-green-tea.svg',
+        'strawberry fruit tea': '/images/products/strawberry-tea.svg',
+        'passion fruit tea': '/images/products/passion-fruit-tea.svg',
+        'taro smoothie': '/images/products/taro-smoothie.svg',
+        'mango smoothie': '/images/products/mango-smoothie.svg',
+        'oreo smoothie': '/images/products/oreo-smoothie.svg',
+        'tapioca pearls (black)': '/images/products/tapioca-pearls.svg',
+        'tapioca pearls': '/images/products/tapioca-pearls.svg',
+        'egg pudding': '/images/products/egg-pudding.svg',
+        'grass jelly': '/images/products/grass-jelly.svg',
+        'premium black tea leaves': '/images/products/tea-leaves.svg',
+        'fresh milk (full cream)': '/images/products/fresh-milk.svg',
+        'fresh milk': '/images/products/fresh-milk.svg',
+        'brown sugar syrup': '/images/products/brown-sugar-syrup.svg',
+        'cream cheese powder': '/images/products/cream-cheese-powder.svg'
+    };
+
+    function getItemPhoto(p) {
+        if (p.image && typeof p.image === 'string' && (p.image.startsWith('data:') || p.image.startsWith('http') || p.image.startsWith('/images/'))) {
+            return p.image;
+        }
+        if (p.photo && typeof p.photo === 'string' && (p.photo.startsWith('data:') || p.photo.startsWith('http') || p.photo.startsWith('/images/'))) {
+            return p.photo;
+        }
+        const savedImgs = JSON.parse(localStorage.getItem('brewsync_item_images') || '{}');
+        if (p.id && savedImgs[p.id]) return savedImgs[p.id];
+        if (p.inventoryId && savedImgs[p.inventoryId]) return savedImgs[p.inventoryId];
+        const name = (p.name || p.itemName || '').trim().toLowerCase();
+        if (savedImgs[name]) return savedImgs[name];
+        if (DRINK_PHOTOS[name]) return DRINK_PHOTOS[name];
+        for (const [key, path] of Object.entries(DRINK_PHOTOS)) {
+            if (name.includes(key) || key.includes(name)) return path;
+        }
+        const cat = (p.category || '').toLowerCase();
+        if (cat.includes('smoothie')) return '/images/products/mango-smoothie.svg';
+        if (cat.includes('fruit')) return '/images/products/mango-green-tea.svg';
+        if (cat.includes('tea leaves') || cat.includes('tea')) return '/images/products/tea-leaves.svg';
+        if (cat.includes('dairy') || cat.includes('milk') || cat.includes('syrup')) return '/images/products/brown-sugar-syrup.svg';
+        if (cat.includes('topping')) return '/images/products/tapioca-pearls.svg';
+        return '/images/products/classic-milk-tea.svg';
+    }
+
     const baseCatalog = [
         { id: '1', sku: 'BS-101', name: 'Classic Milk Tea', category: 'Classic Milk Teas', cost: 28.00, price: 85.00, stock: '120 units', status: 'Active', icon: 'bi-cup-hot', desc: 'Premium black tea • 16oz' },
         { id: '2', sku: 'BS-102', name: 'Brown Sugar Boba', category: 'Classic Milk Teas', cost: 35.00, price: 110.00, stock: '85 units', status: 'Active', icon: 'bi-cup-straw', desc: 'Caramelized brown sugar syrup • 16oz' },
@@ -198,8 +248,9 @@
                     <td><strong>${p.sku || (idx + 1)}</strong></td>
                     <td>
                         <div class="d-flex align-items-center gap-3">
-                            <div class="product-thumb ${isInv ? 'bg-info-subtle text-info' : 'bg-primary-subtle text-primary'}">
-                                <i class="bi ${p.icon || 'bi-cup-hot'}"></i>
+                            <div class="product-thumb" style="width: 44px; height: 44px; border-radius: 8px; overflow: hidden; padding: 0; background: var(--bg-subtle); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                <img src="${getItemPhoto(p)}" alt="${p.name}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                <i class="bi ${p.icon || 'bi-cup-hot'}" style="display: none; font-size: 1.25rem;"></i>
                             </div>
                             <div>
                                 <h6 class="mb-0">${p.name} ${invBadge}</h6>

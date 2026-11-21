@@ -20,6 +20,40 @@ const DEFAULT_INVENTORY = [
   { id: 14, itemName: "Herbal Grass Jelly", category: "Toppings", quantity: 12.0, unit: "kg", reorderLevel: 5, status: "In Stock" }
 ];
 
+
+export const PRESET_PHOTOS = [
+  { label: "Green Matcha", icon: "🍵", url: "/images/products/green-matcha.svg" },
+  { label: "Milk Tea", icon: "🧋", url: "/images/products/classic-milk-tea.svg" },
+  { label: "Brown Sugar", icon: "🐯", url: "/images/products/brown-sugar-boba.svg" },
+  { label: "Tea Leaves", icon: "🍃", url: "/images/products/tea-leaves.svg" },
+  { label: "Fresh Milk", icon: "🥛", url: "/images/products/fresh-milk.svg" },
+  { label: "Tapioca Pearls", icon: "⚫", url: "/images/products/tapioca-pearls.svg" },
+  { label: "Syrup", icon: "🍯", url: "/images/products/brown-sugar-syrup.svg" },
+  { label: "Cheese Foam", icon: "🧀", url: "/images/products/cream-cheese-powder.svg" },
+  { label: "Fruit Tea", icon: "🥭", url: "/images/products/mango-green-tea.svg" },
+  { label: "Egg Pudding", icon: "🍮", url: "/images/products/egg-pudding.svg" }
+];
+
+export const getItemPhoto = (item) => {
+  if (item?.image && typeof item.image === "string" && (item.image.startsWith("data:") || item.image.startsWith("http") || item.image.startsWith("/images/"))) {
+    return item.image;
+  }
+  const name = (item?.itemName || "").toLowerCase();
+  if (name.includes("matcha")) return "/images/products/green-matcha.svg";
+  if (name.includes("brown sugar")) return "/images/products/brown-sugar-syrup.svg";
+  if (name.includes("tea")) return "/images/products/tea-leaves.svg";
+  if (name.includes("milk") || name.includes("dairy")) return "/images/products/fresh-milk.svg";
+  if (name.includes("pearl") || name.includes("boba")) return "/images/products/tapioca-pearls.svg";
+  if (name.includes("pudding") || name.includes("egg")) return "/images/products/egg-pudding.svg";
+  if (name.includes("jelly")) return "/images/products/grass-jelly.svg";
+  if (name.includes("cheese")) return "/images/products/cream-cheese-powder.svg";
+  if (name.includes("taro")) return "/images/products/taro-milk-tea.svg";
+  if (name.includes("mango")) return "/images/products/mango-green-tea.svg";
+  if (name.includes("strawberry")) return "/images/products/strawberry-tea.svg";
+  if (name.includes("smoothie")) return "/images/products/mango-smoothie.svg";
+  return "/images/products/classic-milk-tea.svg";
+};
+
 const STORAGE_KEY = "brewsync_inventory_v1";
 
 const InventoryPage = ({ user, onLogout }) => {
@@ -28,6 +62,8 @@ const InventoryPage = ({ user, onLogout }) => {
   const [loading, setLoading] = useState(true);
   const [editingItem, setEditingItem] = useState(null);
   const [addingItem, setAddingItem] = useState(false);
+  const [addingImage, setAddingImage] = useState("");
+  const [editingImage, setEditingImage] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedStatus, setSelectedStatus] = useState("All");
@@ -53,8 +89,13 @@ const InventoryPage = ({ user, onLogout }) => {
         if (response.ok) {
           const data = await response.json();
           if (Array.isArray(data)) {
-            setInventory(data);
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+            const savedImages = JSON.parse(localStorage.getItem('brewsync_item_images') || '{}');
+            const enriched = data.map(i => ({
+              ...i,
+              image: i.image || savedImages[i.id] || savedImages[i.itemName?.toLowerCase()] || getItemPhoto(i)
+            }));
+            setInventory(enriched);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(enriched));
             setLoading(false);
             return;
           }
@@ -124,8 +165,15 @@ const InventoryPage = ({ user, onLogout }) => {
       unit: formData.get("unit").trim(),
       reorderLevel: reorder,
       status: qty <= reorder ? "Low Stock" : formData.get("status"),
-      price: priceVal ? parseFloat(priceVal) : editingItem.price
+      price: priceVal ? parseFloat(priceVal) : editingItem.price,
+      image: editingImage || editingItem.image || getItemPhoto(editingItem)
     };
+    const savedImgs = JSON.parse(localStorage.getItem('brewsync_item_images') || '{}');
+    if (updatedPayload.image) {
+      savedImgs[editingItem.id] = updatedPayload.image;
+      savedImgs[updatedPayload.itemName.toLowerCase()] = updatedPayload.image;
+      localStorage.setItem('brewsync_item_images', JSON.stringify(savedImgs));
+    }
 
     const updated = inventory.map((item) =>
       item.id === editingItem.id ? updatedPayload : item
@@ -159,9 +207,16 @@ const InventoryPage = ({ user, onLogout }) => {
       unit: formData.get("unit").trim(),
       reorderLevel: reorder,
       status: qty <= reorder ? "Low Stock" : (formData.get("status") || "In Stock"),
-      price: priceVal ? parseFloat(priceVal) : undefined
+      price: priceVal ? parseFloat(priceVal) : undefined,
+      image: addingImage || undefined
     };
-
+    const savedImgs = JSON.parse(localStorage.getItem('brewsync_item_images') || '{}');
+    if (newItem.image) {
+      savedImgs[newItem.id] = newItem.image;
+      savedImgs[newItem.itemName.toLowerCase()] = newItem.image;
+      localStorage.setItem('brewsync_item_images', JSON.stringify(savedImgs));
+    }
+    setAddingImage("");
     setAddingItem(false);
 
     try {
@@ -174,6 +229,7 @@ const InventoryPage = ({ user, onLogout }) => {
       if (res.ok) {
         const createdItem = await res.json();
         if (newItem.price) createdItem.price = newItem.price;
+        if (newItem.image) createdItem.image = newItem.image;
         persistInventory([createdItem, ...inventory]);
         showToast(`Added "${createdItem.itemName}" to database!`);
         return;
@@ -393,10 +449,11 @@ const InventoryPage = ({ user, onLogout }) => {
         <div className="inventory-cards-grid">
           {filteredInventory.map((item) => (
             <div key={item.id} className="inv-card">
-              <div className="inv-card-header">
-                <div>
+              <div className="inv-card-header d-flex align-items-center gap-3">
+                <img src={getItemPhoto(item)} alt={item.itemName} style={{ width: 44, height: 44, borderRadius: 10, objectFit: "cover", flexShrink: 0 }} />
+                <div className="flex-grow-1 min-w-0">
                   <span className="inv-card-category">{item.category}</span>
-                  <h4 className="inv-card-title">{item.itemName}</h4>
+                  <h4 className="inv-card-title text-truncate">{item.itemName}</h4>
                 </div>
                 <span className={`status-badge ${item.status === "Low Stock" ? "danger" : "success"}`}>
                   <span className="badge-dot"></span>
@@ -420,7 +477,7 @@ const InventoryPage = ({ user, onLogout }) => {
               <div className="inv-card-footer">
                 <button
                   className="btn btn-outline-secondary btn-sm flex-fill"
-                  onClick={() => setEditingItem(item)}
+                  onClick={() => { setEditingItem(item); setEditingImage(item.image || getItemPhoto(item)); }}
                 >
                   <i className="bi bi-pencil me-1"></i> Edit
                 </button>
@@ -452,8 +509,8 @@ const InventoryPage = ({ user, onLogout }) => {
                 <tr key={item.id}>
                   <td>
                     <div className="d-flex align-items-center gap-2">
-                      <div className="item-icon-circle">
-                        <i className="bi bi-box"></i>
+                      <div className="item-icon-circle" style={{ overflow: "hidden", padding: 0 }}>
+                        <img src={getItemPhoto(item)} alt={item.itemName} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                       </div>
                       <div>
                         <div className="item-name-text">{item.itemName}</div>
@@ -478,7 +535,7 @@ const InventoryPage = ({ user, onLogout }) => {
                     <div className="d-inline-flex gap-1">
                       <button
                         className="btn btn-outline-secondary btn-sm"
-                        onClick={() => setEditingItem(item)}
+                        onClick={() => { setEditingItem(item); setEditingImage(item.image || getItemPhoto(item)); }}
                         title="Edit item"
                       >
                         <i className="bi bi-pencil"></i>
@@ -540,9 +597,62 @@ const InventoryPage = ({ user, onLogout }) => {
                   </select>
                 </div>
               </div>
-              <div className="form-group">
+              <div className="form-group mb-3">
                 <label>POS Register Selling Price (₱) <small className="text-muted">(Optional)</small></label>
                 <input type="number" name="price" defaultValue={editingItem.price || ""} placeholder="e.g. 95 (defaults by category if blank)" step="1" />
+              </div>
+              <div className="form-group mb-3">
+                <label className="fw-semibold mb-1">Item Photo</label>
+                <div className="d-flex align-items-center gap-3 mb-2">
+                  <div style={{ width: 64, height: 64, borderRadius: 10, border: "1px solid #ccc", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", background: "#f8f9fa", flexShrink: 0 }}>
+                    {editingImage ? (
+                      <img src={editingImage} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    ) : (
+                      <i className="bi bi-image text-muted fs-4"></i>
+                    )}
+                  </div>
+                  <div className="flex-grow-1">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="form-control form-control-sm mb-1"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onload = (ev) => setEditingImage(ev.target.result);
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                    />
+                    <input
+                      type="url"
+                      placeholder="Or paste image URL (e.g. https://...)"
+                      value={editingImage}
+                      onChange={(e) => setEditingImage(e.target.value)}
+                      className="form-control form-control-sm"
+                    />
+                  </div>
+                  {editingImage && (
+                    <button type="button" className="btn btn-sm btn-outline-danger" onClick={() => setEditingImage("")} title="Remove photo">
+                      <i className="bi bi-x"></i>
+                    </button>
+                  )}
+                </div>
+                <div className="d-flex flex-wrap gap-1 mt-1">
+                  <small className="text-muted w-100 mb-1">Or choose a quick preset:</small>
+                  {PRESET_PHOTOS.map((p) => (
+                    <button
+                      key={p.url}
+                      type="button"
+                      className={`btn btn-sm ${editingImage === p.url ? "btn-warning text-dark" : "btn-outline-secondary"}`}
+                      style={{ fontSize: "0.75rem", padding: "2px 8px" }}
+                      onClick={() => setEditingImage(p.url)}
+                    >
+                      {p.icon} {p.label}
+                    </button>
+                  ))}
+                </div>
               </div>
               <div className="form-actions">
                 <button type="button" className="btn btn-outline-secondary" onClick={() => setEditingItem(null)}>
@@ -596,9 +706,62 @@ const InventoryPage = ({ user, onLogout }) => {
                   </select>
                 </div>
               </div>
-              <div className="form-group">
+              <div className="form-group mb-3">
                 <label>POS Register Selling Price (₱) <small className="text-muted">(Optional)</small></label>
                 <input type="number" name="price" placeholder="e.g. 95 (defaults by category if blank)" step="1" />
+              </div>
+              <div className="form-group mb-3">
+                <label className="fw-semibold mb-1">Item Photo</label>
+                <div className="d-flex align-items-center gap-3 mb-2">
+                  <div style={{ width: 64, height: 64, borderRadius: 10, border: "1px solid #ccc", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", background: "#f8f9fa", flexShrink: 0 }}>
+                    {addingImage ? (
+                      <img src={addingImage} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    ) : (
+                      <i className="bi bi-image text-muted fs-4"></i>
+                    )}
+                  </div>
+                  <div className="flex-grow-1">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="form-control form-control-sm mb-1"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onload = (ev) => setAddingImage(ev.target.result);
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                    />
+                    <input
+                      type="url"
+                      placeholder="Or paste image URL (e.g. https://...)"
+                      value={addingImage}
+                      onChange={(e) => setAddingImage(e.target.value)}
+                      className="form-control form-control-sm"
+                    />
+                  </div>
+                  {addingImage && (
+                    <button type="button" className="btn btn-sm btn-outline-danger" onClick={() => setAddingImage("")} title="Remove photo">
+                      <i className="bi bi-x"></i>
+                    </button>
+                  )}
+                </div>
+                <div className="d-flex flex-wrap gap-1 mt-1">
+                  <small className="text-muted w-100 mb-1">Or choose a quick preset:</small>
+                  {PRESET_PHOTOS.map((p) => (
+                    <button
+                      key={p.url}
+                      type="button"
+                      className={`btn btn-sm ${addingImage === p.url ? "btn-warning text-dark" : "btn-outline-secondary"}`}
+                      style={{ fontSize: "0.75rem", padding: "2px 8px" }}
+                      onClick={() => setAddingImage(p.url)}
+                    >
+                      {p.icon} {p.label}
+                    </button>
+                  ))}
+                </div>
               </div>
               <div className="form-actions">
                 <button type="button" className="btn btn-outline-secondary" onClick={() => setAddingItem(false)}>
