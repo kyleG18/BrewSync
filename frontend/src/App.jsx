@@ -1,16 +1,37 @@
 import React, { useState, useEffect } from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { onAuthStateChanged, signInWithPopup, signOut, signInWithEmailAndPassword } from "firebase/auth";
 import { auth, googleProvider } from "./services/firebase";
+import { fetchUserProfile } from "./services/authService";
+import ProtectedRoute from "./components/ProtectedRoute";
 import Login from "./login/Login";
+import DashboardPage from "./dashboard/DashboardPage";
 import InventoryPage from "./inventory/InventoryPage";
+import ProfilePage from "./pages/ProfilePage";
+import AdminUsersPage from "./pages/AdminUsersPage";
+import AccessDeniedPage from "./pages/AccessDeniedPage";
+import NotFoundPage from "./pages/NotFoundPage";
 
 function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (currentUser) {
+        const profile = await fetchUserProfile(currentUser);
+        setUser(profile);
+      } else if (sessionStorage.getItem("brewsync_guest") === "true") {
+        setUser({
+          uid: "demo-session",
+          displayName: "Demo User",
+          email: "demo@brewsync.pos",
+          photoURL: null,
+          role: sessionStorage.getItem("brewsync_demo_role") || "admin"
+        });
+      } else {
+        setUser(null);
+      }
       setLoading(false);
     });
 
@@ -26,9 +47,31 @@ function App() {
     }
   };
 
+  const handleEmailLogin = async (email, password) => {
+    await signInWithEmailAndPassword(auth, email, password);
+  };
+
+  const handleGuestLogin = () => {
+    sessionStorage.setItem("brewsync_guest", "true");
+    sessionStorage.setItem("brewsync_demo_role", "admin");
+    setUser({
+      uid: "demo-session",
+      displayName: "Demo User",
+      email: "demo@brewsync.pos",
+      photoURL: null,
+      role: "admin"
+    });
+  };
+
+  const handleSwitchDemoRole = (role) => {
+    sessionStorage.setItem("brewsync_demo_role", role);
+    setUser((prev) => (prev ? { ...prev, role } : prev));
+  };
+
   const handleLogout = async () => {
     try {
       sessionStorage.removeItem("brewsync_guest");
+      sessionStorage.removeItem("brewsync_demo_role");
       await signOut(auth);
       setUser(null);
     } catch (error) {
@@ -62,27 +105,68 @@ function App() {
     );
   }
 
-  const handleEmailLogin = async (email, password) => {
-    await signInWithEmailAndPassword(auth, email, password);
-  };
-
-  const handleGuestLogin = () => {
-    sessionStorage.setItem("brewsync_guest", "true");
-    setUser({
-      displayName: "Demo User",
-      email: "demo@brewsync.pos",
-      photoURL: null
-    });
-  };
-
-  if (!user) {
-    return <Login onLogin={handleLogin} onGuestLogin={handleGuestLogin} onEmailLogin={handleEmailLogin} />;
-  }
-
   return (
-    <div className="brewsync-app">
-      <InventoryPage user={user} onLogout={handleLogout} />
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route
+          path="/login"
+          element={
+            user ? (
+              <Navigate to="/" replace />
+            ) : (
+              <Login
+                onLogin={handleLogin}
+                onGuestLogin={handleGuestLogin}
+                onEmailLogin={handleEmailLogin}
+              />
+            )
+          }
+        />
+
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute user={user}>
+              <DashboardPage user={user} onLogout={handleLogout} />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/inventory"
+          element={
+            <ProtectedRoute user={user}>
+              <InventoryPage user={user} onLogout={handleLogout} />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute user={user}>
+              <ProfilePage
+                user={user}
+                onLogout={handleLogout}
+                onSwitchDemoRole={handleSwitchDemoRole}
+              />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute user={user} allowedRoles={["admin"]}>
+              <AdminUsersPage user={user} onLogout={handleLogout} />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route path="/access-denied" element={<AccessDeniedPage />} />
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

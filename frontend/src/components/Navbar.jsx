@@ -1,12 +1,16 @@
 import React, { useState } from "react";
+import { NavLink } from "react-router-dom";
 import Footer from "./Footer";
+import OfflineBanner from "./OfflineBanner";
 
-const Navbar = ({ user, onLogout, itemCount = 0, onAddClick, children }) => {
+const Navbar = ({ user, onLogout, itemCount, onAddClick, children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const initials = user?.displayName
     ? user.displayName.slice(0, 2).toUpperCase()
     : "BS";
+
+  const isAdmin = user?.role === "admin";
 
   return (
     <div className="app-wrapper">
@@ -23,12 +27,12 @@ const Navbar = ({ user, onLogout, itemCount = 0, onAddClick, children }) => {
         aria-label="Main navigation"
       >
         <div className="sidebar-brand">
-          <a href="/dashboard.html" className="brand-link">
+          <NavLink to="/" className="brand-link" onClick={() => setSidebarOpen(false)}>
             <div className="brand-icon">
               <i className="bi bi-cup-hot"></i>
             </div>
             <span className="brand-text">BrewSync POS</span>
-          </a>
+          </NavLink>
           <button
             className="sidebar-toggle d-lg-none"
             id="sidebarToggle"
@@ -42,10 +46,15 @@ const Navbar = ({ user, onLogout, itemCount = 0, onAddClick, children }) => {
         <nav className="sidebar-nav" id="sidebarNav">
           <ul className="nav flex-column">
             <li className="nav-item">
-              <a className="nav-link" href="/dashboard.html">
+              <NavLink
+                to="/"
+                end
+                className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}
+                onClick={() => setSidebarOpen(false)}
+              >
                 <i className="bi bi-speedometer2"></i>
                 <span>Dashboard</span>
-              </a>
+              </NavLink>
             </li>
             <li className="nav-item">
               <a className="nav-link" href="/pos.html">
@@ -54,11 +63,17 @@ const Navbar = ({ user, onLogout, itemCount = 0, onAddClick, children }) => {
               </a>
             </li>
             <li className="nav-item">
-              <a className="nav-link active" href="/" aria-current="page">
+              <NavLink
+                to="/inventory"
+                className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}
+                onClick={() => setSidebarOpen(false)}
+              >
                 <i className="bi bi-box-seam"></i>
                 <span>Inventory</span>
-                <span className="badge bg-warning text-dark ms-auto">{itemCount}</span>
-              </a>
+                {typeof itemCount === "number" && (
+                  <span className="badge bg-warning text-dark ms-auto">{itemCount}</span>
+                )}
+              </NavLink>
             </li>
             <li className="nav-item">
               <a className="nav-link" href="/orders.html">
@@ -78,8 +93,32 @@ const Navbar = ({ user, onLogout, itemCount = 0, onAddClick, children }) => {
                 <span>Reports</span>
               </a>
             </li>
+
+            {isAdmin && (
+              <li className="nav-item">
+                <NavLink
+                  to="/admin"
+                  className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}
+                  onClick={() => setSidebarOpen(false)}
+                >
+                  <i className="bi bi-shield-check"></i>
+                  <span>User Roles</span>
+                </NavLink>
+              </li>
+            )}
+
             <li className="nav-item mt-3">
               <hr className="sidebar-divider" />
+            </li>
+            <li className="nav-item">
+              <NavLink
+                to="/profile"
+                className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}
+                onClick={() => setSidebarOpen(false)}
+              >
+                <i className="bi bi-person-circle"></i>
+                <span>Profile</span>
+              </NavLink>
             </li>
             <li className="nav-item">
               <a className="nav-link" href="/settings.html">
@@ -88,19 +127,14 @@ const Navbar = ({ user, onLogout, itemCount = 0, onAddClick, children }) => {
               </a>
             </li>
             <li className="nav-item">
-              <a
-                className="nav-link text-danger"
-                href="/login.html"
-                onClick={(e) => {
-                  if (onLogout) {
-                    e.preventDefault();
-                    onLogout();
-                  }
-                }}
+              <button
+                type="button"
+                className="nav-link text-danger w-100 text-start border-0 bg-transparent"
+                onClick={onLogout}
               >
                 <i className="bi bi-box-arrow-right"></i>
                 <span>Sign Out</span>
-              </a>
+              </button>
             </li>
           </ul>
         </nav>
@@ -119,7 +153,9 @@ const Navbar = ({ user, onLogout, itemCount = 0, onAddClick, children }) => {
             )}
             <div className="user-details">
               <span className="user-name">{user?.displayName || "Cashier / Admin"}</span>
-              <span className="user-role">{user?.email || "BrewSync Station"}</span>
+              <span className="user-role">
+                {(user?.role || "staff").toUpperCase()} • {user?.email || "BrewSync"}
+              </span>
             </div>
           </div>
         </div>
@@ -140,6 +176,9 @@ const Navbar = ({ user, onLogout, itemCount = 0, onAddClick, children }) => {
               <span className="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">
                 <span className="pulse-dot me-1"></span> System Active
               </span>
+              <span className="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2 py-1 text-uppercase">
+                {user?.role || "staff"}
+              </span>
             </div>
           </div>
 
@@ -148,7 +187,7 @@ const Navbar = ({ user, onLogout, itemCount = 0, onAddClick, children }) => {
               <i className="bi bi-cart3"></i>
               <span className="d-none d-sm-inline">Open POS</span>
             </a>
-            {onAddClick && (
+            {onAddClick && isAdmin && (
               <button
                 className="btn btn-primary btn-sm d-flex align-items-center gap-1"
                 onClick={onAddClick}
@@ -168,6 +207,7 @@ const Navbar = ({ user, onLogout, itemCount = 0, onAddClick, children }) => {
         </header>
 
         <main className="content" role="main">
+          <OfflineBanner />
           {children}
         </main>
 

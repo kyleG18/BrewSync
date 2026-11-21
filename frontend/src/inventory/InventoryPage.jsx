@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import Navbar from "../components/Navbar";
+import { API_BASE_URL, getAuthHeaders } from "../services/authService";
 import "./InventoryPage.css";
 
 const DEFAULT_INVENTORY = [
@@ -22,6 +23,7 @@ const DEFAULT_INVENTORY = [
 const STORAGE_KEY = "brewsync_inventory_v1";
 
 const InventoryPage = ({ user, onLogout }) => {
+  const isAdmin = user?.role === "admin";
   const [inventory, setInventory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingItem, setEditingItem] = useState(null);
@@ -56,7 +58,9 @@ const InventoryPage = ({ user, onLogout }) => {
       try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 1500);
-        const response = await fetch("http://localhost:5000/api/inventory", {
+        const headers = await getAuthHeaders();
+        const response = await fetch(`${API_BASE_URL}/api/inventory`, {
+          headers,
           signal: controller.signal
         });
         clearTimeout(timeoutId);
@@ -86,7 +90,8 @@ const InventoryPage = ({ user, onLogout }) => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
+    if (!isAdmin) return;
     const target = inventory.find((i) => i.id === id);
     if (!window.confirm(`Delete "${target?.itemName || "this item"}" from inventory?`)) {
       return;
@@ -96,10 +101,11 @@ const InventoryPage = ({ user, onLogout }) => {
     persistInventory(updated);
     showToast(`Deleted ${target?.itemName || "item"} successfully.`);
 
-    fetch(`http://localhost:5000/api/inventory/${id}`, { method: "DELETE" }).catch(() => {});
+    const headers = await getAuthHeaders();
+    fetch(`${API_BASE_URL}/api/inventory/${id}`, { method: "DELETE", headers }).catch(() => {});
   };
 
-  const handleUpdate = (e) => {
+  const handleUpdate = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const qty = parseFloat(formData.get("quantity")) || 0;
@@ -121,15 +127,17 @@ const InventoryPage = ({ user, onLogout }) => {
     setEditingItem(null);
     showToast(`Updated "${updatedPayload.itemName}"`);
 
-    fetch(`http://localhost:5000/api/inventory/${editingItem.id}`, {
+    const headers = await getAuthHeaders();
+    fetch(`${API_BASE_URL}/api/inventory/${editingItem.id}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify(updatedPayload)
     }).catch(() => {});
   };
 
-  const handleCreate = (e) => {
+  const handleCreate = async (e) => {
     e.preventDefault();
+    if (!isAdmin) return;
     const formData = new FormData(e.target);
     const qty = parseFloat(formData.get("quantity")) || 0;
     const reorder = parseFloat(formData.get("reorderLevel")) || 0;
@@ -148,9 +156,10 @@ const InventoryPage = ({ user, onLogout }) => {
     setAddingItem(false);
     showToast(`Added "${newItem.itemName}" to inventory!`);
 
-    fetch("http://localhost:5000/api/inventory", {
+    const headers = await getAuthHeaders();
+    fetch(`${API_BASE_URL}/api/inventory`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify(newItem)
     }).catch(() => {});
   };
@@ -454,13 +463,15 @@ const InventoryPage = ({ user, onLogout }) => {
                       >
                         <i className="bi bi-pencil"></i>
                       </button>
-                      <button
-                        className="btn btn-outline-danger btn-sm"
-                        onClick={() => handleDelete(item.id)}
-                        title="Delete item"
-                      >
-                        <i className="bi bi-trash"></i>
-                      </button>
+                      {isAdmin && (
+                        <button
+                          className="btn btn-outline-danger btn-sm"
+                          onClick={() => handleDelete(item.id)}
+                          title="Delete item"
+                        >
+                          <i className="bi bi-trash"></i>
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
