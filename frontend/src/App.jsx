@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { onAuthStateChanged, signInWithPopup, signOut, signInWithEmailAndPassword } from "firebase/auth";
 import { auth, googleProvider } from "./services/firebase";
-import { fetchUserProfile } from "./services/authService";
+import { fetchUserProfile, getStoredUsers, setStoredUsers } from "./services/authService";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Login from "./login/Login";
 import DashboardPage from "./dashboard/DashboardPage";
@@ -62,7 +62,45 @@ function App() {
     const cleanEmail = (email || "").trim().toLowerCase();
     const cleanPassword = (password || "").trim();
 
-    // Admin role credential check
+    // Check dynamically managed users from local/Firestore sync
+    const storedUsers = getStoredUsers();
+    const matchedUser = storedUsers.find(
+      (u) =>
+        u.email?.toLowerCase() === cleanEmail ||
+        (cleanEmail === "admin" && u.role === "admin") ||
+        (cleanEmail === "staff" && u.role === "staff")
+    );
+
+    if (matchedUser) {
+      if (matchedUser.status === "Inactive") {
+        throw new Error("This account has been deactivated by an administrator.");
+      }
+      const isPasswordValid =
+        matchedUser.password === cleanPassword ||
+        (matchedUser.role === "admin" && cleanPassword === "admin123") ||
+        (matchedUser.role === "staff" && cleanPassword === "staff123");
+
+      if (isPasswordValid) {
+        const profile = {
+          uid: matchedUser.uid,
+          displayName: matchedUser.displayName || "User",
+          email: matchedUser.email,
+          photoURL: null,
+          role: matchedUser.role || "staff"
+        };
+        // Update last login
+        const updatedUsers = storedUsers.map((u) =>
+          u.uid === matchedUser.uid ? { ...u, lastLogin: "Just now" } : u
+        );
+        setStoredUsers(updatedUsers);
+        localStorage.setItem("brewsync_auth_user", JSON.stringify(profile));
+        sessionStorage.setItem("brewsync_user_role", profile.role);
+        setUser(profile);
+        return;
+      }
+    }
+
+    // Admin role built-in credential fallback
     if (
       (cleanEmail === "admin@brewsync.ph" ||
         cleanEmail === "admin@brewsync.pos" ||
@@ -77,11 +115,12 @@ function App() {
         role: "admin"
       };
       localStorage.setItem("brewsync_auth_user", JSON.stringify(adminProfile));
+      sessionStorage.setItem("brewsync_user_role", "admin");
       setUser(adminProfile);
       return;
     }
 
-    // Staff role credential check
+    // Staff role built-in credential fallback
     if (
       (cleanEmail === "staff@brewsync.ph" ||
         cleanEmail === "staff@brewsync.pos" ||
@@ -96,6 +135,7 @@ function App() {
         role: "staff"
       };
       localStorage.setItem("brewsync_auth_user", JSON.stringify(staffProfile));
+      sessionStorage.setItem("brewsync_user_role", "staff");
       setUser(staffProfile);
       return;
     }
@@ -104,7 +144,7 @@ function App() {
     try {
       await signInWithEmailAndPassword(auth, cleanEmail, cleanPassword);
     } catch (err) {
-      throw new Error("Invalid email or password. Use the Admin or Staff credentials.");
+      throw new Error("Invalid email or password. Use your Admin or Staff credentials.");
     }
   };
 

@@ -399,6 +399,42 @@
                 return;
             }
 
+            try {
+                const storedUsers = JSON.parse(localStorage.getItem('brewsync_users') || '[]');
+                const matchedUser = storedUsers.find(u =>
+                    u.email?.toLowerCase() === email ||
+                    (email === 'admin' && u.role === 'admin') ||
+                    (email === 'staff' && u.role === 'staff')
+                );
+
+                if (matchedUser) {
+                    if (matchedUser.status === 'Inactive') {
+                        errBox.style.display = 'flex';
+                        errText.textContent = 'This account has been deactivated by an administrator.';
+                        return;
+                    }
+                    const isPwValid = matchedUser.password === password ||
+                        (matchedUser.role === 'admin' && password === 'admin123') ||
+                        (matchedUser.role === 'staff' && password === 'staff123');
+
+                    if (isPwValid) {
+                        const profile = {
+                            uid: matchedUser.uid,
+                            displayName: matchedUser.displayName || 'User',
+                            email: matchedUser.email,
+                            photoURL: null,
+                            role: matchedUser.role || 'staff'
+                        };
+                        matchedUser.lastLogin = 'Just now';
+                        localStorage.setItem('brewsync_users', JSON.stringify(storedUsers));
+                        localStorage.setItem('brewsync_auth_user', JSON.stringify(profile));
+                        sessionStorage.setItem('brewsync_user_role', profile.role);
+                        window.location.href = '/';
+                        return;
+                    }
+                }
+            } catch (ignore) {}
+
             if ((email === 'admin@brewsync.ph' || email === 'admin@brewsync.pos' || email === 'admin') && password === 'admin123') {
                 const adminProfile = {
                     uid: 'admin-user-01',

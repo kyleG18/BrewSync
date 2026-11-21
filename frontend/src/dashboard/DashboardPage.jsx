@@ -135,7 +135,7 @@ const DashboardPage = ({ user, onLogout }) => {
               </Link>
               {isAdmin && (
                 <Link to="/admin" className="btn btn-outline-secondary text-start">
-                  <i className="bi bi-shield-check me-2"></i> Admin Role Management
+                  <i className="bi bi-people me-2"></i> User &amp; Staff Management
                 </Link>
               )}
             </div>

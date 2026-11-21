@@ -101,8 +101,8 @@ const Navbar = ({ user, onLogout, itemCount, onAddClick, children }) => {
                   className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}
                   onClick={() => setSidebarOpen(false)}
                 >
-                  <i className="bi bi-shield-check"></i>
-                  <span>User Roles</span>
+                  <i className="bi bi-people"></i>
+                  <span>User Management</span>
                 </NavLink>
               </li>
             )}
