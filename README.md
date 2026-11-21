@@ -2,6 +2,13 @@
 
 Point of Sale and inventory management web application built with React, Vite, Bootstrap 5, Express.js, MySQL, and Firebase Authentication.
 
+> 📖 **Setting up on a new laptop?** Check out the step-by-step [Setup Guide](SETUP_GUIDE.md).
+
+## Live Deployments
+- **Frontend (PWA):** [https://jr-bresync.netlify.app](https://jr-bresync.netlify.app)
+- **Backend API:** [https://jr-bresync.onrender.com](https://jr-bresync.onrender.com)
+- **API Health:** [https://jr-bresync.onrender.com/api/health](https://jr-bresync.onrender.com/api/health)
+
 ## Project Structure
 
 ```text
@@ -88,7 +95,7 @@ cd ..
    DB_NAME=brewsync_db
    DB_SSL=false
 
-   FIREBASE_PROJECT_ID=pwa-sample-9c068
+   FIREBASE_PROJECT_ID=brewsync-pos-5fa0e
    FIREBASE_CLIENT_EMAIL=your-service-account-email
    FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
    ```
@@ -104,9 +111,10 @@ If running MySQL locally via XAMPP or Laragon, import `backend/database_setup.sq
 ### 7. Run Locally & Test Credentials
 
 #### Default Test Credentials:
-- **Admin:** `admin@brewsync.com` / `admin123`
-- **Staff:** `staff@brewsync.com` / `staff123`
-- Alternatively, click **"Continue as Guest / Demo Mode"** on the login screen.
+- **Admin:** `admin@brewsync.ph` / `admin123`
+- **Secondary Admin:** `john@brewsync.com` / `john123`
+- **Staff:** `staff@brewsync.ph` / `staff123`
+- **Google Sign-In:** Click **"Continue with Google"** on the login screen.
 - **Start Backend:**
   ```bash
   cd backend
