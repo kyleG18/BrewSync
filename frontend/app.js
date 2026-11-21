@@ -351,16 +351,7 @@
     }
 
     function initResizeObserver() {
-        if ('ResizeObserver' in window) {
-            const resizeObserver = new ResizeObserver(entries => {
-                entries.forEach(entry => {
-                    if (entry.target === sidebar) {
-                        document.documentElement.style.setProperty('--sidebar-width', entry.contentRect.width + 'px');
-                    }
-                });
-            });
-            if (sidebar) resizeObserver.observe(sidebar);
-        }
+        // Sidebar width is fixed via CSS variable --sidebar-width
     }
 
     function initThemeDetection() {
