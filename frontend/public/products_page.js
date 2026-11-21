@@ -81,7 +81,10 @@
         } catch (_) {}
 
         try {
-            let res = await fetch('http://localhost:5000/api/inventory');
+            const apiUrl = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+                ? 'http://localhost:5000/api/inventory'
+                : 'https://jr-bresync.onrender.com/api/inventory';
+            let res = await fetch(apiUrl);
             if (!res.ok) res = await fetch('/api/inventory');
             if (res.ok) {
                 const data = await res.json();

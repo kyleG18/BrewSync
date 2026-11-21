@@ -1659,7 +1659,10 @@
 
                 // 2. Fetch live data from backend API with fallback
                 try {
-                    let res = await fetch('http://localhost:5000/api/inventory');
+                    const apiUrl = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+                        ? 'http://localhost:5000/api/inventory'
+                        : 'https://jr-bresync.onrender.com/api/inventory';
+                    let res = await fetch(apiUrl);
                     if (!res.ok) res = await fetch('/api/inventory');
                     if (res.ok) {
                         const live = await res.json();
@@ -2032,7 +2035,10 @@
                                     invItem.quantity = Math.max(0, (parseFloat(invItem.quantity) || 0) - (item.qty || 1));
                                     invItem.status = invItem.quantity <= 0 ? 'Out of Stock' : (invItem.quantity <= invItem.reorderLevel ? 'Low Stock' : 'In Stock');
                                     updatedAny = true;
-                                    fetch(`http://localhost:5000/api/inventory/${invItem.id}`, {
+                                    const baseApi = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+                                        ? 'http://localhost:5000'
+                                        : 'https://jr-bresync.onrender.com';
+                                    fetch(`${baseApi}/api/inventory/${invItem.id}`, {
                                         method: 'PUT',
                                         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer admin-token' },
                                         body: JSON.stringify(invItem)

@@ -1,7 +1,11 @@
 import { doc, getDoc, setDoc, collection, getDocs, updateDoc, deleteDoc } from "firebase/firestore";
 import { auth, db } from "./firebase";
 
-export const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+export const API_BASE_URL =
+  import.meta.env.VITE_API_URL ||
+  (typeof window !== "undefined" && window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1"
+    ? "https://jr-bresync.onrender.com"
+    : "http://localhost:5000");
 export const USERS_STORAGE_KEY = "brewsync_users";
 
 export const DEFAULT_USERS = [
