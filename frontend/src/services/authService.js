@@ -55,8 +55,23 @@ export async function getAuthHeaders() {
     try {
       const token = await auth.currentUser.getIdToken();
       headers.Authorization = `Bearer ${token}`;
+      return headers;
     } catch (_) {}
   }
+
+  const saved = localStorage.getItem("brewsync_auth_user");
+  if (saved) {
+    try {
+      const user = JSON.parse(saved);
+      if (user.role === "admin") {
+        headers.Authorization = "Bearer admin-token";
+      } else {
+        headers.Authorization = "Bearer staff-token";
+      }
+      return headers;
+    } catch (_) {}
+  }
+
   return headers;
 }
 

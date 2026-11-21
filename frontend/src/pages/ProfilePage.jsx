@@ -1,9 +1,7 @@
 import React from "react";
 import Navbar from "../components/Navbar";
 
-const ProfilePage = ({ user, onLogout, onSwitchDemoRole }) => {
-  const isDemo = sessionStorage.getItem("brewsync_guest") === "true";
-
+const ProfilePage = ({ user, onLogout }) => {
   return (
     <Navbar user={user} onLogout={onLogout}>
       <div className="page-header">
@@ -65,28 +63,6 @@ const ProfilePage = ({ user, onLogout, onSwitchDemoRole }) => {
                     : "Standard staff access: View POS, Orders, and update existing stock counts. Admin routes restricted."}
                 </div>
               </div>
-
-              {isDemo && onSwitchDemoRole && (
-                <div className="p-3 rounded mb-3" style={{ backgroundColor: "#FAF9F6", border: "1px solid #E6E2DC" }}>
-                  <div className="small fw-semibold mb-2">Demo Mode Role Switcher</div>
-                  <div className="d-flex gap-2">
-                    <button
-                      type="button"
-                      className={`btn btn-sm ${user?.role === "admin" ? "btn-primary" : "btn-outline-secondary"}`}
-                      onClick={() => onSwitchDemoRole("admin")}
-                    >
-                      Switch to Admin
-                    </button>
-                    <button
-                      type="button"
-                      className={`btn btn-sm ${user?.role === "staff" ? "btn-primary" : "btn-outline-secondary"}`}
-                      onClick={() => onSwitchDemoRole("staff")}
-                    >
-                      Switch to Staff
-                    </button>
-                  </div>
-                </div>
-              )}
 
               <button type="button" className="btn btn-outline-danger btn-sm" onClick={onLogout}>
                 <i className="bi bi-box-arrow-right me-1"></i> Sign Out

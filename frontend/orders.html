@@ -15,8 +15,8 @@
         const _auth = getAuth(_app);
         document.documentElement.style.visibility = 'hidden';
         onAuthStateChanged(_auth, (user) => {
-            if (!user && !sessionStorage.getItem('brewsync_guest')) {
-                window.location.replace('/');
+            if (!user && !localStorage.getItem('brewsync_auth_user') && !sessionStorage.getItem('brewsync_user_role')) {
+                window.location.replace('/login.html');
             } else {
                 document.documentElement.style.visibility = 'visible';
             }

@@ -179,23 +179,69 @@
             cursor: pointer;
         }
         .bs-btn-submit:hover { background-color: #2E2723; }
-        .bs-btn-guest {
-            width: 100%;
-            height: 42px;
-            margin-top: 0.75rem;
+        .bs-station-credentials {
+            margin-top: 1.25rem;
+            padding: 0.85rem;
             background-color: #FAF9F6;
-            color: #5C544D;
             border: 1px solid #E6E2DC;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
+            border-radius: 10px;
+        }
+        .bs-cred-header {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #5C544D;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 0.65rem;
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
         }
-        .bs-btn-guest:hover { background-color: #F0ECE6; color: #181512; border-color: #D4CEC4; }
+        .bs-cred-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.65rem;
+        }
+        .bs-cred-btn {
+            background-color: #FFFFFF;
+            border: 1px solid #DCD6CD;
+            border-radius: 8px;
+            padding: 0.6rem 0.75rem;
+            text-align: left;
+            cursor: pointer;
+            transition: all 150ms ease;
+        }
+        .bs-cred-btn:hover {
+            border-color: #B85D19;
+            background-color: #FFFDF9;
+            box-shadow: 0 2px 6px rgba(184, 93, 25, 0.08);
+        }
+        .bs-cred-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.35rem;
+        }
+        .bs-cred-hint {
+            font-size: 0.72rem;
+            color: #8C8278;
+        }
+        .bs-cred-email {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #191614;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .bs-cred-pass {
+            font-size: 0.72rem;
+            color: #5C544D;
+            margin-top: 0.15rem;
+        }
+        .bs-cred-pass code {
+            color: #B85D19;
+            font-size: 0.75rem;
+        }
         .bs-error-banner {
             display: none;
             align-items: center;
@@ -262,20 +308,8 @@
 
                 <div class="bs-login-header">
                     <h2>Sign in to your station</h2>
-                    <p>Use your staff Google account or email credentials.</p>
+                    <p>Enter your credentials or continue with Google.</p>
                 </div>
-
-                <button type="button" class="bs-btn-google" id="googleSignInBtn">
-                    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-                        <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
-                        <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/>
-                        <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
-                        <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
-                    </svg>
-                    <span>Continue with Google</span>
-                </button>
-
-                <div class="bs-divider"><span>or sign in with email</span></div>
 
                 <form id="emailLoginForm" novalidate>
                     <div class="bs-field">
@@ -298,9 +332,16 @@
                     <button type="submit" class="bs-btn-submit">Sign in</button>
                 </form>
 
-                <button type="button" class="bs-btn-guest" id="guestBtn">
-                    <i class="bi bi-person-badge"></i>
-                    <span>Open Demo Mode (No Login)</span>
+                <div class="bs-divider"><span>or continue with</span></div>
+
+                <button type="button" class="bs-btn-google" id="googleSignInBtn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+                        <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
+                        <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/>
+                        <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
+                        <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+                    </svg>
+                    <span>Continue with Google</span>
                 </button>
 
                 <div class="bs-station-links">
@@ -315,6 +356,7 @@
     </div>
 
     <script>
+        const uInput = document.getElementById('username');
         const pwInput = document.getElementById('password');
         const toggleBtn = document.getElementById('togglePassword');
         const toggleIcon = document.getElementById('toggleIcon');
@@ -326,10 +368,6 @@
                 toggleIcon.classList.toggle('bi-eye-slash', isPw);
             });
         }
-        document.getElementById('guestBtn')?.addEventListener('click', () => {
-            sessionStorage.setItem('brewsync_guest', 'true');
-            window.location.href = '/dashboard.html';
-        });
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js').catch(err => console.error(err));
@@ -369,19 +407,48 @@
         document.getElementById('emailLoginForm')?.addEventListener('submit', async (e) => {
             e.preventDefault();
             errBox.style.display = 'none';
-            const email = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value;
+            const email = (document.getElementById('username')?.value || '').trim().toLowerCase();
+            const password = (document.getElementById('password')?.value || '').trim();
             if (!email || !password) {
                 errBox.style.display = 'flex';
                 errText.textContent = 'Please enter your email and password.';
                 return;
             }
+
+            if ((email === 'admin@brewsync.ph' || email === 'admin@brewsync.pos' || email === 'admin') && password === 'admin123') {
+                const adminProfile = {
+                    uid: 'admin-user-01',
+                    displayName: 'Store Admin',
+                    email: 'admin@brewsync.ph',
+                    photoURL: null,
+                    role: 'admin'
+                };
+                localStorage.setItem('brewsync_auth_user', JSON.stringify(adminProfile));
+                sessionStorage.setItem('brewsync_user_role', 'admin');
+                window.location.href = '/';
+                return;
+            }
+
+            if ((email === 'staff@brewsync.ph' || email === 'staff@brewsync.pos' || email === 'staff') && password === 'staff123') {
+                const staffProfile = {
+                    uid: 'staff-user-01',
+                    displayName: 'Staff Member',
+                    email: 'staff@brewsync.ph',
+                    photoURL: null,
+                    role: 'staff'
+                };
+                localStorage.setItem('brewsync_auth_user', JSON.stringify(staffProfile));
+                sessionStorage.setItem('brewsync_user_role', 'staff');
+                window.location.href = '/';
+                return;
+            }
+
             try {
                 await signInWithEmailAndPassword(auth, email, password);
                 window.location.href = '/';
             } catch (err) {
                 errBox.style.display = 'flex';
-                errText.textContent = err.message;
+                errText.textContent = 'Invalid email or password. Use Admin or Staff credentials.';
             }
         });
     </script>

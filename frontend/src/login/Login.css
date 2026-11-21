@@ -276,28 +276,77 @@
   background-color: #2E2723;
 }
 
-.bs-btn-guest {
-  width: 100%;
-  height: 42px;
-  margin-top: 0.75rem;
+.bs-station-credentials {
+  margin-top: 1.25rem;
+  padding: 0.85rem;
   background-color: #FAF9F6;
-  color: #5C544D;
   border: 1px solid #E6E2DC;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
+  border-radius: 10px;
 }
 
-.bs-btn-guest:hover {
-  background-color: #F0ECE6;
-  color: #181512;
-  border-color: #D4CEC4;
+.bs-cred-header {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #5C544D;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.65rem;
+  display: flex;
+  align-items: center;
+}
+
+.bs-cred-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem;
+}
+
+.bs-cred-btn {
+  background-color: #FFFFFF;
+  border: 1px solid #DCD6CD;
+  border-radius: 8px;
+  padding: 0.6rem 0.75rem;
+  text-align: left;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.bs-cred-btn:hover {
+  border-color: #B85D19;
+  background-color: #FFFDF9;
+  box-shadow: 0 2px 6px rgba(184, 93, 25, 0.08);
+}
+
+.bs-cred-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.35rem;
+}
+
+.bs-cred-hint {
+  font-size: 0.72rem;
+  color: #8C8278;
+}
+
+.bs-cred-email {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #191614;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bs-cred-pass {
+  font-size: 0.72rem;
+  color: #5C544D;
+  margin-top: 0.15rem;
+}
+
+.bs-cred-pass code {
+  color: #B85D19;
+  font-size: 0.75rem;
 }
 
 .bs-station-links {

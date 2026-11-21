@@ -17,20 +17,30 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Check locally stored credential session first
+    const saved = localStorage.getItem("brewsync_auth_user");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed && parsed.email) {
+          setUser(parsed);
+          setLoading(false);
+          return;
+        }
+      } catch (e) {
+        console.warn("Failed to parse saved credentials", e);
+      }
+    }
+
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
         const profile = await fetchUserProfile(currentUser);
         setUser(profile);
-      } else if (sessionStorage.getItem("brewsync_guest") === "true") {
-        setUser({
-          uid: "demo-session",
-          displayName: "Demo User",
-          email: "demo@brewsync.pos",
-          photoURL: null,
-          role: sessionStorage.getItem("brewsync_demo_role") || "admin"
-        });
       } else {
-        setUser(null);
+        const localSaved = localStorage.getItem("brewsync_auth_user");
+        if (!localSaved) {
+          setUser(null);
+        }
       }
       setLoading(false);
     });
@@ -48,34 +58,65 @@ function App() {
   };
 
   const handleEmailLogin = async (email, password) => {
-    await signInWithEmailAndPassword(auth, email, password);
-  };
+    const cleanEmail = (email || "").trim().toLowerCase();
+    const cleanPassword = (password || "").trim();
 
-  const handleGuestLogin = () => {
-    sessionStorage.setItem("brewsync_guest", "true");
-    sessionStorage.setItem("brewsync_demo_role", "admin");
-    setUser({
-      uid: "demo-session",
-      displayName: "Demo User",
-      email: "demo@brewsync.pos",
-      photoURL: null,
-      role: "admin"
-    });
-  };
+    // Admin role credential check
+    if (
+      (cleanEmail === "admin@brewsync.ph" ||
+        cleanEmail === "admin@brewsync.pos" ||
+        cleanEmail === "admin") &&
+      cleanPassword === "admin123"
+    ) {
+      const adminProfile = {
+        uid: "admin-user-01",
+        displayName: "Store Admin",
+        email: "admin@brewsync.ph",
+        photoURL: null,
+        role: "admin"
+      };
+      localStorage.setItem("brewsync_auth_user", JSON.stringify(adminProfile));
+      setUser(adminProfile);
+      return;
+    }
 
-  const handleSwitchDemoRole = (role) => {
-    sessionStorage.setItem("brewsync_demo_role", role);
-    setUser((prev) => (prev ? { ...prev, role } : prev));
+    // Staff role credential check
+    if (
+      (cleanEmail === "staff@brewsync.ph" ||
+        cleanEmail === "staff@brewsync.pos" ||
+        cleanEmail === "staff") &&
+      cleanPassword === "staff123"
+    ) {
+      const staffProfile = {
+        uid: "staff-user-01",
+        displayName: "Staff Member",
+        email: "staff@brewsync.ph",
+        photoURL: null,
+        role: "staff"
+      };
+      localStorage.setItem("brewsync_auth_user", JSON.stringify(staffProfile));
+      setUser(staffProfile);
+      return;
+    }
+
+    // Attempt Firebase sign-in if credentials don't match built-in roles
+    try {
+      await signInWithEmailAndPassword(auth, cleanEmail, cleanPassword);
+    } catch (err) {
+      throw new Error("Invalid email or password. Use the Admin or Staff credentials.");
+    }
   };
 
   const handleLogout = async () => {
     try {
+      localStorage.removeItem("brewsync_auth_user");
       sessionStorage.removeItem("brewsync_guest");
       sessionStorage.removeItem("brewsync_demo_role");
       await signOut(auth);
-      setUser(null);
     } catch (error) {
       console.error("Logout error:", error);
+    } finally {
+      setUser(null);
     }
   };
 
@@ -116,7 +157,6 @@ function App() {
             ) : (
               <Login
                 onLogin={handleLogin}
-                onGuestLogin={handleGuestLogin}
                 onEmailLogin={handleEmailLogin}
               />
             )
@@ -148,7 +188,6 @@ function App() {
               <ProfilePage
                 user={user}
                 onLogout={handleLogout}
-                onSwitchDemoRole={handleSwitchDemoRole}
               />
             </ProtectedRoute>
           }
