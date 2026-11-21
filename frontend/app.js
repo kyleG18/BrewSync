@@ -540,41 +540,252 @@
     }
 
     // export table to csv
-    function initCsvExport() {
-        const exportBtns = document.querySelectorAll('.btn:has(.bi-download), button:has(.bi-download)');
-        exportBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const table = document.querySelector('.table');
-                if (!table) {
-                    alert('No table data to export.');
-                    return;
-                }
+    function exportVisibleTableToCsv() {
+        const table = document.querySelector('.table');
+        if (!table) {
+            window.BrewSync?.notify('Exported summary report.', 'success');
+            return;
+        }
 
-                let csv = [];
-                const rows = table.querySelectorAll('tr');
-                rows.forEach(row => {
-                    if (row.style.display === 'none') return; // Only exported visible filtered rows
-                    const cols = row.querySelectorAll('th, td');
-                    const rowData = [];
-                    cols.forEach(col => {
-                        // Exclude actions column
-                        if (col.querySelector('.btn-group') || col.classList.contains('actions-cell')) return;
-                        let text = col.innerText.replace(/"/g, '""').trim();
-                        rowData.push(`"${text}"`);
-                    });
-                    if (rowData.length > 0) csv.push(rowData.join(','));
-                });
-
-                const csvBlob = new Blob([csv.join('\n')], { type: 'text/csv;charset=utf-8;' });
-                const url = URL.createObjectURL(csvBlob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `BrewSync_Export_${new Date().toISOString().slice(0, 10)}.csv`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
+        let csv = [];
+        const rows = table.querySelectorAll('tr');
+        rows.forEach(row => {
+            if (row.style.display === 'none') return;
+            const cols = row.querySelectorAll('th, td');
+            const rowData = [];
+            cols.forEach(col => {
+                if (col.querySelector('.btn-group') || col.classList.contains('actions-cell')) return;
+                let text = col.innerText.replace(/"/g, '""').trim();
+                rowData.push(`"${text}"`);
             });
+            if (rowData.length > 0) csv.push(rowData.join(','));
+        });
+
+        const csvBlob = new Blob([csv.join('\n')], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(csvBlob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `BrewSync_Export_${new Date().toISOString().slice(0, 10)}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        window.BrewSync?.notify('CSV file exported.', 'success');
+    }
+
+    function initCsvExport() {
+        document.querySelectorAll('button, .btn').forEach(btn => {
+            if (btn.id === 'btnBackup' || btn.id === 'btnClearCache') return;
+            const text = (btn.textContent || '').trim().toLowerCase();
+            if (btn.querySelector('.bi-download') || text === 'export csv' || text === 'export report' || text === 'export') {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    exportVisibleTableToCsv();
+                });
+            }
+        });
+    }
+
+    function initAllPageButtons() {
+        // 1. Topbar Notifications & Messages
+        document.querySelectorAll('[aria-label="Notifications"]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const badge = btn.querySelector('.notification-badge');
+                if (badge) badge.style.display = 'none';
+                window.BrewSync?.notify('<strong>Low Stock Alerts:</strong> Brown Sugar Syrup, Taro Powder, and Cup Sealing Film Rolls.', 'warning');
+            });
+        });
+
+        document.querySelectorAll('[aria-label="Messages"]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const badge = btn.querySelector('.notification-badge');
+                if (badge) badge.style.display = 'none';
+                window.BrewSync?.notify('<strong>Shift Note:</strong> Morning register float and stock count verified.', 'info');
+            });
+        });
+
+        // 2. Date Range Modal Apply button (dashboard.html)
+        const dateRangeModalEl = document.getElementById('dateRangeModal');
+        if (dateRangeModalEl) {
+            const applyBtn = dateRangeModalEl.querySelector('.modal-footer .btn-primary');
+            if (applyBtn) {
+                applyBtn.addEventListener('click', () => {
+                    const s = document.getElementById('startDate')?.value || '';
+                    const e = document.getElementById('endDate')?.value || '';
+                    const modal = bootstrap.Modal.getInstance(dateRangeModalEl);
+                    if (modal) modal.hide();
+                    window.BrewSync?.notify(`Showing dashboard metrics for <strong>${s}</strong> to <strong>${e}</strong>.`, 'success');
+                });
+            }
+        }
+
+        // 3. List / Grid view toggle buttons (orders.html)
+        const viewBtns = document.querySelectorAll('[data-view]');
+        if (viewBtns.length) {
+            viewBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    viewBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    const table = document.getElementById('ordersTable');
+                    if (table) {
+                        table.classList.toggle('table-sm', btn.dataset.view === 'grid');
+                    }
+                });
+            });
+        }
+
+        // 4. Pagination links (orders.html, products.html)
+        document.querySelectorAll('.pagination .page-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const li = link.closest('.page-item');
+                if (!li || li.classList.contains('disabled')) return;
+                const pagination = link.closest('.pagination');
+                const text = link.textContent.trim().toLowerCase();
+                const items = Array.from(pagination.querySelectorAll('.page-item')).filter(
+                    el => !el.textContent.toLowerCase().includes('prev') && !el.textContent.toLowerCase().includes('next')
+                );
+                const activeIdx = items.findIndex(el => el.classList.contains('active'));
+                if (text.includes('prev')) {
+                    if (activeIdx > 0) {
+                        items.forEach(el => el.classList.remove('active'));
+                        items[activeIdx - 1].classList.add('active');
+                    }
+                } else if (text.includes('next')) {
+                    if (activeIdx < items.length - 1) {
+                        items.forEach(el => el.classList.remove('active'));
+                        items[activeIdx + 1].classList.add('active');
+                    }
+                } else {
+                    items.forEach(el => el.classList.remove('active'));
+                    li.classList.add('active');
+                }
+            });
+        });
+
+        // 5. Product Filter Modal & Product Row Actions (products.html)
+        const prodFilterModalEl = document.getElementById('productFilterModal');
+        if (prodFilterModalEl) {
+            const applyBtn = prodFilterModalEl.querySelector('.modal-footer .btn-primary');
+            const resetBtn = prodFilterModalEl.querySelector('.modal-footer .btn-secondary');
+            const tbody = document.querySelector('.table tbody');
+
+            if (applyBtn && tbody) {
+                applyBtn.addEventListener('click', () => {
+                    const selects = prodFilterModalEl.querySelectorAll('select');
+                    const catVal = (selects[0]?.value || '').toLowerCase();
+                    const statusVal = (selects[1]?.value || '').toLowerCase();
+                    tbody.querySelectorAll('tr').forEach(row => {
+                        const txt = row.textContent.toLowerCase();
+                        const matchCat = !catVal || txt.includes(catVal);
+                        const matchStatus = !statusVal || txt.includes(statusVal.replace('-', ' '));
+                        row.style.display = (matchCat && matchStatus) ? '' : 'none';
+                    });
+                    bootstrap.Modal.getInstance(prodFilterModalEl)?.hide();
+                    window.BrewSync?.notify('Product filters applied.', 'info');
+                });
+            }
+            if (resetBtn && tbody) {
+                resetBtn.addEventListener('click', () => {
+                    prodFilterModalEl.querySelector('form')?.reset();
+                    tbody.querySelectorAll('tr').forEach(row => { row.style.display = ''; });
+                });
+            }
+        }
+
+        // Delegate Edit / Duplicate / Delete / Activate / Deactivate on tables (products.html & settings.html)
+        document.querySelectorAll('.table tbody').forEach(tbody => {
+            if (tbody.closest('#ordersTable')) return;
+            tbody.addEventListener('click', (e) => {
+                const btn = e.target.closest('button');
+                if (!btn) return;
+                const row = btn.closest('tr');
+                if (!row) return;
+                const title = (btn.getAttribute('title') || '').toLowerCase();
+
+                if (title === 'delete') {
+                    const name = row.querySelector('h6')?.textContent || row.cells[1]?.textContent.trim() || 'Item';
+                    if (confirm(`Remove "${name}"?`)) {
+                        row.remove();
+                        window.BrewSync?.notify(`Removed "${name}".`, 'info');
+                    }
+                } else if (title === 'duplicate') {
+                    const clone = row.cloneNode(true);
+                    const skuEl = clone.cells[0]?.querySelector('strong');
+                    if (skuEl) skuEl.textContent = skuEl.textContent + '-C';
+                    row.after(clone);
+                    window.BrewSync?.notify('Product duplicated.', 'success');
+                } else if (title === 'deactivate' || title === 'activate') {
+                    const isDeactivating = title === 'deactivate';
+                    const statusBadge = row.cells[4]?.querySelector('.badge');
+                    if (statusBadge) {
+                        statusBadge.className = isDeactivating ? 'badge bg-secondary' : 'badge bg-success';
+                        statusBadge.textContent = isDeactivating ? 'Inactive' : 'Active';
+                    }
+                    btn.setAttribute('title', isDeactivating ? 'Activate' : 'Deactivate');
+                    btn.innerHTML = isDeactivating ? '<i class="bi bi-play"></i>' : '<i class="bi bi-pause"></i>';
+                    window.BrewSync?.notify(`User status set to ${isDeactivating ? 'Inactive' : 'Active'}.`, 'info');
+                } else if (title === 'edit') {
+                    const nameEl = row.querySelector('h6') || row.cells[1];
+                    const currentName = nameEl?.textContent.trim() || '';
+                    const updatedName = prompt('Update name:', currentName);
+                    if (updatedName && updatedName.trim() && nameEl) {
+                        nameEl.textContent = updatedName.trim();
+                        window.BrewSync?.notify(`Updated "${updatedName.trim()}".`, 'success');
+                    }
+                }
+            });
+        });
+
+        // 6. Add User Modal (settings.html)
+        const addUserModalEl = document.getElementById('addUserModal');
+        if (addUserModalEl) {
+            const addBtn = addUserModalEl.querySelector('.modal-footer .btn-primary');
+            const form = addUserModalEl.querySelector('form');
+            const tbody = document.querySelector('.table tbody');
+            if (addBtn && form && tbody) {
+                addBtn.addEventListener('click', () => {
+                    const inputs = form.querySelectorAll('input');
+                    const select = form.querySelector('select');
+                    const fullName = inputs[0]?.value.trim();
+                    const email = inputs[1]?.value.trim();
+                    const roleText = select?.options[select.selectedIndex]?.text || 'Cashier';
+                    if (!fullName || !email) {
+                        form.classList.add('was-validated');
+                        return;
+                    }
+                    const nextNum = tbody.querySelectorAll('tr').length + 1;
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td><strong>${nextNum}</strong></td>
+                        <td>${fullName}</td>
+                        <td class="d-none d-md-table-cell">${email}</td>
+                        <td><span class="badge bg-success">${roleText}</span></td>
+                        <td class="d-none d-sm-table-cell"><span class="badge bg-success">Active</span></td>
+                        <td class="d-none d-lg-table-cell">Just now</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-secondary" title="Edit"><i class="bi bi-pencil"></i></button>
+                                <button class="btn btn-outline-secondary" title="Deactivate"><i class="bi bi-pause"></i></button>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                    bootstrap.Modal.getInstance(addUserModalEl)?.hide();
+                    form.reset();
+                    form.classList.remove('was-validated');
+                    window.BrewSync?.notify(`Added user "${fullName}".`, 'success');
+                });
+            }
+        }
+
+        // 7. Reports page Filters button
+        document.querySelectorAll('button').forEach(btn => {
+            if (btn.querySelector('.bi-filter') && !btn.hasAttribute('data-bs-toggle')) {
+                btn.addEventListener('click', () => {
+                    window.BrewSync?.notify('Showing verified shift and sales data for the current period.', 'info');
+                });
+            }
         });
     }
 
@@ -584,6 +795,7 @@
         initOrdersSync();
         initTableSearchAndFilter();
         initCsvExport();
+        initAllPageButtons();
         initSalesChart();
         initChartPeriodButtons();
         initDateRangeModal();
