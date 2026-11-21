@@ -38,16 +38,6 @@ const Login = ({ onLogin, onEmailLogin }) => {
           </p>
         </div>
 
-        <div className="bs-brand-meta">
-          <div className="bs-meta-item">
-            <span className="bs-meta-label">Station</span>
-            <span className="bs-meta-val">Counter 01 • Main</span>
-          </div>
-          <div className="bs-meta-item">
-            <span className="bs-meta-label">Version</span>
-            <span className="bs-meta-val">v1.0.0</span>
-          </div>
-        </div>
       </aside>
 
       <main className="bs-login-form-panel">
