@@ -27,7 +27,7 @@ services:
       - key: DB_SSL
         value: "true"
       - key: FIREBASE_PROJECT_ID
-        value: pwa-sample-9c068
+        value: brewsync-pos-5fa0e
       - key: FIREBASE_CLIENT_EMAIL
         sync: false
       - key: FIREBASE_PRIVATE_KEY
