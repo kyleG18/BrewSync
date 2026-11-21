@@ -380,7 +380,17 @@
 
         document.getElementById('googleSignInBtn')?.addEventListener('click', async () => {
             try {
-                await signInWithPopup(auth, provider);
+                const res = await signInWithPopup(auth, provider);
+                const user = res.user;
+                const profile = {
+                    uid: user.uid,
+                    displayName: user.displayName || user.email?.split('@')[0] || 'Admin User',
+                    email: user.email,
+                    photoURL: user.photoURL || null,
+                    role: 'admin'
+                };
+                localStorage.setItem('brewsync_auth_user', JSON.stringify(profile));
+                sessionStorage.setItem('brewsync_user_role', 'admin');
                 window.location.href = '/';
             } catch (err) {
                 errBox.style.display = 'flex';
