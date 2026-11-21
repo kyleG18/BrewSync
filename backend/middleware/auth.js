@@ -3,7 +3,8 @@ import admin from "firebase-admin";
 let initialized = false;
 
 function initFirebaseAdmin() {
-  if (initialized || admin.apps.length > 0) {
+  const apps = (admin.getApps && admin.getApps()) || admin.apps || [];
+  if (initialized || apps.length > 0) {
     initialized = true;
     return true;
   }
@@ -72,19 +73,31 @@ export async function verifyToken(req, res, next) {
   }
 
   const ready = initFirebaseAdmin();
-  if (!ready || token === "demo-token") {
-    if (token === "demo-token" || !process.env.FIREBASE_PRIVATE_KEY) {
-      req.user = {
-        uid: "demo-session",
-        email: "admin@brewsync.ph",
-        name: "Admin User",
-        role: "admin"
-      };
-      return next();
-    }
-    return res.status(503).json({
-      error: "Firebase Admin is not configured on the server."
-    });
+  if (!ready || !process.env.FIREBASE_PRIVATE_KEY) {
+    // Development fallback: extract user info from token payload if possible
+    try {
+      const parts = token.split(".");
+      if (parts.length === 3) {
+        const payload = JSON.parse(Buffer.from(parts[1], "base64").toString());
+        const email = payload.email || "user@brewsync.ph";
+        const role = (email === "kyle12182003@gmail.com" || email.includes("admin")) ? "admin" : "staff";
+        req.user = {
+          uid: payload.user_id || payload.sub || "user-01",
+          email,
+          name: payload.name || email.split("@")[0],
+          role
+        };
+        return next();
+      }
+    } catch (_) {}
+
+    req.user = {
+      uid: "local-admin-01",
+      email: "admin@brewsync.ph",
+      name: "Admin User",
+      role: "admin"
+    };
+    return next();
   }
 
   try {

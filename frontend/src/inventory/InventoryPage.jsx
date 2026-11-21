@@ -88,6 +88,9 @@ const InventoryPage = ({ user, onLogout }) => {
   const persistInventory = (updated) => {
     setInventory(updated);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    try {
+      window.dispatchEvent(new Event("storage"));
+    } catch (_) {}
   };
 
   const handleDelete = async (id) => {
@@ -112,6 +115,7 @@ const InventoryPage = ({ user, onLogout }) => {
     const formData = new FormData(e.target);
     const qty = parseFloat(formData.get("quantity")) || 0;
     const reorder = parseFloat(formData.get("reorderLevel")) || 0;
+    const priceVal = formData.get("price");
     const updatedPayload = {
       ...editingItem,
       itemName: formData.get("itemName").trim(),
@@ -119,7 +123,8 @@ const InventoryPage = ({ user, onLogout }) => {
       quantity: qty,
       unit: formData.get("unit").trim(),
       reorderLevel: reorder,
-      status: qty <= reorder ? "Low Stock" : formData.get("status")
+      status: qty <= reorder ? "Low Stock" : formData.get("status"),
+      price: priceVal ? parseFloat(priceVal) : editingItem.price
     };
 
     const updated = inventory.map((item) =>
@@ -145,6 +150,7 @@ const InventoryPage = ({ user, onLogout }) => {
     const formData = new FormData(e.target);
     const qty = parseFloat(formData.get("quantity")) || 0;
     const reorder = parseFloat(formData.get("reorderLevel")) || 0;
+    const priceVal = formData.get("price");
     const newItem = {
       id: inventory.length ? Math.max(...inventory.map((i) => Number(i.id) || 0)) + 1 : 1,
       itemName: formData.get("itemName").trim(),
@@ -152,7 +158,8 @@ const InventoryPage = ({ user, onLogout }) => {
       quantity: qty,
       unit: formData.get("unit").trim(),
       reorderLevel: reorder,
-      status: qty <= reorder ? "Low Stock" : (formData.get("status") || "In Stock")
+      status: qty <= reorder ? "Low Stock" : (formData.get("status") || "In Stock"),
+      price: priceVal ? parseFloat(priceVal) : undefined
     };
 
     setAddingItem(false);
@@ -166,6 +173,7 @@ const InventoryPage = ({ user, onLogout }) => {
       });
       if (res.ok) {
         const createdItem = await res.json();
+        if (newItem.price) createdItem.price = newItem.price;
         persistInventory([createdItem, ...inventory]);
         showToast(`Added "${createdItem.itemName}" to database!`);
         return;
@@ -532,6 +540,10 @@ const InventoryPage = ({ user, onLogout }) => {
                   </select>
                 </div>
               </div>
+              <div className="form-group">
+                <label>POS Register Selling Price (₱) <small className="text-muted">(Optional)</small></label>
+                <input type="number" name="price" defaultValue={editingItem.price || ""} placeholder="e.g. 95 (defaults by category if blank)" step="1" />
+              </div>
               <div className="form-actions">
                 <button type="button" className="btn btn-outline-secondary" onClick={() => setEditingItem(null)}>
                   Cancel
@@ -583,6 +595,10 @@ const InventoryPage = ({ user, onLogout }) => {
                     <option value="Low Stock">Low Stock</option>
                   </select>
                 </div>
+              </div>
+              <div className="form-group">
+                <label>POS Register Selling Price (₱) <small className="text-muted">(Optional)</small></label>
+                <input type="number" name="price" placeholder="e.g. 95 (defaults by category if blank)" step="1" />
               </div>
               <div className="form-actions">
                 <button type="button" className="btn btn-outline-secondary" onClick={() => setAddingItem(false)}>

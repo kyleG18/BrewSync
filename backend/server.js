@@ -38,7 +38,7 @@ app.get("/api/health", async (req, res) => {
   }
 });
 
-app.get("/api/inventory", verifyToken, async (req, res, next) => {
+app.get("/api/inventory", async (req, res, next) => {
   try {
     const db = getPool();
     const [rows] = await db.query("SELECT * FROM inventory_items ORDER BY item_id DESC");

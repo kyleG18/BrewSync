@@ -972,6 +972,7 @@
                         <button class="category-chip" data-category="fruit">Fruit Teas</button>
                         <button class="category-chip" data-category="smoothie">Smoothies</button>
                         <button class="category-chip" data-category="addon">Add-ons / Toppings</button>
+                        <button class="category-chip" data-category="inventory"><i class="bi bi-box-seam me-1"></i>Inventory Items</button>
                     </div>
                 </div>
                 <div class="menu-items" id="menuItems">
@@ -1215,7 +1216,7 @@
         (function() {
             'use strict';
 
-                        const menuData = [
+            const baseMenuData = [
                 { id: 1, name: 'Classic Milk Tea', price: 85, category: 'classic', image: 'bi-cup-hot', tag: 'in-stock', description: 'Premium black tea with creamy milk' },
                 { id: 2, name: 'Brown Sugar Boba', price: 110, category: 'classic', image: 'bi-cup-straw', tag: 'in-stock', description: 'Caramelized brown sugar with chewy pearls' },
                 { id: 3, name: 'Matcha Latte', price: 120, category: 'classic', image: 'bi-cup-hot', tag: 'in-stock', description: 'Ceremonial grade matcha green tea' },
@@ -1234,7 +1235,8 @@
                 { id: 16, name: 'Popping Boba', price: 20, category: 'addon', image: 'bi-circle', tag: 'in-stock', description: 'Fruit-filled bursting boba' }
             ];
 
-                        let order = [];
+            let menuData = [...baseMenuData];
+            let order = [];
             let currentItem = null;
             let selectedSize = { size: 'regular', price: 0 };
             let selectedSugar = '100%';
@@ -1245,7 +1247,7 @@
             let discountRate = 0;
             let appliedPromo = '';
 
-                        const menuItemsEl = document.getElementById('menuItems');
+            const menuItemsEl = document.getElementById('menuItems');
             const orderItemsEl = document.getElementById('orderItems');
             const emptyOrderEl = orderItemsEl.querySelector('.empty-order');
             const menuSearch = document.getElementById('menuSearch');
@@ -1266,20 +1268,174 @@
             const paymentAlert = document.getElementById('paymentAlert');
             const alertMessage = document.getElementById('alertMessage');
 
-                        const statusDot = document.getElementById('statusDot');
+            const statusDot = document.getElementById('statusDot');
             const statusText = document.getElementById('statusText');
             const offlineIndicator = document.getElementById('offlineIndicator');
             let isOnline = true;
 
-                        function init() {
+            function determineCategory(cat, name) {
+                const c = (cat || '').toLowerCase();
+                const n = (name || '').toLowerCase();
+                if (c.includes('fruit') || n.includes('fruit') || n.includes('mango') || n.includes('strawberry') || n.includes('lemon') || n.includes('peach') || n.includes('lychee')) return 'fruit';
+                if (c.includes('smoothie') || n.includes('smoothie') || n.includes('shake') || n.includes('blend')) return 'smoothie';
+                if (c.includes('topping') || c.includes('addon') || c.includes('syrup') || c.includes('powder') || n.includes('pearl') || n.includes('boba') || n.includes('jelly') || n.includes('foam') || n.includes('pudding')) return 'addon';
+                return 'classic';
+            }
+
+            function determineIcon(cat, name) {
+                const c = (cat || '').toLowerCase();
+                const n = (name || '').toLowerCase();
+                if (c.includes('fruit') || n.includes('fruit') || n.includes('mango') || n.includes('peach')) return 'bi-cup-straw';
+                if (c.includes('smoothie') || n.includes('smoothie')) return 'bi-cup-straw';
+                if (c.includes('topping') || n.includes('pearl') || n.includes('boba') || n.includes('jelly')) return 'bi-circle';
+                if (c.includes('packaging') || n.includes('cup') || n.includes('straw')) return 'bi-box-seam';
+                return 'bi-cup-hot';
+            }
+
+            function determinePrice(item) {
+                if (item.price && Number(item.price) > 0) return Number(item.price);
+                const cat = (item.category || '').toLowerCase();
+                const name = (item.itemName || item.name || '').toLowerCase();
+                if (cat.includes('topping') || cat.includes('syrup') || name.includes('pearl') || name.includes('boba') || name.includes('jelly') || name.includes('pudding') || name.includes('foam')) return 20;
+                if (cat.includes('smoothie') || name.includes('smoothie')) return 135;
+                if (cat.includes('fruit') || name.includes('fruit')) return 110;
+                if (cat.includes('packaging')) return 5;
+                return 95;
+            }
+
+            async function syncInventoryToPOS() {
+                let inventoryItems = [];
+                const cached = localStorage.getItem('brewsync_inventory_v1');
+                if (cached) {
+                    try {
+                        const parsed = JSON.parse(cached);
+                        if (Array.isArray(parsed)) inventoryItems = parsed;
+                    } catch (_) {}
+                }
+
+                try {
+                    const res = await fetch('http://localhost:5000/api/inventory');
+                    if (res.ok) {
+                        const live = await res.json();
+                        if (Array.isArray(live) && live.length > 0) {
+                            inventoryItems = live;
+                            localStorage.setItem('brewsync_inventory_v1', JSON.stringify(live));
+                        }
+                    }
+                } catch (_) {}
+
+                let customProducts = [];
+                const prodCached = localStorage.getItem('brewsync_custom_products');
+                if (prodCached) {
+                    try {
+                        const p = JSON.parse(prodCached);
+                        if (Array.isArray(p)) customProducts = p;
+                    } catch (_) {}
+                }
+
+                const combined = baseMenuData.map(item => ({ ...item }));
+
+                inventoryItems.forEach((inv) => {
+                    const invName = (inv.itemName || inv.name || '').trim();
+                    if (!invName) return;
+
+                    const qty = parseFloat(inv.quantity) || 0;
+                    const reorder = parseFloat(inv.reorderLevel) || 0;
+                    const tag = qty <= 0 ? 'out-of-stock' : (qty <= reorder ? 'low-stock' : 'in-stock');
+
+                    const match = combined.find(m =>
+                        m.name.toLowerCase() === invName.toLowerCase() ||
+                        (invName.toLowerCase().includes('black tea') && m.name.toLowerCase().includes('classic milk tea')) ||
+                        (invName.toLowerCase().includes('pearl') && m.name.toLowerCase().includes('pearls')) ||
+                        (invName.toLowerCase().includes('matcha') && m.name.toLowerCase().includes('matcha'))
+                    );
+
+                    if (match) {
+                        match.tag = tag;
+                        match.description = `${qty} ${inv.unit || 'units'} in inventory`;
+                        match.inventoryId = inv.id;
+                        match.stockQuantity = qty;
+                        match.unit = inv.unit || 'units';
+                    } else {
+                        combined.push({
+                            id: 'inv-' + inv.id,
+                            name: invName,
+                            price: determinePrice(inv),
+                            category: determineCategory(inv.category, invName),
+                            originalCategory: inv.category,
+                            image: determineIcon(inv.category, invName),
+                            tag: tag,
+                            description: `${qty} ${inv.unit || 'units'} available • ${inv.category}`,
+                            isInventoryItem: true,
+                            inventoryId: inv.id,
+                            stockQuantity: qty,
+                            unit: inv.unit || 'units'
+                        });
+                    }
+                });
+
+                customProducts.forEach(prod => {
+                    if (!combined.some(m => m.name.toLowerCase() === prod.name.toLowerCase())) {
+                        combined.push({
+                            id: 'prod-' + (prod.id || Math.random().toString(36).slice(2)),
+                            name: prod.name,
+                            price: Number(prod.price) || 100,
+                            category: determineCategory(prod.category, prod.name),
+                            originalCategory: prod.category,
+                            image: 'bi-cup-hot',
+                            tag: 'in-stock',
+                            description: prod.category || 'Specialty Drink'
+                        });
+                    }
+                });
+
+                menuData = combined;
+                applyMenuFilters();
+            }
+
+            function applyMenuFilters() {
+                const term = (menuSearch?.value || '').trim().toLowerCase();
+                const activeChip = document.querySelector('.category-chip.active');
+                const activeCategory = activeChip ? activeChip.dataset.category : 'all';
+
+                let filtered = menuData;
+                if (activeCategory === 'inventory') {
+                    filtered = filtered.filter(item => item.isInventoryItem || item.inventoryId !== undefined);
+                } else if (activeCategory !== 'all') {
+                    filtered = filtered.filter(item => item.category === activeCategory);
+                }
+
+                if (term) {
+                    filtered = filtered.filter(item =>
+                        item.name.toLowerCase().includes(term) ||
+                        (item.category && item.category.toLowerCase().includes(term)) ||
+                        (item.originalCategory && item.originalCategory.toLowerCase().includes(term)) ||
+                        (item.description && item.description.toLowerCase().includes(term))
+                    );
+                }
+
+                renderMenu(filtered);
+            }
+
+            function init() {
                 renderMenu(menuData);
                 updateOrderNumber();
                 setupEventListeners();
                 startClock();
                 simulateNetworkStatus();
+                syncInventoryToPOS();
             }
 
-                        function startClock() {
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'brewsync_inventory_v1' || e.key === 'brewsync_custom_products') {
+                    syncInventoryToPOS();
+                }
+            });
+            window.addEventListener('focus', () => {
+                syncInventoryToPOS();
+            });
+
+            function startClock() {
                 function updateTime() {
                     const now = new Date();
                     const options = { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
@@ -1289,7 +1445,7 @@
                 setInterval(updateTime, 1000);
             }
 
-                        function simulateNetworkStatus() {
+            function simulateNetworkStatus() {
                 setInterval(() => {
                     isOnline = Math.random() > 0.1;
                     if (isOnline) {
@@ -1309,28 +1465,20 @@
                 }, 5000);
             }
 
-                        function setupEventListeners() {
-                                categoryChips.forEach(chip => {
+            function setupEventListeners() {
+                categoryChips.forEach(chip => {
                     chip.addEventListener('click', () => {
                         categoryChips.forEach(c => c.classList.remove('active'));
                         chip.classList.add('active');
-                        const category = chip.dataset.category;
-                        const filtered = category === 'all' ? menuData : menuData.filter(item => item.category === category);
-                        renderMenu(filtered);
+                        applyMenuFilters();
                     });
                 });
 
-                                menuSearch.addEventListener('input', (e) => {
-                    const term = e.target.value.toLowerCase();
-                    const activeCategory = document.querySelector('.category-chip.active').dataset.category;
-                    let filtered = menuData.filter(item => item.name.toLowerCase().includes(term));
-                    if (activeCategory !== 'all') {
-                        filtered = filtered.filter(item => item.category === activeCategory);
-                    }
-                    renderMenu(filtered);
+                menuSearch.addEventListener('input', () => {
+                    applyMenuFilters();
                 });
 
-                                document.querySelectorAll('.payment-btn').forEach(btn => {
+                document.querySelectorAll('.payment-btn').forEach(btn => {
                     btn.addEventListener('click', () => {
                         document.querySelectorAll('.payment-btn').forEach(b => b.classList.remove('active'));
                         btn.classList.add('active');
@@ -1338,7 +1486,7 @@
                     });
                 });
 
-                                cashTendered.addEventListener('input', () => {
+                cashTendered.addEventListener('input', () => {
                     const tendered = parseFloat(cashTendered.value) || 0;
                     const total = parseFloat(totalEl.textContent.replace('₱', '').replace(/,/g, ''));
                     const change = tendered - total;
@@ -1346,7 +1494,7 @@
                     paymentAlert.style.display = 'none';
                 });
 
-                                btnComplete.addEventListener('click', () => {
+                btnComplete.addEventListener('click', () => {
                     if (order.length === 0) return;
                     document.getElementById('modalTotal').textContent = totalEl.textContent;
                     cashTendered.value = '';
@@ -1355,7 +1503,7 @@
                     paymentModal.show();
                 });
 
-                                btnConfirmPayment.addEventListener('click', () => {
+                btnConfirmPayment.addEventListener('click', async () => {
                     const tendered = parseFloat(cashTendered.value) || 0;
                     const total = parseFloat(totalEl.textContent.replace('₱', '').replace(/,/g, ''));
                     if (tendered < total) {
@@ -1365,11 +1513,40 @@
                     }
                     paymentModal.hide();
                     const change = tendered - total;
+
+                    try {
+                        const rawInv = localStorage.getItem('brewsync_inventory_v1');
+                        if (rawInv) {
+                            let invList = JSON.parse(rawInv);
+                            let updatedAny = false;
+                            for (const item of order) {
+                                const invItem = invList.find(i =>
+                                    (item.inventoryId && (i.id === item.inventoryId || 'inv-' + i.id === item.id)) ||
+                                    i.itemName.toLowerCase() === item.name.toLowerCase()
+                                );
+                                if (invItem) {
+                                    invItem.quantity = Math.max(0, (parseFloat(invItem.quantity) || 0) - (item.qty || 1));
+                                    invItem.status = invItem.quantity <= 0 ? 'Out of Stock' : (invItem.quantity <= invItem.reorderLevel ? 'Low Stock' : 'In Stock');
+                                    updatedAny = true;
+                                    fetch(`http://localhost:5000/api/inventory/${invItem.id}`, {
+                                        method: 'PUT',
+                                        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer admin-token' },
+                                        body: JSON.stringify(invItem)
+                                    }).catch(() => {});
+                                }
+                            }
+                            if (updatedAny) {
+                                localStorage.setItem('brewsync_inventory_v1', JSON.stringify(invList));
+                                syncInventoryToPOS();
+                            }
+                        }
+                    } catch (_) {}
+
                     alert('Order completed!\nChange: ₱' + change.toFixed(2));
                     clearOrder();
                 });
 
-                                btnAddToOrder.addEventListener('click', () => {
+                btnAddToOrder.addEventListener('click', () => {
                     if (!currentItem) return;
                     const toppingsPrice = selectedToppings.reduce((sum, t) => sum + t.price, 0);
                     const itemPrice = currentItem.price + selectedSize.price + toppingsPrice;
@@ -1384,6 +1561,7 @@
                     } else {
                         order.push({
                             id: currentItem.id,
+                            inventoryId: currentItem.inventoryId,
                             name: currentItem.name,
                             size: selectedSize.size,
                             sugar: selectedSugar,
@@ -1398,7 +1576,7 @@
                     renderOrder();
                 });
 
-                                document.getElementById('customizationModal').addEventListener('show.bs.modal', () => {
+                document.getElementById('customizationModal').addEventListener('show.bs.modal', () => {
                     selectedSize = { size: 'regular', price: 0 };
                     selectedSugar = '100%';
                     selectedIce = 'normal';
@@ -1407,25 +1585,29 @@
                 });
             }
 
-                        function renderMenu(items) {
+            function renderMenu(items) {
                 menuItemsEl.innerHTML = '';
-                if (items.length === 0) {
-                    menuItemsEl.innerHTML = '<div class="col-12 text-center text-muted py-5"><i class="bi bi-search-off" style="font-size: 3rem;"></i><p class="mt-2">No items found</p></div>';
+                if (!items || items.length === 0) {
+                    menuItemsEl.innerHTML = '<div class="col-12 text-center text-muted py-5"><i class="bi bi-search-off" style="font-size: 3rem;"></i><p class="mt-2">No matching items found</p></div>';
                     return;
                 }
                 items.forEach(item => {
                     const card = document.createElement('div');
                     card.className = 'menu-item-card';
+                    const tagText = item.tag === 'out-of-stock' ? 'Out of Stock' : (item.tag === 'low-stock' ? 'Low Stock' : 'In Stock');
+                    const badgeClass = item.tag === 'out-of-stock' ? 'out-of-stock' : (item.tag === 'low-stock' ? 'low-stock' : 'in-stock');
+                    const badgeStyle = item.tag === 'out-of-stock' ? 'background: #FEE2E2; color: #DC2626;' : '';
+
                     card.innerHTML = `
                         <div class="menu-item-image">
-                            <i class="bi ${item.image}"></i>
-                            <span class="availability-badge ${item.tag}">${item.tag === 'in-stock' ? 'In Stock' : 'Low Stock'}</span>
+                            <i class="bi ${item.image || 'bi-cup-hot'}"></i>
+                            <span class="availability-badge ${badgeClass}" style="${badgeStyle}">${tagText}</span>
                         </div>
                         <div class="menu-item-info">
                             <h6 class="menu-item-name">${item.name}</h6>
-                            <p class="menu-item-price"><span class="current">₱${item.price.toLocaleString()}</span></p>
+                            <p class="menu-item-price"><span class="current">₱${(item.price || 0).toLocaleString()}</span></p>
                             <div class="menu-item-tags">
-                                <span class="menu-item-tag">${item.category}</span>
+                                <span class="menu-item-tag">${item.category}${item.stockQuantity !== undefined ? ` • ${item.stockQuantity} ${item.unit || ''}` : ''}</span>
                             </div>
                         </div>
                     `;
@@ -1434,21 +1616,21 @@
                 });
             }
 
-                        function openCustomization(item) {
+            function openCustomization(item) {
                 currentItem = item;
                 modalItemName.textContent = item.name;
-                modalItemPrice.textContent = '₱' + item.price.toLocaleString();
+                modalItemPrice.textContent = '₱' + (item.price || 0).toLocaleString();
                 customizationModal.show();
             }
 
-                        function updateCustomizationUI() {
-                                document.querySelectorAll('.size-options .option-btn').forEach(btn => {
+            function updateCustomizationUI() {
+                document.querySelectorAll('.size-options .option-btn').forEach(btn => {
                     btn.classList.toggle('active', btn.dataset.size === selectedSize.size);
                 });
-                                document.querySelectorAll('.sugar-options .option-btn').forEach(btn => {
+                document.querySelectorAll('.sugar-options .option-btn').forEach(btn => {
                     btn.classList.toggle('active', btn.dataset.sugar === selectedSugar);
                 });
-                                document.querySelectorAll('.ice-options .option-btn').forEach(btn => {
+                document.querySelectorAll('.ice-options .option-btn').forEach(btn => {
                     btn.classList.toggle('active', btn.dataset.ice === selectedIce);
                 });
             }
@@ -1483,7 +1665,7 @@
                 });
             });
 
-                        function renderOrder() {
+            function renderOrder() {
                 orderItemsEl.innerHTML = '';
                 if (order.length === 0) {
                     orderItemsEl.appendChild(emptyOrderEl);
@@ -1523,13 +1705,13 @@
                 updateTotals(discountedSub, tax, total);
             }
 
-                        function updateTotals(sub, tax, total) {
+            function updateTotals(sub, tax, total) {
                 subtotalEl.textContent = '₱' + sub.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                 taxEl.textContent = '₱' + tax.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                 totalEl.textContent = '₱' + total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             }
 
-                        window.BrewSyncPOS = {
+            window.BrewSyncPOS = {
                 changeQty: (index, delta) => {
                     order[index].qty += delta;
                     if (order[index].qty <= 0) {
@@ -1561,7 +1743,7 @@
                 orderNumberEl.textContent = str;
             }
 
-                        document.getElementById('applyPromo').addEventListener('click', () => {
+            document.getElementById('applyPromo').addEventListener('click', () => {
                 const code = document.getElementById('promoCode').value.toUpperCase();
                 if (!code) {
                     discountRate = 0; appliedPromo = ''; renderOrder();
@@ -1576,8 +1758,9 @@
                 }
             });
 
-                        document.addEventListener('DOMContentLoaded', init);
+            document.addEventListener('DOMContentLoaded', init);
         })();
+
     </script>
     <script>
         if ('serviceWorker' in navigator) {
