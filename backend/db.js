@@ -9,11 +9,12 @@ export function getPool() {
   if (pool) return pool;
 
   if (process.env.DATABASE_URL) {
+    const isSslDisabled = process.env.DB_SSL === "false";
     pool = mysql.createPool({
       uri: process.env.DATABASE_URL,
       waitForConnections: true,
       connectionLimit: 10,
-      ssl: process.env.DB_SSL === "true" ? { rejectUnauthorized: false } : undefined
+      ssl: isSslDisabled ? undefined : { rejectUnauthorized: false }
     });
   } else {
     pool = mysql.createPool({
