@@ -41,6 +41,28 @@ const InventoryPage = ({ user, onLogout }) => {
 
   useEffect(() => {
     const loadData = async () => {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 2000);
+        const headers = await getAuthHeaders();
+        const response = await fetch(`${API_BASE_URL}/api/inventory`, {
+          headers,
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+        if (response.ok) {
+          const data = await response.json();
+          if (Array.isArray(data)) {
+            setInventory(data);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+            setLoading(false);
+            return;
+          }
+        }
+      } catch (_) {
+        // fallback to local cache when backend is offline
+      }
+
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         try {
@@ -53,28 +75,6 @@ const InventoryPage = ({ user, onLogout }) => {
         } catch (e) {
           console.warn("Failed to parse cached inventory:", e);
         }
-      }
-
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 1500);
-        const headers = await getAuthHeaders();
-        const response = await fetch(`${API_BASE_URL}/api/inventory`, {
-          headers,
-          signal: controller.signal
-        });
-        clearTimeout(timeoutId);
-        if (response.ok) {
-          const data = await response.json();
-          if (Array.isArray(data) && data.length > 0) {
-            setInventory(data);
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-            setLoading(false);
-            return;
-          }
-        }
-      } catch (_) {
-        // fallback to default dataset when backend is offline
       }
 
       setInventory(DEFAULT_INVENTORY);
@@ -101,8 +101,10 @@ const InventoryPage = ({ user, onLogout }) => {
     persistInventory(updated);
     showToast(`Deleted ${target?.itemName || "item"} successfully.`);
 
-    const headers = await getAuthHeaders();
-    fetch(`${API_BASE_URL}/api/inventory/${id}`, { method: "DELETE", headers }).catch(() => {});
+    try {
+      const headers = await getAuthHeaders();
+      await fetch(`${API_BASE_URL}/api/inventory/${id}`, { method: "DELETE", headers });
+    } catch (_) {}
   };
 
   const handleUpdate = async (e) => {
@@ -127,12 +129,14 @@ const InventoryPage = ({ user, onLogout }) => {
     setEditingItem(null);
     showToast(`Updated "${updatedPayload.itemName}"`);
 
-    const headers = await getAuthHeaders();
-    fetch(`${API_BASE_URL}/api/inventory/${editingItem.id}`, {
-      method: "PUT",
-      headers,
-      body: JSON.stringify(updatedPayload)
-    }).catch(() => {});
+    try {
+      const headers = await getAuthHeaders();
+      await fetch(`${API_BASE_URL}/api/inventory/${editingItem.id}`, {
+        method: "PUT",
+        headers,
+        body: JSON.stringify(updatedPayload)
+      });
+    } catch (_) {}
   };
 
   const handleCreate = async (e) => {
@@ -151,17 +155,25 @@ const InventoryPage = ({ user, onLogout }) => {
       status: qty <= reorder ? "Low Stock" : (formData.get("status") || "In Stock")
     };
 
-    const updated = [newItem, ...inventory];
-    persistInventory(updated);
     setAddingItem(false);
-    showToast(`Added "${newItem.itemName}" to inventory!`);
 
-    const headers = await getAuthHeaders();
-    fetch(`${API_BASE_URL}/api/inventory`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify(newItem)
-    }).catch(() => {});
+    try {
+      const headers = await getAuthHeaders();
+      const res = await fetch(`${API_BASE_URL}/api/inventory`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(newItem)
+      });
+      if (res.ok) {
+        const createdItem = await res.json();
+        persistInventory([createdItem, ...inventory]);
+        showToast(`Added "${createdItem.itemName}" to database!`);
+        return;
+      }
+    } catch (_) {}
+
+    persistInventory([newItem, ...inventory]);
+    showToast(`Added "${newItem.itemName}" locally (offline mode).`);
   };
 
   const categories = useMemo(() => {

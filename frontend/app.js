@@ -384,21 +384,30 @@
 
     // session and user info
     function initUserSessionDisplay() {
-        const isGuest = sessionStorage.getItem('brewsync_guest') === 'true';
         const userNames = document.querySelectorAll('.user-name');
         const userRoles = document.querySelectorAll('.user-role');
         const userAvatars = document.querySelectorAll('.user-avatar, .user-avatar-sm');
 
-        if (isGuest) {
-            userNames.forEach(el => el.textContent = 'Demo User');
-            userRoles.forEach(el => el.textContent = 'Guest Operator');
-            userAvatars.forEach(el => el.textContent = 'DU');
+        let savedUser = null;
+        try {
+            const raw = localStorage.getItem('brewsync_auth_user');
+            if (raw) savedUser = JSON.parse(raw);
+        } catch (_) {}
+
+        if (savedUser) {
+            const name = savedUser.displayName || 'User';
+            const role = (savedUser.role || 'staff').toUpperCase();
+            const initials = name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'BS';
+            userNames.forEach(el => el.textContent = name);
+            userRoles.forEach(el => el.textContent = `${role} • ${savedUser.email || ''}`);
+            userAvatars.forEach(el => el.textContent = initials);
         }
 
-        // Attach global sign-out cleanup
         document.querySelectorAll('a[href*="login.html"], .logout-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                sessionStorage.removeItem('brewsync_guest');
+                localStorage.removeItem('brewsync_auth_user');
+                sessionStorage.removeItem('brewsync_user_role');
+                sessionStorage.removeItem('brewsync_guest'); if (window._brewsyncSignOut) { window._brewsyncSignOut().catch(() => {}); }
             });
         });
     }

@@ -35,6 +35,7 @@ function App() {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
         const profile = await fetchUserProfile(currentUser);
+        localStorage.setItem("brewsync_auth_user", JSON.stringify(profile));
         setUser(profile);
       } else {
         const localSaved = localStorage.getItem("brewsync_auth_user");

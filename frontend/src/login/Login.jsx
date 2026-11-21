@@ -128,14 +128,6 @@ const Login = ({ onLogin, onEmailLogin }) => {
             </svg>
             <span>Continue with Google</span>
           </button>
-
-          <div className="bs-station-links">
-            <a href="/dashboard.html">Dashboard</a>
-            <span>•</span>
-            <a href="/pos.html">POS Terminal</a>
-            <span>•</span>
-            <a href="/orders.html">Orders</a>
-          </div>
         </div>
       </main>
     </div>
