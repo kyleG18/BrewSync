@@ -399,8 +399,7 @@
             flex-direction: column;
             position: sticky;
             top: 76px;
-            max-height: calc(100vh - 96px);
-            overflow: hidden;
+            max-height: calc(100vh - 90px);
         }
 
         .order-header {
@@ -444,11 +443,15 @@
         }
 
         .order-items {
-            flex: 1;
+            flex: 1 1 auto;
             overflow-y: auto;
             padding: 0.75rem 1.15rem;
-            min-height: 180px;
+            min-height: 80px;
+            max-height: 220px;
         }
+
+        .billing-summary { flex-shrink: 0; }
+        .payment-area { flex-shrink: 0; padding-top: 0.4rem; }
 
         .empty-order {
             text-align: center;
@@ -1145,32 +1148,129 @@
     <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="paymentModalLabel">Confirm Payment</h5>
+                <div class="modal-header border-bottom">
+                    <h5 class="modal-title fw-bold" id="paymentModalLabel"><i class="bi bi-wallet2 me-2 text-warning"></i>Checkout Payment</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <div class="text-center mb-4">
-                        <div class="display-4 fw-bold text-primary" id="modalTotal">₱0.00</div>
-                        <p class="text-muted">Amount Due</p>
+                <div class="modal-body p-4">
+                    <div class="text-center mb-3">
+                        <span class="text-muted small text-uppercase fw-semibold">Total Amount Due</span>
+                        <div class="display-5 fw-bold text-dark mt-1" id="modalTotal" style="font-family: 'JetBrains Mono', monospace; color: #B85D19 !important;">₱0.00</div>
                     </div>
-                    <div class="row g-3">
-                        <div class="col-6">
-                            <label class="form-label">Cash Tendered</label>
-                            <input type="number" class="form-control" id="cashTendered" placeholder="0.00" min="0" step="0.01">
+
+                    <!-- Payment Method Tabs in Modal -->
+                    <div class="btn-group w-100 mb-3" role="group">
+                        <button type="button" class="btn btn-outline-dark active" id="modalTabCash"><i class="bi bi-cash me-1"></i> Cash</button>
+                        <button type="button" class="btn btn-outline-dark" id="modalTabGcash"><i class="bi bi-wallet2 me-1"></i> GCash</button>
+                        <button type="button" class="btn btn-outline-dark" id="modalTabMaya"><i class="bi bi-credit-card me-1"></i> Maya</button>
+                    </div>
+
+                    <!-- Cash Section -->
+                    <div id="sectionCashPayment">
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold text-muted">Quick Cash Tendered</label>
+                            <div class="d-flex flex-wrap gap-2" id="quickCashButtons">
+                                <button type="button" class="btn btn-sm btn-outline-secondary flex-fill quick-cash-btn" data-amt="exact">Exact</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary flex-fill quick-cash-btn" data-amt="150">₱150</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary flex-fill quick-cash-btn" data-amt="200">₱200</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary flex-fill quick-cash-btn" data-amt="500">₱500</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary flex-fill quick-cash-btn" data-amt="1000">₱1,000</button>
+                            </div>
                         </div>
-                        <div class="col-6">
-                            <label class="form-label">Change</label>
-                            <input type="text" class="form-control" id="changeAmount" readonly placeholder="₱0.00">
+
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <label class="form-label small fw-semibold text-muted" for="cashTendered">Cash Received (₱)</label>
+                                <input type="number" class="form-control form-control-lg fw-bold" id="cashTendered" placeholder="0.00" min="0" step="any">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small fw-semibold text-muted" for="changeAmount">Change to Return</label>
+                                <input type="text" class="form-control form-control-lg fw-bold text-success bg-light" id="changeAmount" readonly value="₱0.00" style="font-family: 'JetBrains Mono', monospace;">
+                            </div>
                         </div>
                     </div>
-                    <div class="alert alert-info mt-3" id="paymentAlert" style="display: none;">
-                        <i class="bi bi-info-circle me-2"></i> <span id="alertMessage"></span>
+
+                    <!-- GCash Section -->
+                    <div id="sectionGcashPayment" style="display: none;">
+                        <div class="p-3 rounded text-center mb-3" style="background: rgba(0, 125, 254, 0.08); border: 1px dashed #007DFE;">
+                            <div class="d-flex align-items-center justify-content-center gap-2 mb-2">
+                                <span class="badge" style="background-color: #007DFE; font-size: 0.85rem;">GCash QR</span>
+                                <span class="fw-bold text-dark">Scan to Pay</span>
+                            </div>
+                            <div class="bg-white p-2 d-inline-block rounded shadow-sm my-2">
+                                <svg width="130" height="130" viewBox="0 0 100 100">
+                                    <rect width="100" height="100" fill="#FFFFFF"/>
+                                    <rect x="10" y="10" width="26" height="26" fill="#007DFE"/>
+                                    <rect x="15" y="15" width="16" height="16" fill="#FFFFFF"/>
+                                    <rect x="19" y="19" width="8" height="8" fill="#007DFE"/>
+                                    <rect x="64" y="10" width="26" height="26" fill="#007DFE"/>
+                                    <rect x="69" y="15" width="16" height="16" fill="#FFFFFF"/>
+                                    <rect x="73" y="19" width="8" height="8" fill="#007DFE"/>
+                                    <rect x="10" y="64" width="26" height="26" fill="#007DFE"/>
+                                    <rect x="15" y="69" width="16" height="16" fill="#FFFFFF"/>
+                                    <rect x="19" y="73" width="8" height="8" fill="#007DFE"/>
+                                    <rect x="42" y="14" width="16" height="6" fill="#007DFE"/>
+                                    <rect x="44" y="24" width="12" height="12" fill="#007DFE"/>
+                                    <rect x="42" y="42" width="16" height="16" fill="#007DFE"/>
+                                    <rect x="64" y="44" width="22" height="8" fill="#007DFE"/>
+                                    <rect x="70" y="58" width="16" height="14" fill="#007DFE"/>
+                                    <rect x="42" y="66" width="16" height="16" fill="#007DFE"/>
+                                    <rect x="64" y="76" width="22" height="10" fill="#007DFE"/>
+                                </svg>
+                            </div>
+                            <div class="small text-muted">Merchant: <strong>BrewSync Cafe (Counter 01)</strong></div>
+                            <div class="small text-muted font-monospace">0917-889-BREW</div>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label small fw-semibold text-muted">GCash Reference No.</label>
+                            <input type="text" class="form-control" id="gcashRefNumber" placeholder="e.g. 9028371284">
+                        </div>
+                    </div>
+
+                    <!-- Maya Section -->
+                    <div id="sectionMayaPayment" style="display: none;">
+                        <div class="p-3 rounded text-center mb-3" style="background: rgba(0, 214, 101, 0.08); border: 1px dashed #00D665;">
+                            <div class="d-flex align-items-center justify-content-center gap-2 mb-2">
+                                <span class="badge" style="background-color: #00D665; color: #000; font-size: 0.85rem;">Maya QR Ph</span>
+                                <span class="fw-bold text-dark">Scan to Pay</span>
+                            </div>
+                            <div class="bg-white p-2 d-inline-block rounded shadow-sm my-2">
+                                <svg width="130" height="130" viewBox="0 0 100 100">
+                                    <rect width="100" height="100" fill="#FFFFFF"/>
+                                    <rect x="10" y="10" width="26" height="26" fill="#00D665"/>
+                                    <rect x="15" y="15" width="16" height="16" fill="#FFFFFF"/>
+                                    <rect x="19" y="19" width="8" height="8" fill="#00D665"/>
+                                    <rect x="64" y="10" width="26" height="26" fill="#00D665"/>
+                                    <rect x="69" y="15" width="16" height="16" fill="#FFFFFF"/>
+                                    <rect x="73" y="19" width="8" height="8" fill="#00D665"/>
+                                    <rect x="10" y="64" width="26" height="26" fill="#00D665"/>
+                                    <rect x="15" y="69" width="16" height="16" fill="#FFFFFF"/>
+                                    <rect x="19" y="73" width="8" height="8" fill="#00D665"/>
+                                    <rect x="42" y="18" width="14" height="8" fill="#00D665"/>
+                                    <rect x="42" y="38" width="22" height="18" fill="#00D665"/>
+                                    <rect x="70" y="42" width="16" height="8" fill="#00D665"/>
+                                    <rect x="64" y="62" width="22" height="18" fill="#00D665"/>
+                                    <rect x="42" y="68" width="12" height="18" fill="#00D665"/>
+                                </svg>
+                            </div>
+                            <div class="small text-muted">Merchant: <strong>BrewSync Cafe (Maya Business)</strong></div>
+                            <div class="small text-muted font-monospace">QR Ph Compatible</div>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label small fw-semibold text-muted">Maya Reference No.</label>
+                            <input type="text" class="form-control" id="mayaRefNumber" placeholder="e.g. 5182903716">
+                        </div>
+                    </div>
+
+                    <div class="alert alert-danger mt-3 py-2" id="paymentAlert" style="display: none;">
+                        <i class="bi bi-exclamation-circle me-2"></i> <span id="alertMessage"></span>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="btnConfirmPayment">Confirm Payment</button>
+                <div class="modal-footer border-top bg-light">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary fw-bold px-4" id="btnConfirmPayment" style="background-color: #B85D19; border-color: #B85D19;">
+                        Confirm Payment & Print Receipt
+                    </button>
                 </div>
             </div>
         </div>
@@ -1259,6 +1359,7 @@
             const orderNumberEl = document.getElementById('orderNumber');
             const customizationModal = new bootstrap.Modal(document.getElementById('customizationModal'));
             const paymentModal = new bootstrap.Modal(document.getElementById('paymentModal'));
+            const receiptModal = new bootstrap.Modal(document.getElementById('receiptModal'));
             const modalItemName = document.getElementById('modalItemName');
             const modalItemPrice = document.getElementById('modalItemPrice');
             const btnAddToOrder = document.getElementById('btnAddToOrder');
@@ -1267,6 +1368,16 @@
             const changeAmount = document.getElementById('changeAmount');
             const paymentAlert = document.getElementById('paymentAlert');
             const alertMessage = document.getElementById('alertMessage');
+
+            // Modal Tabs & Sections
+            const tabCash = document.getElementById('modalTabCash');
+            const tabGcash = document.getElementById('modalTabGcash');
+            const tabMaya = document.getElementById('modalTabMaya');
+            const secCash = document.getElementById('sectionCashPayment');
+            const secGcash = document.getElementById('sectionGcashPayment');
+            const secMaya = document.getElementById('sectionMayaPayment');
+            const gcashRef = document.getElementById('gcashRefNumber');
+            const mayaRef = document.getElementById('mayaRefNumber');
 
             const statusDot = document.getElementById('statusDot');
             const statusText = document.getElementById('statusText');
@@ -1305,6 +1416,7 @@
 
             async function syncInventoryToPOS() {
                 let inventoryItems = [];
+                // 1. Read local storage cache first
                 const cached = localStorage.getItem('brewsync_inventory_v1');
                 if (cached) {
                     try {
@@ -1313,8 +1425,10 @@
                     } catch (_) {}
                 }
 
+                // 2. Fetch live data from backend API with fallback
                 try {
-                    const res = await fetch('http://localhost:5000/api/inventory');
+                    let res = await fetch('http://localhost:5000/api/inventory');
+                    if (!res.ok) res = await fetch('/api/inventory');
                     if (res.ok) {
                         const live = await res.json();
                         if (Array.isArray(live) && live.length > 0) {
@@ -1324,6 +1438,7 @@
                     }
                 } catch (_) {}
 
+                // 3. Read custom products
                 let customProducts = [];
                 const prodCached = localStorage.getItem('brewsync_custom_products');
                 if (prodCached) {
@@ -1334,7 +1449,9 @@
                 }
 
                 const combined = baseMenuData.map(item => ({ ...item }));
+                const newInventoryCards = [];
 
+                // Merge inventory items - ONLY exact name match updates base item, everything else is its own card!
                 inventoryItems.forEach((inv) => {
                     const invName = (inv.itemName || inv.name || '').trim();
                     if (!invName) return;
@@ -1343,26 +1460,23 @@
                     const reorder = parseFloat(inv.reorderLevel) || 0;
                     const tag = qty <= 0 ? 'out-of-stock' : (qty <= reorder ? 'low-stock' : 'in-stock');
 
-                    const match = combined.find(m =>
-                        m.name.toLowerCase() === invName.toLowerCase() ||
-                        (invName.toLowerCase().includes('black tea') && m.name.toLowerCase().includes('classic milk tea')) ||
-                        (invName.toLowerCase().includes('pearl') && m.name.toLowerCase().includes('pearls')) ||
-                        (invName.toLowerCase().includes('matcha') && m.name.toLowerCase().includes('matcha'))
-                    );
+                    // ONLY match if exact identical name
+                    const exactMatch = combined.find(m => m.name.trim().toLowerCase() === invName.toLowerCase());
 
-                    if (match) {
-                        match.tag = tag;
-                        match.description = `${qty} ${inv.unit || 'units'} in inventory`;
-                        match.inventoryId = inv.id;
-                        match.stockQuantity = qty;
-                        match.unit = inv.unit || 'units';
+                    if (exactMatch) {
+                        exactMatch.tag = tag;
+                        exactMatch.description = `${qty} ${inv.unit || 'units'} in inventory`;
+                        exactMatch.inventoryId = inv.id;
+                        exactMatch.stockQuantity = qty;
+                        exactMatch.unit = inv.unit || 'units';
                     } else {
-                        combined.push({
+                        // Separate new card for this inventory item
+                        newInventoryCards.push({
                             id: 'inv-' + inv.id,
                             name: invName,
                             price: determinePrice(inv),
                             category: determineCategory(inv.category, invName),
-                            originalCategory: inv.category,
+                            originalCategory: inv.category || 'Inventory',
                             image: determineIcon(inv.category, invName),
                             tag: tag,
                             description: `${qty} ${inv.unit || 'units'} available • ${inv.category}`,
@@ -1374,9 +1488,11 @@
                     }
                 });
 
+                // Merge custom products
                 customProducts.forEach(prod => {
-                    if (!combined.some(m => m.name.toLowerCase() === prod.name.toLowerCase())) {
-                        combined.push({
+                    if (!combined.some(m => m.name.toLowerCase() === prod.name.toLowerCase()) &&
+                        !newInventoryCards.some(m => m.name.toLowerCase() === prod.name.toLowerCase())) {
+                        newInventoryCards.push({
                             id: 'prod-' + (prod.id || Math.random().toString(36).slice(2)),
                             name: prod.name,
                             price: Number(prod.price) || 100,
@@ -1389,7 +1505,8 @@
                     }
                 });
 
-                menuData = combined;
+                // Prepend newly added inventory cards so they appear prominently at the top of the menu!
+                menuData = [...newInventoryCards, ...combined];
                 applyMenuFilters();
             }
 
@@ -1417,55 +1534,170 @@
                 renderMenu(filtered);
             }
 
-            function init() {
-                renderMenu(menuData);
-                updateOrderNumber();
-                setupEventListeners();
-                startClock();
-                simulateNetworkStatus();
-                syncInventoryToPOS();
+            function setModalPaymentTab(method) {
+                paymentMethod = method;
+                tabCash.classList.toggle('active', method === 'cash');
+                tabGcash.classList.toggle('active', method === 'gcash');
+                tabMaya.classList.toggle('active', method === 'maya');
+
+                secCash.style.display = method === 'cash' ? 'block' : 'none';
+                secGcash.style.display = method === 'gcash' ? 'block' : 'none';
+                secMaya.style.display = method === 'maya' ? 'block' : 'none';
+
+                paymentAlert.style.display = 'none';
+
+                // Sync the main register buttons too
+                document.querySelectorAll('.payment-btn').forEach(b => {
+                    b.classList.toggle('active', b.id.toLowerCase().includes(method));
+                });
+                updateCompleteButtonText();
             }
 
-            window.addEventListener('storage', (e) => {
-                if (e.key === 'brewsync_inventory_v1' || e.key === 'brewsync_custom_products') {
-                    syncInventoryToPOS();
+            function updateCompleteButtonText() {
+                if (!btnComplete) return;
+                const total = totalEl ? totalEl.textContent : '₱0.00';
+                if (order.length === 0) {
+                    btnComplete.disabled = true;
+                    btnComplete.innerHTML = '<i class="bi bi-cart me-2"></i> Add Items to Order';
+                    return;
                 }
-            });
-            window.addEventListener('focus', () => {
-                syncInventoryToPOS();
-            });
-
-            function startClock() {
-                function updateTime() {
-                    const now = new Date();
-                    const options = { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-                    document.getElementById('currentTime').textContent = now.toLocaleDateString('en-PH', options);
+                btnComplete.disabled = false;
+                if (paymentMethod === 'gcash') {
+                    btnComplete.innerHTML = `<i class="bi bi-wallet2 me-2"></i> Pay ${total} with GCash`;
+                } else if (paymentMethod === 'maya') {
+                    btnComplete.innerHTML = `<i class="bi bi-credit-card me-2"></i> Pay ${total} with Maya`;
+                } else {
+                    btnComplete.innerHTML = `<i class="bi bi-cash-stack me-2"></i> Pay ${total} with Cash`;
                 }
-                updateTime();
-                setInterval(updateTime, 1000);
             }
 
-            function simulateNetworkStatus() {
-                setInterval(() => {
-                    isOnline = Math.random() > 0.1;
-                    if (isOnline) {
-                        statusDot.className = 'status-indicator';
-                        statusText.textContent = 'Online • Local Sync Ready';
-                        offlineIndicator.className = 'offline-indicator online';
-                        offlineIndicator.querySelector('span').textContent = 'Online - Local Sync Ready';
-                    } else {
-                        statusDot.className = 'status-indicator';
-                        statusDot.style.background = '#EF4444';
-                        statusDot.style.boxShadow = '0 0 8px #EF4444';
-                        statusText.textContent = 'Offline • Local Queue Active';
-                        offlineIndicator.className = 'offline-indicator';
-                        offlineIndicator.querySelector('i').className = 'bi bi-wifi-off';
-                        offlineIndicator.querySelector('span').textContent = 'Offline - Orders Queued Locally';
-                    }
-                }, 5000);
+            function openPaymentCheckout(method) {
+                if (order.length === 0) {
+                    alert('Please add at least one item to the order ticket.');
+                    return;
+                }
+                const total = parseFloat(totalEl.textContent.replace('₱', '').replace(/,/g, '')) || 0;
+                document.getElementById('modalTotal').textContent = totalEl.textContent;
+                setModalPaymentTab(method || paymentMethod);
+
+                // Setup quick cash buttons
+                cashTendered.value = '';
+                changeAmount.value = '₱0.00';
+                if (gcashRef) gcashRef.value = '';
+                if (mayaRef) mayaRef.value = '';
+
+                const qContainer = document.getElementById('quickCashButtons');
+                if (qContainer) {
+                    const rounded10 = Math.ceil(total / 10) * 10;
+                    const next50 = Math.ceil(total / 50) * 50;
+                    const next100 = Math.ceil(total / 100) * 100;
+                    qContainer.innerHTML = `
+                        <button type="button" class="btn btn-sm btn-outline-secondary flex-fill quick-cash-btn" data-amt="${total}">Exact (${totalEl.textContent})</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary flex-fill quick-cash-btn" data-amt="${Math.max(rounded10, total + 10)}">₱${Math.max(rounded10, total + 10)}</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary flex-fill quick-cash-btn" data-amt="${Math.max(next50, total + 20)}">₱${Math.max(next50, total + 20)}</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary flex-fill quick-cash-btn" data-amt="${Math.max(next100, 200)}">₱${Math.max(next100, 200)}</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary flex-fill quick-cash-btn" data-amt="500">₱500</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary flex-fill quick-cash-btn" data-amt="1000">₱1,000</button>
+                    `;
+                    qContainer.querySelectorAll('.quick-cash-btn').forEach(b => {
+                        b.addEventListener('click', () => {
+                            cashTendered.value = parseFloat(b.dataset.amt).toFixed(2);
+                            computeChange();
+                        });
+                    });
+                }
+
+                paymentModal.show();
+                if (paymentMethod === 'cash') {
+                    setTimeout(() => cashTendered.focus(), 400);
+                }
+            }
+
+            function computeChange() {
+                const total = parseFloat(totalEl.textContent.replace('₱', '').replace(/,/g, '')) || 0;
+                const tendered = parseFloat(cashTendered.value) || 0;
+                const change = tendered - total;
+                if (change >= 0) {
+                    changeAmount.value = '₱' + change.toFixed(2);
+                    changeAmount.classList.remove('text-danger');
+                    changeAmount.classList.add('text-success');
+                    paymentAlert.style.display = 'none';
+                } else {
+                    changeAmount.value = 'Insufficient';
+                    changeAmount.classList.remove('text-success');
+                    changeAmount.classList.add('text-danger');
+                }
+            }
+
+            function renderReceipt(orderData) {
+                const receiptBody = document.getElementById('receiptBody');
+                if (!receiptBody) return;
+
+                const itemsHtml = orderData.items.map(item => `
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                        <div>
+                            <div>${item.qty}x ${item.name} (${item.size || 'regular'})</div>
+                            <div style="font-size: 0.72rem; color: #666;">${[item.sugar, item.ice, item.toppings?.map(t => '+' + t.name).join(', ')].filter(Boolean).join(' • ')}</div>
+                        </div>
+                        <div style="font-weight: bold;">₱${(item.price * item.qty).toFixed(2)}</div>
+                    </div>
+                `).join('');
+
+                receiptBody.innerHTML = `
+                    <div style="text-align: center; border-bottom: 1px dashed #999; padding-bottom: 8px; margin-bottom: 8px;">
+                        <div style="font-weight: bold; font-size: 1.15rem; letter-spacing: 0.05em;">BREWSYNC SPECIALTY TEA</div>
+                        <div style="font-size: 0.75rem; color: #555;">Main Station Counter 01 • Manila, PH</div>
+                        <div style="font-size: 0.75rem; color: #555;">Order #${orderData.orderNumber}</div>
+                        <div style="font-size: 0.72rem; color: #777;">${orderData.timestamp}</div>
+                    </div>
+                    <div style="margin-bottom: 8px; font-size: 0.8rem;">
+                        <div>Customer: <strong>${orderData.customer || 'Walk-in Guest'}</strong></div>
+                        <div>Cashier: <strong>${orderData.cashier || 'Counter Staff'}</strong></div>
+                    </div>
+                    <div style="border-bottom: 1px dashed #999; padding-bottom: 8px; margin-bottom: 8px; font-size: 0.82rem;">
+                        ${itemsHtml}
+                    </div>
+                    <div style="font-size: 0.82rem; margin-bottom: 8px;">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Subtotal</span><span>₱${orderData.subtotal.toFixed(2)}</span>
+                        </div>
+                        ${orderData.discount > 0 ? `
+                        <div style="display: flex; justify-content: space-between; color: #B85D19;">
+                            <span>Discount (${orderData.appliedPromo || 'Promo'})</span><span>-₱${orderData.discount.toFixed(2)}</span>
+                        </div>` : ''}
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>VAT (12%)</span><span>₱${orderData.tax.toFixed(2)}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 1rem; border-top: 1px solid #333; margin-top: 4px; padding-top: 4px;">
+                            <span>TOTAL PAID</span><span>₱${orderData.total.toFixed(2)}</span>
+                        </div>
+                    </div>
+                    <div style="background: #f8f8f8; padding: 6px 8px; border-radius: 4px; font-size: 0.78rem; margin-bottom: 8px;">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Payment Method</span><span class="badge bg-dark text-uppercase">${orderData.paymentMethod}</span>
+                        </div>
+                        ${orderData.paymentMethod === 'cash' ? `
+                        <div style="display: flex; justify-content: space-between; margin-top: 2px;">
+                            <span>Cash Tendered</span><span>₱${orderData.tendered.toFixed(2)}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-weight: bold; color: #198754;">
+                            <span>Change</span><span>₱${orderData.change.toFixed(2)}</span>
+                        </div>` : `
+                        <div style="display: flex; justify-content: space-between; margin-top: 2px;">
+                            <span>Reference No.</span><span style="font-family: monospace;">${orderData.refNumber}</span>
+                        </div>`}
+                    </div>
+                    <div style="text-align: center; font-size: 0.72rem; color: #777; border-top: 1px dashed #999; padding-top: 8px;">
+                        <div>Thank you for brewing with us!</div>
+                        <div>Have a delightful day! ☕</div>
+                    </div>
+                `;
+
+                receiptModal.show();
             }
 
             function setupEventListeners() {
+                // Category filter chips
                 categoryChips.forEach(chip => {
                     chip.addEventListener('click', () => {
                         categoryChips.forEach(c => c.classList.remove('active'));
@@ -1474,46 +1706,84 @@
                     });
                 });
 
+                // Search input
                 menuSearch.addEventListener('input', () => {
                     applyMenuFilters();
                 });
 
+                // Register Payment Method buttons - clicking sets method and opens modal if items exist
                 document.querySelectorAll('.payment-btn').forEach(btn => {
                     btn.addEventListener('click', () => {
-                        document.querySelectorAll('.payment-btn').forEach(b => b.classList.remove('active'));
-                        btn.classList.add('active');
-                        paymentMethod = btn.id.replace('pay', '').toLowerCase();
+                        const method = btn.id.replace('pay', '').toLowerCase();
+                        setModalPaymentTab(method);
+                        if (order.length > 0) {
+                            openPaymentCheckout(method);
+                        }
                     });
                 });
 
-                cashTendered.addEventListener('input', () => {
-                    const tendered = parseFloat(cashTendered.value) || 0;
-                    const total = parseFloat(totalEl.textContent.replace('₱', '').replace(/,/g, ''));
-                    const change = tendered - total;
-                    changeAmount.value = change >= 0 ? '₱' + change.toFixed(2) : '₱0.00';
-                    paymentAlert.style.display = 'none';
-                });
+                // Modal Payment Tab buttons
+                tabCash.addEventListener('click', () => setModalPaymentTab('cash'));
+                tabGcash.addEventListener('click', () => setModalPaymentTab('gcash'));
+                tabMaya.addEventListener('click', () => setModalPaymentTab('maya'));
 
+                // Cash Tender input change event
+                cashTendered.addEventListener('input', computeChange);
+
+                // Complete Order Button
                 btnComplete.addEventListener('click', () => {
-                    if (order.length === 0) return;
-                    document.getElementById('modalTotal').textContent = totalEl.textContent;
-                    cashTendered.value = '';
-                    changeAmount.value = '₱0.00';
-                    paymentAlert.style.display = 'none';
-                    paymentModal.show();
+                    openPaymentCheckout(paymentMethod);
                 });
 
+                // Confirm Payment Button
                 btnConfirmPayment.addEventListener('click', async () => {
-                    const tendered = parseFloat(cashTendered.value) || 0;
-                    const total = parseFloat(totalEl.textContent.replace('₱', '').replace(/,/g, ''));
-                    if (tendered < total) {
-                        paymentAlert.style.display = 'block';
-                        alertMessage.textContent = 'Insufficient cash tendered.';
-                        return;
-                    }
-                    paymentModal.hide();
-                    const change = tendered - total;
+                    const total = parseFloat(totalEl.textContent.replace('₱', '').replace(/,/g, '')) || 0;
+                    let tendered = total;
+                    let change = 0;
+                    let refNo = '';
 
+                    if (paymentMethod === 'cash') {
+                        tendered = parseFloat(cashTendered.value) || 0;
+                        if (tendered < total) {
+                            paymentAlert.style.display = 'block';
+                            alertMessage.textContent = `Please enter at least ₱${total.toFixed(2)} for cash payment.`;
+                            cashTendered.focus();
+                            return;
+                        }
+                        change = tendered - total;
+                    } else if (paymentMethod === 'gcash') {
+                        refNo = (gcashRef?.value || '').trim() || ('GC-' + Math.floor(10000000 + Math.random() * 90000000));
+                    } else if (paymentMethod === 'maya') {
+                        refNo = (mayaRef?.value || '').trim() || ('MY-' + Math.floor(10000000 + Math.random() * 90000000));
+                    }
+
+                    paymentModal.hide();
+
+                    const currentCustomer = document.querySelector('.order-customer-input')?.value.trim() || 'Walk-in Guest';
+                    const activeUser = JSON.parse(localStorage.getItem('brewsync_auth_user') || '{}');
+                    const cashierName = activeUser.displayName || 'Counter Staff';
+
+                    const completedOrder = {
+                        orderNumber: orderNumberEl.textContent,
+                        customer: currentCustomer,
+                        cashier: cashierName,
+                        items: [...order],
+                        itemsCount: order.reduce((s, i) => s + i.qty, 0),
+                        itemsList: order.map(i => `${i.qty}x ${i.name}`).join(', '),
+                        subtotal: order.reduce((s, i) => s + (i.price * i.qty), 0) * (1 - discountRate),
+                        discount: order.reduce((s, i) => s + (i.price * i.qty), 0) * discountRate,
+                        appliedPromo: appliedPromo,
+                        tax: total * 0.12 / 1.12,
+                        total: total,
+                        paymentMethod: paymentMethod,
+                        tendered: tendered,
+                        change: change,
+                        refNumber: refNo,
+                        timestamp: new Date().toLocaleString('en-PH', { dateStyle: 'medium', timeStyle: 'short' }),
+                        status: 'Completed'
+                    };
+
+                    // 1. Deduct stock from inventory
                     try {
                         const rawInv = localStorage.getItem('brewsync_inventory_v1');
                         if (rawInv) {
@@ -1542,10 +1812,21 @@
                         }
                     } catch (_) {}
 
-                    alert('Order completed!\nChange: ₱' + change.toFixed(2));
+                    // 2. Persist order to orders history
+                    try {
+                        const existingOrders = JSON.parse(localStorage.getItem('brewsync_orders') || '[]');
+                        existingOrders.unshift(completedOrder);
+                        localStorage.setItem('brewsync_orders', JSON.stringify(existingOrders));
+                    } catch (_) {}
+
+                    // 3. Render and show official receipt modal
+                    renderReceipt(completedOrder);
+
+                    // 4. Clear register cart for next customer
                     clearOrder();
                 });
 
+                // Add to order from customization modal
                 btnAddToOrder.addEventListener('click', () => {
                     if (!currentItem) return;
                     const toppingsPrice = selectedToppings.reduce((sum, t) => sum + t.price, 0);
@@ -1582,6 +1863,12 @@
                     selectedIce = 'normal';
                     selectedToppings = [];
                     updateCustomizationUI();
+                });
+
+                // New Order button on Receipt Modal
+                document.getElementById('btnReceiptNewOrder')?.addEventListener('click', () => {
+                    clearOrder();
+                    receiptModal.hide();
                 });
             }
 
@@ -1669,11 +1956,10 @@
                 orderItemsEl.innerHTML = '';
                 if (order.length === 0) {
                     orderItemsEl.appendChild(emptyOrderEl);
-                    btnComplete.disabled = true;
                     updateTotals(0, 0, 0);
+                    updateCompleteButtonText();
                     return;
                 }
-                btnComplete.disabled = false;
                 order.forEach((item, index) => {
                     const toppingsStr = item.toppings.map(t => '+' + t.name).join(', ');
                     const customStr = [item.sugar, item.ice, toppingsStr].filter(Boolean).join(', ');
@@ -1703,6 +1989,7 @@
                 const tax = discountedSub * 0.12;
                 const total = discountedSub + tax;
                 updateTotals(discountedSub, tax, total);
+                updateCompleteButtonText();
             }
 
             function updateTotals(sub, tax, total) {
@@ -1735,6 +2022,7 @@
                 if (cIn) cIn.value = '';
                 renderOrder();
                 updateOrderNumber();
+                updateCompleteButtonText();
             }
 
             function updateOrderNumber() {
@@ -1756,6 +2044,56 @@
                 } else {
                     alert('Invalid promo code. Try BREW10, SENIOR20, or PWD20.');
                 }
+            });
+
+            function startClock() {
+                function updateTime() {
+                    const now = new Date();
+                    const options = { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+                    document.getElementById('currentTime').textContent = now.toLocaleDateString('en-PH', options);
+                }
+                updateTime();
+                setInterval(updateTime, 1000);
+            }
+
+            function simulateNetworkStatus() {
+                setInterval(() => {
+                    isOnline = Math.random() > 0.1;
+                    if (isOnline) {
+                        statusDot.className = 'status-indicator';
+                        statusText.textContent = 'Online • Local Sync Ready';
+                        offlineIndicator.className = 'offline-indicator online';
+                        offlineIndicator.querySelector('span').textContent = 'Online - Local Sync Ready';
+                    } else {
+                        statusDot.className = 'status-indicator';
+                        statusDot.style.background = '#EF4444';
+                        statusDot.style.boxShadow = '0 0 8px #EF4444';
+                        statusText.textContent = 'Offline • Local Queue Active';
+                        offlineIndicator.className = 'offline-indicator';
+                        offlineIndicator.querySelector('i').className = 'bi bi-wifi-off';
+                        offlineIndicator.querySelector('span').textContent = 'Offline - Orders Queued Locally';
+                    }
+                }, 5000);
+            }
+
+            function init() {
+                renderMenu(menuData);
+                updateOrderNumber();
+                setupEventListeners();
+                startClock();
+                simulateNetworkStatus();
+                updateCompleteButtonText();
+                syncInventoryToPOS();
+            }
+
+            // Sync on cross-tab storage change or window focus
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'brewsync_inventory_v1' || e.key === 'brewsync_custom_products') {
+                    syncInventoryToPOS();
+                }
+            });
+            window.addEventListener('focus', () => {
+                syncInventoryToPOS();
             });
 
             document.addEventListener('DOMContentLoaded', init);
