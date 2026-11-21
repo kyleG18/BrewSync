@@ -802,39 +802,178 @@
         .receipt-row.bold { font-weight: 700; font-size: 0.9rem; margin-top: 4px; border-top: 1px solid #181512; padding-top: 4px; }
         .receipt-footer { text-align: center; border-top: 1px dashed #BDB5AA; margin-top: 0.75rem; padding-top: 0.5rem; font-size: 0.72rem; color: #5C544D; }
 
-        /* Responsive */
+        /* Mobile Segmented Navigation */
+        .mobile-pos-nav {
+            display: flex;
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 4px;
+            gap: 4px;
+            box-shadow: var(--shadow-xs);
+        }
+
+        .mobile-pos-nav-btn {
+            flex: 1;
+            padding: 0.6rem 0.75rem;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 0.88rem;
+            font-weight: 600;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mobile-pos-nav-btn.active {
+            background-color: var(--text-primary);
+            color: #FFFFFF;
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* Responsive Breakpoints */
         @media (max-width: 1100px) {
             .pos-grid {
-                grid-template-columns: 1fr 350px;
+                grid-template-columns: 1fr 360px;
             }
         }
 
         @media (max-width: 991.98px) {
+            .pos-main {
+                padding: 0.75rem 0.65rem 5rem 0.65rem;
+            }
             .pos-grid {
                 grid-template-columns: 1fr;
+            }
+            .pos-grid.mobile-view-menu .menu-catalog {
+                display: block !important;
+            }
+            .pos-grid.mobile-view-menu .order-panel {
+                display: none !important;
+            }
+            .pos-grid.mobile-view-ticket .menu-catalog {
+                display: none !important;
+            }
+            .pos-grid.mobile-view-ticket .order-panel {
+                display: flex !important;
+                position: static;
+                max-height: none;
+                width: 100%;
             }
             .order-panel {
                 position: static;
                 max-height: none;
             }
-            .system-status { display: none; }
-            .mobile-cart-bar { display: flex !important; }
-            body { padding-bottom: 68px; }
+            .order-items {
+                max-height: 280px;
+            }
+            .topbar {
+                padding: 0.5rem 0.75rem;
+            }
+            .topbar-actions .btn span {
+                display: none !important;
+            }
+            .topbar-actions .btn {
+                padding: 0.35rem 0.55rem;
+            }
+            .mobile-cart-bar {
+                display: none;
+            }
         }
 
         @media (max-width: 575.98px) {
-            .pos-main { padding: 0.75rem; }
-            .menu-catalog { padding: 0.85rem; }
-            .action-buttons .btn-system span { display: none; }
-            .action-buttons .btn-system { padding: 0.45rem 0.6rem; }
+            .pos-main {
+                padding: 0.45rem 0.45rem 5.5rem 0.45rem;
+            }
+            .menu-catalog {
+                padding: 0.65rem;
+                border-radius: var(--radius-md);
+            }
+            .catalog-header {
+                gap: 0.6rem;
+                margin-bottom: 0.75rem;
+            }
+            .catalog-search input {
+                height: 40px;
+                font-size: 0.85rem;
+            }
+            .category-filters {
+                gap: 0.35rem;
+                padding-bottom: 0.35rem;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            .category-chip {
+                padding: 0.35rem 0.65rem;
+                font-size: 0.75rem;
+                flex-shrink: 0;
+            }
             .menu-items {
                 grid-template-columns: repeat(2, 1fr);
-                gap: 0.65rem;
+                gap: 0.5rem;
             }
-            .menu-item-card { padding: 0.7rem; }
-            .menu-item-image { height: 70px; font-size: 1.5rem; }
-            .payment-methods { grid-template-columns: repeat(2, 1fr); }
-            .toppings-grid { grid-template-columns: 1fr; }
+            .menu-item-card {
+                padding: 0.55rem;
+                gap: 0.35rem;
+                border-radius: var(--radius-sm);
+            }
+            .menu-item-image {
+                height: 85px;
+            }
+            .menu-item-name {
+                font-size: 0.82rem;
+                line-height: 1.25;
+            }
+            .menu-item-price {
+                font-size: 0.85rem;
+            }
+            .menu-item-tag {
+                font-size: 0.68rem;
+            }
+            .order-panel {
+                border-radius: var(--radius-md);
+            }
+            .order-items {
+                max-height: 220px;
+                padding: 0.5rem 0.75rem;
+            }
+            .payment-methods {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 0.35rem;
+            }
+            .payment-btn {
+                min-height: 48px;
+                padding: 0.45rem 0.2rem;
+                font-size: 0.72rem;
+            }
+            .btn-complete-order {
+                height: 48px;
+                font-size: 0.9rem;
+            }
+            .modal-dialog {
+                margin: 0.5rem;
+            }
+            .size-options .option-btn,
+            .sugar-options .option-btn,
+            .ice-options .option-btn {
+                padding: 0.45rem 0.65rem;
+                font-size: 0.78rem;
+            }
+            .mobile-cart-bar {
+                padding: 0.65rem 0.85rem;
+            }
+            .mobile-cart-bar-left {
+                font-size: 0.85rem;
+                gap: 0.45rem;
+            }
+            .mobile-cart-bar-right {
+                font-size: 0.82rem;
+                padding: 0.45rem 0.8rem;
+            }
         }
 
         @media print {
@@ -961,7 +1100,18 @@
             </header>
 
     <div class="pos-main">
-        <div class="pos-grid">
+        <!-- Mobile Segmented Navigation Tab (phones & tablets) -->
+        <div class="mobile-pos-nav d-lg-none mb-3" id="mobilePosNav">
+            <button type="button" class="mobile-pos-nav-btn active" id="btnShowMobileMenu">
+                <i class="bi bi-grid-fill me-1 text-warning"></i> Drinks Menu
+            </button>
+            <button type="button" class="mobile-pos-nav-btn position-relative" id="btnShowMobileTicket">
+                <i class="bi bi-receipt me-1 text-warning"></i> Order Ticket
+                <span class="badge bg-warning text-dark ms-1" id="mobileTicketBadge" style="display: none;">0</span>
+            </button>
+        </div>
+
+        <div class="pos-grid mobile-view-menu">
             
             <div class="menu-catalog">
                 <div class="catalog-header">
@@ -986,6 +1136,13 @@
             
             <div class="order-panel">
                 <div class="order-header">
+                    <!-- Mobile Back to Menu button -->
+                    <div class="d-flex justify-content-between align-items-center mb-2 d-lg-none">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="btnMobileBackToMenu">
+                            <i class="bi bi-arrow-left me-1"></i> Back to Drinks Menu
+                        </button>
+                        <span class="badge bg-primary text-white" id="mobileTicketHeaderBadge">0 items</span>
+                    </div>
                     <div class="order-ticket">
                         <div class="order-number">Order #<span id="orderNumber">20241104-001</span></div>
                         <div class="order-customer">
@@ -1315,15 +1472,17 @@
         </div>
     </div>
 
-        <div class="mobile-cart-bar" id="mobileCartBar" onclick="document.querySelector('.order-panel').scrollIntoView({behavior: 'smooth'})">
+        <div class="mobile-cart-bar" id="mobileCartBar">
         <div class="mobile-cart-bar-left">
-            <i class="bi bi-cart-fill text-warning"></i>
-            <span id="mobileCartCount">0 items</span>
-            <span>â€¢</span>
-            <strong id="mobileCartTotal">â‚±0.00</strong>
+            <i class="bi bi-cart-fill text-warning fs-5"></i>
+            <div>
+                <span id="mobileCartCount" class="fw-bold">0 items</span>
+                <span class="mx-1">•</span>
+                <span id="mobileCartTotal" class="fw-bold text-warning">₱0.00</span>
+            </div>
         </div>
         <div class="mobile-cart-bar-right">
-            <span>Checkout</span> <i class="bi bi-arrow-right"></i>
+            <span>Review & Pay</span> <i class="bi bi-arrow-right ms-1"></i>
         </div>
     </div>
 
@@ -1619,6 +1778,7 @@
                     b.classList.toggle('active', b.id.toLowerCase().includes(method));
                 });
                 updateCompleteButtonText();
+                updateMobileCartBar();
             }
 
             function updateCompleteButtonText() {
@@ -2061,6 +2221,80 @@
                 });
             });
 
+            
+            // Mobile POS View Switching Logic
+            let activeMobileTab = 'menu';
+
+            function switchToMobileTab(tab) {
+                activeMobileTab = tab;
+                const posGrid = document.querySelector('.pos-grid');
+                const tabMenuBtn = document.getElementById('btnShowMobileMenu');
+                const tabTicketBtn = document.getElementById('btnShowMobileTicket');
+                const mobileBarEl = document.getElementById('mobileCartBar');
+
+                if (tab === 'ticket') {
+                    if (posGrid) {
+                        posGrid.classList.remove('mobile-view-menu');
+                        posGrid.classList.add('mobile-view-ticket');
+                    }
+                    tabMenuBtn?.classList.remove('active');
+                    tabTicketBtn?.classList.add('active');
+                    if (mobileBarEl) mobileBarEl.style.display = 'none';
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                    if (posGrid) {
+                        posGrid.classList.remove('mobile-view-ticket');
+                        posGrid.classList.add('mobile-view-menu');
+                    }
+                    tabMenuBtn?.classList.add('active');
+                    tabTicketBtn?.classList.remove('active');
+                    updateMobileCartBar();
+                }
+            }
+
+            function updateMobileCartBar() {
+                const totalCount = order.reduce((sum, i) => sum + i.qty, 0);
+                const mobileCountEl = document.getElementById('mobileCartCount');
+                const mobileTotalEl = document.getElementById('mobileCartTotal');
+                const mobileBadgeEl = document.getElementById('mobileTicketBadge');
+                const mobileHeaderBadgeEl = document.getElementById('mobileTicketHeaderBadge');
+                const mobileBarEl = document.getElementById('mobileCartBar');
+
+                const totalStr = totalEl ? totalEl.textContent : '₱0.00';
+
+                if (mobileCountEl) mobileCountEl.textContent = `${totalCount} item${totalCount === 1 ? '' : 's'}`;
+                if (mobileTotalEl) mobileTotalEl.textContent = totalStr;
+                if (mobileHeaderBadgeEl) mobileHeaderBadgeEl.textContent = `${totalCount} item${totalCount === 1 ? '' : 's'}`;
+                if (mobileBadgeEl) {
+                    mobileBadgeEl.textContent = totalCount;
+                    mobileBadgeEl.style.display = totalCount > 0 ? 'inline-block' : 'none';
+                }
+                if (mobileBarEl) {
+                    mobileBarEl.style.display = (totalCount > 0 && window.innerWidth < 992 && activeMobileTab === 'menu') ? 'flex' : 'none';
+                }
+            }
+
+            function initMobilePosNavigation() {
+                document.getElementById('btnShowMobileMenu')?.addEventListener('click', () => switchToMobileTab('menu'));
+                document.getElementById('btnShowMobileTicket')?.addEventListener('click', () => switchToMobileTab('ticket'));
+                document.getElementById('btnMobileBackToMenu')?.addEventListener('click', () => switchToMobileTab('menu'));
+                document.getElementById('mobileCartBar')?.addEventListener('click', () => switchToMobileTab('ticket'));
+
+                window.addEventListener('resize', () => {
+                    const posGrid = document.querySelector('.pos-grid');
+                    if (window.innerWidth >= 992) {
+                        if (posGrid) {
+                            posGrid.classList.remove('mobile-view-menu');
+                            posGrid.classList.remove('mobile-view-ticket');
+                        }
+                        const mobileBarEl = document.getElementById('mobileCartBar');
+                        if (mobileBarEl) mobileBarEl.style.display = 'none';
+                    } else {
+                        switchToMobileTab(activeMobileTab);
+                    }
+                });
+            }
+
             function renderOrder() {
                 orderItemsEl.innerHTML = '';
                 if (order.length === 0) {
@@ -2132,6 +2366,8 @@
                 renderOrder();
                 updateOrderNumber();
                 updateCompleteButtonText();
+                updateMobileCartBar();
+                switchToMobileTab("menu");
             }
 
             function updateOrderNumber() {
@@ -2193,6 +2429,7 @@
                 simulateNetworkStatus();
                 updateCompleteButtonText();
                 syncInventoryToPOS();
+                initMobilePosNavigation();
             }
 
             // Sync on cross-tab storage change or window focus
